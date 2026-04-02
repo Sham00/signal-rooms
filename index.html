@@ -691,6 +691,207 @@
     /* Timeframe pills: compact row */
     #timeframe-pills { gap: 6px; }
     #timeframe-pills .pill { padding: 8px 12px; min-height: 40px; }
+
+    /* LBMA: convert grid to stat rows */
+    #sec-lbma .grid {
+      display: block !important;
+    }
+    #sec-lbma .bg-\[\\#0a0a0a\] {
+      background: none !important;
+      border: none !important;
+      border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+      border-radius: 0 !important;
+      padding: 12px 0 !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+    }
+    #sec-lbma .bg-\[\\#0a0a0a\] > div:first-child {
+      font-size: 13px !important;
+      color: #888 !important;
+    }
+    #sec-lbma .bg-\[\\#0a0a0a\] > div:last-child {
+      text-align: right !important;
+      font-size: 15px !important;
+      font-weight: 600 !important;
+    }
+
+    /* CB top stats: convert to stat rows */
+    #sec-cb .grid.grid-cols-1.lg\\:grid-cols-3 > div {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      padding: 12px 0 !important;
+      border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+      background: none !important;
+      border-radius: 0 !important;
+    }
+    #sec-cb .grid.grid-cols-1.lg\\:grid-cols-3 > div .text-xs {
+      font-size: 13px !important;
+      color: #888 !important;
+      margin-bottom: 0 !important;
+    }
+    #sec-cb .grid.grid-cols-1.lg\\:grid-cols-3 > div [class*="text-4xl"],
+    #sec-cb .grid.grid-cols-1.lg\\:grid-cols-3 > div [class*="text-3xl"],
+    #sec-cb .grid.grid-cols-1.lg\\:grid-cols-3 > div [class*="text-2xl"] {
+      font-size: 16px !important;
+    }
+
+    /* COT top stats: row layout */
+    #sec-cot .grid.grid-cols-1.lg\\:grid-cols-4 {
+      display: block !important;
+    }
+    #sec-cot .grid.grid-cols-1.lg\\:grid-cols-4 > div {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      padding: 11px 0 !important;
+      border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+    }
+    #sec-cot .grid.grid-cols-1.lg\\:grid-cols-4 > div .text-xs {
+      font-size: 13px !important;
+      color: #888 !important;
+      margin-bottom: 0 !important;
+    }
+    #sec-cot .grid.grid-cols-1.lg\\:grid-cols-4 > div [class*="text-3xl"],
+    #sec-cot .grid.grid-cols-1.lg\\:grid-cols-4 > div [class*="text-xl"] {
+      font-size: 15px !important;
+      font-weight: 700 !important;
+    }
+
+    /* Card internal padding: remove sub-card padding on mobile */
+    .bg-\[\\#0a0a0a\].rounded-lg {
+      padding: 10px 0 !important;
+      background: transparent !important;
+      border-radius: 0 !important;
+      border-left: none !important;
+      border-right: none !important;
+      border-top: none !important;
+      border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+    }
+
+    /* Composite signal factor rows */
+    .signal-factor-row {
+      padding: 6px 0 !important;
+      border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+    }
+    .signal-factor-val {
+      min-width: 140px !important;
+      font-size: 11px !important;
+    }
+    .signal-factor-label {
+      font-size: 11px !important;
+    }
+
+    /* Technical indicators: row layout */
+    #sec-price .grid.grid-cols-1.sm\\:grid-cols-3 {
+      display: block !important;
+    }
+    #sec-price .grid.grid-cols-1.sm\\:grid-cols-3 > div {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      padding: 11px 0 !important;
+      border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+      background: none !important;
+      border-radius: 0 !important;
+    }
+
+    /* Macro cards internal */
+    #macro-cards .thermo-track { height: 50px !important; width: 10px !important; }
+    #macro-cards .text-xl { font-size: 15px !important; }
+
+    /* Miners spacing */
+    #sec-miners .flex.gap-4 { gap: 8px !important; }
+    #sec-miners .flex.gap-6 { gap: 8px !important; }
+
+    /* Gauge compact on mobile */
+    .signal-gauge-arc {
+      width: 65% !important;
+      max-width: 200px !important;
+      margin: 0 auto !important;
+    }
+    .signal-gauge-arc svg {
+      transform: scale(0.85);
+      transform-origin: top center;
+    }
+    .signal-needle { height: 60px !important; }
+    .signal-label { font-size: 1.1rem !important; }
+
+    /* Header compact — bitbo-style tight hero price */
+    .header .flex.items-baseline {
+      flex-direction: row; gap: 8px !important; align-items: baseline !important;
+      flex-wrap: wrap !important;
+    }
+    .header .big-num { font-size: 34px !important; line-height: 1.1 !important; }
+    .header > div {
+      padding: 8px 16px !important;
+      gap: 4px !important;
+    }
+
+    /* Error banner: thin chip instead of full-width block */
+    #global-error-banner {
+      padding: 5px 12px !important;
+      font-size: 10px !important;
+    }
+
+    /* Tighten ALL card internal padding on mobile */
+    .card { padding: 12px !important; }
+    .dashboard-grid { gap: 10px !important; padding: 10px !important; padding-bottom: calc(96px + env(safe-area-inset-bottom)) !important; }
+
+    /* Gauge: even more compact */
+    .signal-gauge-arc {
+      width: 55% !important;
+      max-width: 180px !important;
+    }
+    .signal-needle { height: 50px !important; }
+    .signal-label { font-size: 0.95rem !important; margin-top: 4px !important; }
+
+    /* Section titles: tighter */
+    .section-title { margin-bottom: 8px !important; font-size: 11px !important; }
+
+    /* Inner sub-cards (bg-#0a0a0a): strip all chrome, use stat-row style */
+    .card .bg-\\[\\#0a0a0a\\] {
+      background: transparent !important;
+      border: none !important;
+      border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+      border-radius: 0 !important;
+      padding: 8px 0 !important;
+    }
+
+    /* Kill excessive margin/padding inside sub-cards */
+    .card .bg-\\[\\#0a0a0a\\] .text-\\[10px\\] { font-size: 11px !important; }
+    .card .bg-\\[\\#0a0a0a\\] .text-xl { font-size: 16px !important; }
+    .card .bg-\\[\\#0a0a0a\\] .text-2xl { font-size: 18px !important; }
+    .card .bg-\\[\\#0a0a0a\\] .text-4xl { font-size: 22px !important; }
+    .card .bg-\\[\\#0a0a0a\\] .text-3xl { font-size: 20px !important; }
+
+    /* Grid gaps: tighten all internal grids */
+    .card .grid { gap: 8px !important; }
+    .card .gap-6 { gap: 8px !important; }
+    .card .gap-4 { gap: 6px !important; }
+    .card .mb-6 { margin-bottom: 8px !important; }
+    .card .mt-6 { margin-top: 8px !important; }
+    .card .py-3 { padding-top: 6px !important; padding-bottom: 6px !important; }
+
+    /* Empty state: compact */
+    .empty-state { padding: 16px 12px !important; }
+    .empty-state-icon { font-size: 22px !important; }
+
+    /* Full-width override for col-span items */
+    [style*="grid-column: span 2"], .col-span-2 { grid-column: span 1 !important; }
+
+    /* Chart loading state: compact */
+    .chart-loading { min-height: 80px !important; }
+
+    /* Freshness badges: inline, don't break onto new line */
+    .freshness-badge { font-size: 9px !important; padding: 1px 5px !important; }
+
+    /* Info tooltips: slightly larger tap target */
+    .info-tooltip { width: 20px !important; height: 20px !important; font-size: 11px !important; }
+
+    /* Progress track: thinner */
+    .progress-track { height: 5px !important; }
   }
 
   /* ---- Phones only (< 480px) ---- */
@@ -816,38 +1017,29 @@
   .mobile-bottom-nav-inner::-webkit-scrollbar { display: none; }
 
   .mobile-nav-tab {
+    flex: 1 1 0%;
+    min-width: 0;
+    min-height: 56px;
+    padding: 8px 4px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 6px 4px;
-    flex: 1 1 0%;        /* equal share of available width */
-    min-width: 0;        /* allow shrinking below intrinsic size */
-    min-height: 52px;
-    cursor: pointer;
-    color: var(--text2);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 7px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    transition: color 0.2s ease, border-color 0.2s ease;
-    -webkit-tap-highlight-color: transparent;
+    gap: 3px;
     border: none;
     border-top: 2px solid transparent;
     background: none;
-    gap: 2px;
+    color: #666;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    -webkit-tap-highlight-color: transparent;
     user-select: none;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
   }
-  .mobile-nav-tab .nav-icon { font-size: 15px; line-height: 1.2; }
-  .mobile-nav-tab.active,
-  .mobile-nav-tab:hover {
-    color: var(--gold);
-    border-top-color: var(--gold);
-  }
+  .mobile-nav-tab .nav-icon { font-size: 20px; line-height: 1; }
+  .mobile-nav-tab .nav-label { font-size: 11px; letter-spacing: 0.3px; }
+  .mobile-nav-tab.active, .mobile-nav-tab:hover { color: #ffd700; border-top-color: #ffd700; }
 
   @media (max-width: 767px) {
     .mobile-bottom-nav { display: block; }
@@ -4143,34 +4335,22 @@ loadAllData();
 </script>
 
 <!-- ===== MOBILE BOTTOM NAVIGATION ===== -->
-<nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Section navigation">
+<nav class="mobile-bottom-nav" id="mobile-bottom-nav">
   <div class="mobile-bottom-nav-inner">
-    <button class="mobile-nav-tab active" onclick="mobileNavTo('sec-composite', this)">
-      <span class="nav-icon">⚡</span>Signal
+    <button class="mobile-nav-tab active" data-section="sec-composite" onclick="mobileNavTo('sec-composite',this)">
+      <span class="nav-icon">⚡</span><span class="nav-label">Signal</span>
     </button>
-    <button class="mobile-nav-tab" onclick="mobileNavTo('sec-price', this)">
-      <span class="nav-icon">$</span>Price
+    <button class="mobile-nav-tab" data-section="sec-price" onclick="mobileNavTo('sec-price',this)">
+      <span class="nav-icon">💰</span><span class="nav-label">Price</span>
     </button>
-    <button class="mobile-nav-tab" onclick="mobileNavTo('sec-ratios', this)">
-      <span class="nav-icon">⚖</span>Ratios
+    <button class="mobile-nav-tab" data-section="sec-cb" onclick="mobileNavTo('sec-cb',this)">
+      <span class="nav-icon">📊</span><span class="nav-label">Data</span>
     </button>
-    <button class="mobile-nav-tab" onclick="mobileNavTo('sec-cb', this)">
-      <span class="nav-icon">🏦</span>Banks
+    <button class="mobile-nav-tab" data-section="sec-news" onclick="mobileNavTo('sec-news',this)">
+      <span class="nav-icon">📰</span><span class="nav-label">News</span>
     </button>
-    <button class="mobile-nav-tab" onclick="mobileNavTo('sec-etf', this)">
-      <span class="nav-icon">📊</span>ETF
-    </button>
-    <button class="mobile-nav-tab" onclick="mobileNavTo('sec-news', this)">
-      <span class="nav-icon">📰</span>News
-    </button>
-    <button class="mobile-nav-tab" onclick="mobileNavTo('sec-macro', this)">
-      <span class="nav-icon">📈</span>Macro
-    </button>
-    <button class="mobile-nav-tab" onclick="mobileNavTo('sec-miners', this)">
-      <span class="nav-icon">⛏</span>Miners
-    </button>
-    <button class="mobile-nav-tab" onclick="mobileNavTo('sec-historical', this)">
-      <span class="nav-icon">🕰</span>History
+    <button class="mobile-nav-tab" data-section="more-menu" onclick="toggleMoreMenu(this)">
+      <span class="nav-icon">···</span><span class="nav-label">More</span>
     </button>
   </div>
 </nav>
@@ -4203,8 +4383,28 @@ function toggleMobileNews(btn) {
   btn.innerHTML = expanded ? '&#8963; Show less' : '&#8964; Show more news';
 }
 
+// ---- More menu sheet toggle ----
+function toggleMoreMenu(btn) {
+  var sheet = document.getElementById('more-menu-sheet');
+  var isOpen = sheet.style.display !== 'none';
+  sheet.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) {
+    setTimeout(function() {
+      document.addEventListener('click', function closeSheet(e) {
+        if (!sheet.contains(e.target) && e.target !== btn) {
+          sheet.style.display = 'none';
+          document.removeEventListener('click', closeSheet);
+        }
+      });
+    }, 50);
+  }
+}
+
 // ---- 2. Bottom nav: smooth scroll to section ----
 function mobileNavTo(sectionId, tabEl) {
+  // Close more menu if open
+  var moreSheet = document.getElementById('more-menu-sheet');
+  if (moreSheet) moreSheet.style.display = 'none';
   var section = document.getElementById(sectionId);
   if (section) {
     var headerH = (document.querySelector('.header') || {}).offsetHeight || 60;
@@ -4258,5 +4458,19 @@ if ('IntersectionObserver' in window) {
   });
 }
 </script>
+
+<!-- More menu sheet -->
+<div id="more-menu-sheet" style="display:none;position:fixed;bottom:56px;left:0;right:0;background:#111;border-top:1px solid #222;z-index:899;padding:8px 0;">
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;">
+    <button onclick="mobileNavTo('sec-ratios',document.querySelector('.mobile-nav-tab[data-section=more-menu]'));document.getElementById('more-menu-sheet').style.display='none';" style="display:flex;flex-direction:column;align-items:center;padding:12px 8px;background:none;border:none;color:#888;font-size:10px;font-family:JetBrains Mono,monospace;gap:4px;cursor:pointer;"><span style="font-size:18px;">⚖️</span>Ratios</button>
+    <button onclick="mobileNavTo('sec-etf',document.querySelector('.mobile-nav-tab[data-section=more-menu]'));document.getElementById('more-menu-sheet').style.display='none';" style="display:flex;flex-direction:column;align-items:center;padding:12px 8px;background:none;border:none;color:#888;font-size:10px;font-family:JetBrains Mono,monospace;gap:4px;cursor:pointer;"><span style="font-size:18px;">📈</span>ETF</button>
+    <button onclick="mobileNavTo('sec-cot',document.querySelector('.mobile-nav-tab[data-section=more-menu]'));document.getElementById('more-menu-sheet').style.display='none';" style="display:flex;flex-direction:column;align-items:center;padding:12px 8px;background:none;border:none;color:#888;font-size:10px;font-family:JetBrains Mono,monospace;gap:4px;cursor:pointer;"><span style="font-size:18px;">📉</span>COT</button>
+    <button onclick="mobileNavTo('sec-miners',document.querySelector('.mobile-nav-tab[data-section=more-menu]'));document.getElementById('more-menu-sheet').style.display='none';" style="display:flex;flex-direction:column;align-items:center;padding:12px 8px;background:none;border:none;color:#888;font-size:10px;font-family:JetBrains Mono,monospace;gap:4px;cursor:pointer;"><span style="font-size:18px;">⛏️</span>Miners</button>
+    <button onclick="mobileNavTo('sec-macro',document.querySelector('.mobile-nav-tab[data-section=more-menu]'));document.getElementById('more-menu-sheet').style.display='none';" style="display:flex;flex-direction:column;align-items:center;padding:12px 8px;background:none;border:none;color:#888;font-size:10px;font-family:JetBrains Mono,monospace;gap:4px;cursor:pointer;"><span style="font-size:18px;">🌍</span>Macro</button>
+    <button onclick="mobileNavTo('sec-historical',document.querySelector('.mobile-nav-tab[data-section=more-menu]'));document.getElementById('more-menu-sheet').style.display='none';" style="display:flex;flex-direction:column;align-items:center;padding:12px 8px;background:none;border:none;color:#888;font-size:10px;font-family:JetBrains Mono,monospace;gap:4px;cursor:pointer;"><span style="font-size:18px;">📜</span>History</button>
+    <button onclick="mobileNavTo('sec-comex-vault',document.querySelector('.mobile-nav-tab[data-section=more-menu]'));document.getElementById('more-menu-sheet').style.display='none';" style="display:flex;flex-direction:column;align-items:center;padding:12px 8px;background:none;border:none;color:#888;font-size:10px;font-family:JetBrains Mono,monospace;gap:4px;cursor:pointer;"><span style="font-size:18px;">🏛️</span>COMEX</button>
+    <button onclick="mobileNavTo('sec-gold-flows',document.querySelector('.mobile-nav-tab[data-section=more-menu]'));document.getElementById('more-menu-sheet').style.display='none';" style="display:flex;flex-direction:column;align-items:center;padding:12px 8px;background:none;border:none;color:#888;font-size:10px;font-family:JetBrains Mono,monospace;gap:4px;cursor:pointer;"><span style="font-size:18px;">🌐</span>Flows</button>
+  </div>
+</div>
 </body>
 </html>
