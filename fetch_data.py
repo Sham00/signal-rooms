@@ -2073,26 +2073,59 @@ def fetch_news():
     headers = {"User-Agent": "Mozilla/5.0 (compatible; GoldBot/1.0)"}
 
     positive_kw = [
-        "record", "surge", "rally", "buying", "inflows", "rise", "gains", "higher", "bullish",
-        "demand", "bid", "rush", "strong", "safe haven", "jump", "jumps", "soar", "soars",
-        "climb", "climbs", "hit high", "new high", "all-time", "ath", "breakout", "break out",
-        "upside", "upward", "bull", "boost", "accelerate", "fear", "refuge", "haven",
-        "target", "resistance", "support holds", "bounce", "rebound", "recovery",
-        "tariff", "uncertainty", "war", "crisis", "sanction", "inflation hedge",
+        # Price action bullish
+        "record", "surge", "surges", "rally", "rallies", "buying", "inflows", "rise", "rises",
+        "gains", "higher", "bullish", "demand", "bid", "rush", "strong", "safe haven",
+        "jump", "jumps", "soar", "soars", "climb", "climbs", "hit high", "new high",
+        "all-time", "ath", "breakout", "break out", "upside", "upward", "bull", "boost",
+        "accelerate", "fear", "refuge", "haven", "support holds", "bounce", "rebound",
+        "recovery", "recovers", "extends", "extends gains", "extends rise", "continues",
+        # Macro tailwinds
+        "tariff", "tariffs", "trade war", "uncertainty", "war", "crisis", "sanction",
+        "inflation hedge", "debasement", "stagflation", "money printing",
+        # Price targets / forecasts bullish
+        "price target", "forecast", "outlook", "prediction", "$4,", "$5,", "$6,",
+        "4000", "4500", "5000", "5500", "6000", "4,700", "4,800", "4,900", "5,000",
+        "5,400", "6,000", "price forecast", "gold could", "gold may", "gold to hit",
+        "see gold", "target gold", "upside target", "eyes",
+        # Mining/production bullish
+        "discovery", "finds high-grade", "high-grade", "doubles reserve", "triples reserve",
+        "reserve base", "resource estimate", "positive", "permitting", "funding",
+        "expansion", "production growth", "output rises", "record production",
+        # Demand signals
+        "central bank buying", "central banks buying", "purchases", "accumulation",
+        "etf inflows", "physical demand", "import", "imports", "buying gold",
+        # Geopolitical risk
+        "geopolitical", "escalat", "conflict", "tension", "safe asset",
     ]
     negative_kw = [
-        "drop", "fall", "selling", "outflows", "lower", "crash", "bearish", "decline",
-        "weak", "pressure", "retreat", "dump", "slump", "tumble", "plunge", "loss",
-        "correction", "pullback", "downside", "downward", "sell-off", "selloff",
-        "miss", "below", "bottom", "drag", "headwind", "rate hike", "tightening",
+        # Price action bearish
+        "drop", "drops", "fall", "falls", "fell", "selling", "outflows", "lower", "crash",
+        "bearish", "decline", "declines", "weak", "weakness", "pressure", "retreat",
+        "retreats", "dump", "slump", "tumble", "plunge", "loss", "correction",
+        "pullback", "downside", "downward", "sell-off", "selloff", "dip", "slips",
+        "slides", "fades", "snaps", "extends losses", "loses",
+        # Macro headwinds
+        "rate hike", "rate hikes", "tightening", "hawkish", "strong dollar", "usd strength",
+        "dollar rises", "dollar rallies", "dollar surge", "rate rise",
+        # Mining negative
+        "production cut", "mine closure", "shutdown", "suspended", "halted",
+        "cost overrun", "writedown", "write-down", "impairment",
+        # Sentiment bearish
+        "miss", "drag", "headwind", "headwinds", "caution", "warning", "warns",
+        "disappoints", "disappointing",
     ]
 
     def sentiment(title):
         t = title.lower()
-        if any(k in t for k in positive_kw):
+        pos_hits = sum(1 for k in positive_kw if k in t)
+        neg_hits = sum(1 for k in negative_kw if k in t)
+        if pos_hits > neg_hits:
             return "positive"
-        if any(k in t for k in negative_kw):
+        if neg_hits > pos_hits:
             return "negative"
+        if pos_hits == neg_hits and pos_hits > 0:
+            return "positive"  # tie goes to positive (gold bias)
         return "neutral"
 
     feeds = [
@@ -2719,12 +2752,26 @@ def fetch_market_intelligence():
     except Exception as e:
         print(f"  MI signal scan error: {e}")
 
-    # Deduplicate and cap at 10 alerts
+    # Deduplicate, filter stale (>30 days), and cap at 10 alerts
     seen_headlines = set()
     unique_alerts = []
+    now_dt = datetime.now(timezone.utc)
     for a in alerts:
         if a["headline"] not in seen_headlines:
             seen_headlines.add(a["headline"])
+            # Filter out alerts older than 30 days
+            ts_str = a.get("ts", "")
+            try:
+                from email.utils import parsedate_to_datetime
+                ts_dt = parsedate_to_datetime(ts_str)
+                if ts_dt.tzinfo is None:
+                    ts_dt = ts_dt.replace(tzinfo=timezone.utc)
+                age_days = (now_dt - ts_dt).days
+                if age_days > 30:
+                    print(f"  Skipping stale alert ({age_days}d old): {a['headline'][:60]}")
+                    continue
+            except Exception:
+                pass  # Keep alerts with unparseable timestamps
             unique_alerts.append(a)
 
     write_json("market_intel.json", {
