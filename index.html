@@ -87,59 +87,37 @@
     font-weight: 700;
   }
 
-  /* Gauge */
-  .gauge-container {
-    width: 140px;
-    height: 80px;
+  /* Percentile pill */
+  .pct-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .pct-pill.cheap { background: rgba(0,255,136,0.15); color: #00ff88; }
+  .pct-pill.mid { background: rgba(255,215,0,0.15); color: #ffd700; }
+  .pct-pill.expensive { background: rgba(255,68,68,0.15); color: #ff4444; }
+
+  /* Sentiment bar */
+  .sentiment-bar {
     position: relative;
-    overflow: hidden;
-    margin: 0 auto;
+    height: 24px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #ff4444, #ff8800, #888, #88cc44, #00ff88);
+    overflow: visible;
   }
-  .gauge-bg {
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    background: conic-gradient(
-      from 220deg,
-      #00ff88 0deg,
-      #44cc66 40deg,
-      #ffd700 80deg,
-      #ff8800 160deg,
-      #ff4444 240deg,
-      transparent 240deg
-    );
-    position: relative;
-  }
-  .gauge-bg::after {
-    content: '';
+  .sentiment-marker {
     position: absolute;
-    top: 20px; left: 20px;
-    width: 100px; height: 100px;
-    border-radius: 50%;
-    background: var(--card-bg);
-  }
-  .gauge-needle {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 2px;
-    height: 50px;
-    background: linear-gradient(to top, transparent, #fff);
-    transform-origin: bottom center;
-    transform: translateX(-50%) rotate(var(--angle, 0deg));
-    transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-    z-index: 2;
-  }
-  .gauge-dot {
-    position: absolute;
-    bottom: -3px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+    top: -4px;
+    width: 4px;
+    height: 32px;
     background: #fff;
-    z-index: 3;
+    border-radius: 2px;
+    transform: translateX(-50%);
+    box-shadow: 0 0 6px rgba(255,255,255,0.5);
+    transition: left 1s ease;
   }
 
   /* Heatmap table */
@@ -458,110 +436,40 @@
   </section>
 
   <!-- ============================================================ -->
+  <!-- SECTION 1b: LBMA FIX PRICE -->
+  <!-- ============================================================ -->
+  <section class="full-width card fade-in" id="sec-lbma" style="animation-delay:0.12s">
+    <div class="section-title">LBMA Gold Fix <span class="info-tooltip" data-tip="The LBMA Fix is the benchmark price used in most central bank and institutional gold contracts. Twice-daily London auction.">i</span></div>
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">AM Fix</div>
+        <div id="lbma-am" class="text-xl font-bold mono text-[var(--gold)]">--</div>
+      </div>
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">PM Fix</div>
+        <div id="lbma-pm" class="text-xl font-bold mono text-[var(--gold)]">--</div>
+      </div>
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">COMEX-LBMA Basis</div>
+        <div id="lbma-basis" class="text-xl font-bold mono">--</div>
+      </div>
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Source</div>
+        <div id="lbma-source" class="text-xs mono text-[var(--text2)]">--</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
   <!-- SECTION 2: KEY RATIOS -->
   <!-- ============================================================ -->
   <div class="full-width">
-    <div class="section-title" style="padding: 0 0 0 0;">Key Ratios</div>
+    <div class="section-title" style="padding: 0 0 0 0;">Key Ratios <span class="info-tooltip" data-tip="Gold priced in other assets. Percentile shows where the current ratio sits in its 10-year range. Green = gold is cheap relative to that asset.">i</span></div>
   </div>
 
-  <div class="card fade-in" id="ratio-gold_silver" style="animation-delay:0.15s">
-    <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Gold / Silver</div>
-    <div id="ratio-val-gold_silver" class="text-2xl font-bold mono text-[var(--gold)]">--</div>
-    <div class="text-[10px] text-[var(--text2)] mono mt-1">oz of silver per oz of gold</div>
-    <div id="ratio-ctx-gold_silver" class="text-[9px] text-[var(--text2)] mono mt-0.5 opacity-70">Hist avg: 82</div>
-    <div class="gauge-container mt-3">
-      <div class="gauge-bg">
-        <div class="gauge-needle" id="gauge-needle-gold_silver"></div>
-        <div class="gauge-dot"></div>
-      </div>
-    </div>
-    <div class="flex justify-between text-[10px] text-[var(--text2)] mono mt-1">
-      <span id="ratio-min-gold_silver">Min: --</span>
-      <span id="ratio-max-gold_silver">Max: --</span>
-    </div>
-    <div class="chart-wrap mt-3" style="height:80px;">
-      <canvas id="chart-ratio-gold_silver"></canvas>
-    </div>
-  </div>
-
-  <div class="card fade-in" id="ratio-gold_oil" style="animation-delay:0.2s">
-    <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Gold / Oil</div>
-    <div id="ratio-val-gold_oil" class="text-2xl font-bold mono text-[var(--gold)]">--</div>
-    <div class="text-[10px] text-[var(--text2)] mono mt-1">barrels of oil per oz of gold</div>
-    <div class="text-[9px] text-[var(--text2)] mono mt-0.5 opacity-70">Higher = gold expensive vs oil</div>
-    <div class="gauge-container mt-3">
-      <div class="gauge-bg">
-        <div class="gauge-needle" id="gauge-needle-gold_oil"></div>
-        <div class="gauge-dot"></div>
-      </div>
-    </div>
-    <div class="flex justify-between text-[10px] text-[var(--text2)] mono mt-1">
-      <span id="ratio-min-gold_oil">Min: --</span>
-      <span id="ratio-max-gold_oil">Max: --</span>
-    </div>
-    <div class="chart-wrap mt-3" style="height:80px;">
-      <canvas id="chart-ratio-gold_oil"></canvas>
-    </div>
-  </div>
-
-  <div class="card fade-in" id="ratio-gold_spx" style="animation-delay:0.25s">
-    <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Gold / S&amp;P 500</div>
-    <div id="ratio-val-gold_spx" class="text-2xl font-bold mono text-[var(--gold)]">--</div>
-    <div class="text-[10px] text-[var(--text2)] mono mt-1">oz of gold to buy 1 unit S&amp;P500</div>
-    <div class="text-[9px] text-[var(--text2)] mono mt-0.5 opacity-70">Lower = stocks outperforming</div>
-    <div class="gauge-container mt-3">
-      <div class="gauge-bg">
-        <div class="gauge-needle" id="gauge-needle-gold_spx"></div>
-        <div class="gauge-dot"></div>
-      </div>
-    </div>
-    <div class="flex justify-between text-[10px] text-[var(--text2)] mono mt-1">
-      <span id="ratio-min-gold_spx">Min: --</span>
-      <span id="ratio-max-gold_spx">Max: --</span>
-    </div>
-    <div class="chart-wrap mt-3" style="height:80px;">
-      <canvas id="chart-ratio-gold_spx"></canvas>
-    </div>
-  </div>
-
-  <div class="card fade-in" id="ratio-gold_btc" style="animation-delay:0.3s">
-    <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Gold / Bitcoin</div>
-    <div id="ratio-val-gold_btc" class="text-2xl font-bold mono text-[var(--gold)]">--</div>
-    <div class="text-[10px] text-[var(--text2)] mono mt-1">oz of gold per 1 Bitcoin</div>
-    <div class="text-[9px] text-[var(--text2)] mono mt-0.5 opacity-70">Higher = Bitcoin outperforming gold</div>
-    <div class="gauge-container mt-3">
-      <div class="gauge-bg">
-        <div class="gauge-needle" id="gauge-needle-gold_btc"></div>
-        <div class="gauge-dot"></div>
-      </div>
-    </div>
-    <div class="flex justify-between text-[10px] text-[var(--text2)] mono mt-1">
-      <span id="ratio-min-gold_btc">Min: --</span>
-      <span id="ratio-max-gold_btc">Max: --</span>
-    </div>
-    <div class="chart-wrap mt-3" style="height:80px;">
-      <canvas id="chart-ratio-gold_btc"></canvas>
-    </div>
-  </div>
-
-  <div class="card fade-in" id="ratio-gold_copper" style="animation-delay:0.35s">
-    <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Gold / Copper</div>
-    <div id="ratio-val-gold_copper" class="text-2xl font-bold mono text-[var(--gold)]">--</div>
-    <div class="text-[10px] text-[var(--text2)] mono mt-1">lbs of copper per oz of gold</div>
-    <div class="text-[9px] text-[var(--text2)] mono mt-0.5 opacity-70">Dr. Copper signal for economy</div>
-    <div class="gauge-container mt-3">
-      <div class="gauge-bg">
-        <div class="gauge-needle" id="gauge-needle-gold_copper"></div>
-        <div class="gauge-dot"></div>
-      </div>
-    </div>
-    <div class="flex justify-between text-[10px] text-[var(--text2)] mono mt-1">
-      <span id="ratio-min-gold_copper">Min: --</span>
-      <span id="ratio-max-gold_copper">Max: --</span>
-    </div>
-    <div class="chart-wrap mt-3" style="height:80px;">
-      <canvas id="chart-ratio-gold_copper"></canvas>
-    </div>
+  <!-- Ratio cards container — filled dynamically by JS -->
+  <div class="full-width" id="ratio-cards-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+    <!-- JS populates compact ratio cards here -->
   </div>
 
   <!-- ============================================================ -->
@@ -570,8 +478,15 @@
   <section class="full-width card fade-in" id="sec-cb" style="animation-delay:0.4s">
     <div class="section-title">Central Bank Tracker</div>
 
-    <!-- Net pace big number -->
-    <div class="flex flex-wrap gap-8 mb-6">
+    <!-- CB PACE indicator -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div class="bg-[#0a0a0a] rounded-lg p-5 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Current Pace vs 10Y Average <span class="info-tooltip" data-tip="Central banks have been buying gold at an unprecedented pace since 2022, driven by de-dollarization and geopolitical hedging.">i</span></div>
+        <div class="flex items-baseline gap-2">
+          <span id="cb-pace-vs-avg" class="text-4xl font-bold mono text-[var(--gold)]">--</span>
+          <span class="text-sm text-[var(--text2)] mono">above historical average</span>
+        </div>
+      </div>
       <div>
         <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Net Global Buying Pace</div>
         <div class="flex items-baseline gap-3">
@@ -584,6 +499,14 @@
         <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">YTD Total Buying</div>
         <span id="cb-ytd-total" class="text-2xl font-bold mono text-[var(--green)]">--</span>
         <span class="text-sm text-[var(--text2)] mono ml-1">tonnes</span>
+      </div>
+    </div>
+
+    <!-- CB Annual Net Purchases bar chart -->
+    <div class="mb-6">
+      <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Central Bank Net Purchases (tonnes/year)</div>
+      <div class="chart-wrap" style="height: 200px;">
+        <canvas id="chart-cb-annual"></canvas>
       </div>
     </div>
 
@@ -788,6 +711,25 @@
   <section class="full-width card fade-in" id="sec-cot" style="animation-delay:0.5s">
     <div class="section-title">COT Positioning (Managed Money)</div>
 
+    <!-- Contango / Backwardation indicator -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)] flex flex-col items-center justify-center">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-2">Futures Curve <span class="info-tooltip" data-tip="Backwardation means spot gold is MORE expensive than futures — signals physical scarcity and strong immediate demand. Historically bullish. Contango is normal for gold.">i</span></div>
+        <div id="contango-state" class="text-2xl font-bold mono">--</div>
+      </div>
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Front Month</div>
+        <div id="contango-front" class="text-lg font-bold mono text-[var(--gold)]">--</div>
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1 mt-2">Dec 2026</div>
+        <div id="contango-back" class="text-lg font-bold mono text-[var(--text2)]">--</div>
+      </div>
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Basis (Spread)</div>
+        <div id="contango-basis" class="text-xl font-bold mono">--</div>
+        <div id="contango-basis-pct" class="text-xs mono text-[var(--text2)] mt-1">--</div>
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
       <div>
         <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Net Position</div>
@@ -814,19 +756,61 @@
           <canvas id="chart-cot-history"></canvas>
         </div>
       </div>
-      <!-- Percentile gauge -->
+      <!-- Percentile indicator -->
       <div class="flex flex-col items-center justify-center">
         <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-3">Net Percentile</div>
-        <div class="gauge-container">
-          <div class="gauge-bg">
-            <div class="gauge-needle" id="gauge-needle-cot"></div>
-            <div class="gauge-dot"></div>
-          </div>
+        <div id="cot-percentile-val" class="text-4xl font-bold mono text-[var(--gold)]">--</div>
+        <div id="cot-percentile-label" class="text-xs mono mt-2">--</div>
+        <div class="progress-track mt-3" style="width:120px;">
+          <div id="cot-percentile-bar" class="progress-fill" style="width:0%;background:var(--gold);"></div>
         </div>
-        <div id="cot-percentile-val" class="text-2xl font-bold mono text-[var(--gold)] mt-2">--</div>
-        <div id="cot-percentile-label" class="text-xs mono mt-1">--</div>
       </div>
     </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- COMEX VAULT INVENTORY -->
+  <!-- ============================================================ -->
+  <section class="full-width card fade-in" id="sec-comex-vault" style="animation-delay:0.52s">
+    <div class="section-title">COMEX Vault Inventory <span class="info-tooltip" data-tip="Registered inventory is physical gold available for COMEX delivery. Declining registered stocks with rising open interest = supply squeeze risk.">i</span></div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Registered <span class="info-tooltip" data-tip="Physical gold available for delivery against futures contracts.">i</span></div>
+        <div class="text-2xl font-bold mono text-[var(--gold)]">442<span class="text-sm text-[var(--text2)] ml-1">tonnes</span></div>
+      </div>
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Eligible <span class="info-tooltip" data-tip="Gold stored in COMEX vaults but not available for delivery. Owners have not registered it.">i</span></div>
+        <div class="text-2xl font-bold mono text-[var(--text2)]">8,200<span class="text-sm text-[var(--text2)] ml-1">tonnes</span></div>
+      </div>
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">30-Day Registered Change</div>
+        <div class="text-2xl font-bold mono text-[var(--red)]">-85t <span class="text-sm">&#9660;</span></div>
+      </div>
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Cover Ratio</div>
+        <div id="comex-cover-ratio" class="text-2xl font-bold mono text-[var(--gold)]">--</div>
+        <div class="text-[9px] text-[var(--text2)] mono mt-1">oz registered / open interest</div>
+      </div>
+    </div>
+    <div class="mt-4">
+      <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Registered vs Eligible</div>
+      <div class="chart-wrap" style="height: 160px;">
+        <canvas id="chart-comex-vault"></canvas>
+      </div>
+    </div>
+    <div class="text-[9px] text-[var(--text2)] mono mt-2">Last updated: 2026-03-31 | Source: COMEX daily vault reports (compiled)</div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- GOLD LEASE RATE -->
+  <!-- ============================================================ -->
+  <section class="card fade-in" id="sec-lease-rate" style="animation-delay:0.53s">
+    <div class="section-title">Gold Lease Rate (GLR) <span class="info-tooltip" data-tip="Gold lease rate is what it costs to borrow physical gold. Spikes above 2% signal severe physical tightness — a historically reliable bullish indicator.">i</span></div>
+    <div class="chart-wrap" style="height: 200px;">
+      <canvas id="chart-lease-rate"></canvas>
+    </div>
+    <div id="lease-rate-alert" class="text-xs mono mt-2" style="display:none;color:#ff4444;font-weight:600;">ALERT: Lease rate elevated — physical tightness detected</div>
+    <div class="text-[9px] text-[var(--text2)] mono mt-2">Last updated: 2026-04-01 | Rates approximate (subscription sources required for live data)</div>
   </section>
 
   <!-- ============================================================ -->
@@ -834,6 +818,23 @@
   <!-- ============================================================ -->
   <section class="card fade-in" id="sec-news" style="animation-delay:0.55s">
     <div class="section-title">News Feed</div>
+
+    <!-- Sentiment Tracker -->
+    <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)] mb-4">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono">Headline Sentiment <span class="info-tooltip" data-tip="Simple word-based sentiment score from recent gold news headlines. -100 = max bearish, +100 = max bullish.">i</span></span>
+        <span id="sentiment-pct" class="text-xs mono text-[var(--text2)]">--</span>
+      </div>
+      <div class="sentiment-bar">
+        <div id="sentiment-marker" class="sentiment-marker" style="left:50%;"></div>
+      </div>
+      <div class="flex justify-between text-[9px] text-[var(--text2)] mono mt-1">
+        <span>BEARISH</span>
+        <span id="sentiment-score" class="text-sm font-bold">--</span>
+        <span>BULLISH</span>
+      </div>
+    </div>
+
     <div class="news-scroll" id="news-list">
       <div class="flex justify-center py-8"><div class="spinner"></div></div>
     </div>
@@ -921,6 +922,19 @@
           <tr><td colspan="7" class="text-center py-8"><div class="spinner mx-auto"></div></td></tr>
         </tbody>
       </table>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- CRISIS ASSET COMPARISON (YTD) -->
+  <!-- ============================================================ -->
+  <section class="full-width card fade-in" id="sec-crisis" style="animation-delay:0.67s">
+    <div class="section-title">Crisis Asset Performance (YTD) <span class="info-tooltip" data-tip="All assets rebased to 100 at Jan 1 2026. Shows which safe-haven/risk assets are leading or lagging year-to-date.">i</span></div>
+    <div class="chart-wrap" style="height: 320px;">
+      <canvas id="chart-crisis-assets"></canvas>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-4" id="crisis-asset-legend">
+      <!-- Filled by JS -->
     </div>
   </section>
 
@@ -1031,12 +1045,6 @@ function relativeTime(dateStr) {
     if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
     return d.toLocaleDateString();
   } catch(e) { return dateStr; }
-}
-
-function gaugeAngle(value, min, max) {
-  if (value == null || min == null || max == null || max === min) return 0;
-  var pct = Math.max(0, Math.min(1, (value - min) / (max - min)));
-  return -110 + (pct * 220);
 }
 
 function destroyChart(id) {
@@ -1158,6 +1166,7 @@ function loadAllData() {
     { key: 'macro', url: 'data/macro.json' },
     { key: 'miners', url: 'data/miners.json' },
     { key: 'historical', url: 'data/historical.json' },
+    { key: 'crisisAssets', url: 'data/crisis_assets.json' },
   ];
 
   Promise.allSettled(
@@ -1182,13 +1191,17 @@ function loadAllData() {
 function renderAll() {
   renderHeader();
   renderPriceSection();
+  renderLBMA();
   renderRatios();
   renderCentralBanks();
   renderETFs();
   renderCOT();
+  renderComexVault();
+  renderLeaseRate();
   renderNews();
   renderMacro();
   renderMiners();
+  renderCrisisAssets();
   renderHistorical();
 }
 
@@ -1346,63 +1359,111 @@ function renderCurrencyGrid() {
   });
 }
 
-// --- RATIOS ---
+// --- LBMA FIX ---
+function renderLBMA() {
+  var d = DATA.price;
+  if (!d || !d.lbma) return;
+  var lbma = d.lbma;
+  document.getElementById('lbma-am').textContent = lbma.am_fix != null ? '$' + fmt(lbma.am_fix) : '--';
+  document.getElementById('lbma-pm').textContent = lbma.pm_fix != null ? '$' + fmt(lbma.pm_fix) : '--';
+  if (lbma.am_fix != null && lbma.pm_fix != null) {
+    var basis = lbma.pm_fix - lbma.am_fix;
+    var el = document.getElementById('lbma-basis');
+    el.textContent = (basis >= 0 ? '+' : '') + '$' + fmt(basis);
+    el.style.color = basis >= 0 ? '#00ff88' : '#ff4444';
+  }
+  document.getElementById('lbma-source').textContent = lbma.source || '--';
+}
+
+// --- RATIOS (compact cards) ---
 function renderRatios() {
   var d = DATA.ratios;
   if (!d) return;
 
-  var ratioNames = ['gold_silver', 'gold_oil', 'gold_spx', 'gold_btc', 'gold_copper'];
+  var RATIO_META = {
+    gold_silver: { label: 'Gold / Silver', unit: 'oz of silver per oz gold', avg: 82, cheapBelow: 70, expAbove: 90 },
+    gold_oil:    { label: 'Gold / Oil', unit: 'barrels of oil per oz gold', avg: 25, cheapBelow: 20, expAbove: 35 },
+    gold_spx:    { label: 'Gold / S&P 500', unit: 'S&P500 units per oz gold', avg: 0.9, cheapBelow: null, expAbove: null },
+    gold_btc:    { label: 'Gold / Bitcoin', unit: 'oz gold per BTC (inverted)', avg: null, cheapBelow: null, expAbove: null, invert: true },
+    gold_copper: { label: 'Gold / Copper', unit: 'lbs copper per oz gold', avg: 550, cheapBelow: null, expAbove: null },
+  };
 
-  ratioNames.forEach(function(name) {
+  var grid = document.getElementById('ratio-cards-grid');
+  grid.innerHTML = '';
+
+  Object.keys(RATIO_META).forEach(function(name) {
+    var meta = RATIO_META[name];
     var val = d.ratios ? d.ratios[name] : null;
     var range = d.ratio_ranges ? d.ratio_ranges[name] : null;
     var chartData = d.ratio_charts ? d.ratio_charts[name] : null;
 
-    var valEl = document.getElementById('ratio-val-' + name);
-    if (valEl) valEl.textContent = val != null ? fmt(val, name === 'gold_btc' ? 4 : 2) : '--';
-
-    var minEl = document.getElementById('ratio-min-' + name);
-    var maxEl = document.getElementById('ratio-max-' + name);
-    if (range) {
-      if (minEl) minEl.textContent = 'Min: ' + fmt(range.min, 2);
-      if (maxEl) maxEl.textContent = 'Max: ' + fmt(range.max, 2);
-
-      var needle = document.getElementById('gauge-needle-' + name);
-      if (needle) {
-        var angle = gaugeAngle(val, range.min, range.max);
-        needle.style.setProperty('--angle', angle + 'deg');
-      }
+    // For gold_btc, invert to show oz gold per BTC
+    var displayVal = val;
+    if (meta.invert && val != null && val !== 0) {
+      displayVal = 1 / val;
     }
 
-    if (chartData && chartData.length) {
-      var parsed = parseChartData(chartData);
-      destroyChart('ratio-' + name);
+    var pctile = range ? range.current_percentile : null;
+    var pctClass = 'mid';
+    if (pctile != null) {
+      if (pctile < 40) pctClass = 'cheap';
+      else if (pctile > 75) pctClass = 'expensive';
+    }
 
-      var canvasEl = document.getElementById('chart-ratio-' + name);
-      if (canvasEl) {
-        var ctx = canvasEl.getContext('2d');
-        charts['ratio-' + name] = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: parsed.labels,
-            datasets: [{
-              data: parsed.values,
-              borderColor: '#ffd700',
-              borderWidth: 1.5,
-              pointRadius: 0,
-              fill: true,
-              backgroundColor: 'rgba(255,215,0,0.08)',
-              tension: 0.3,
-            }]
-          },
-          options: {
-            scales: { x: { display: false }, y: { display: false } },
-            plugins: {
-              tooltip: { callbacks: { label: function(ctx) { return fmt(ctx.parsed.y, 2); } } }
+    // Progress bar position
+    var progressPct = 50;
+    if (range && val != null && range.max !== range.min) {
+      progressPct = Math.max(0, Math.min(100, ((val - range.min) / (range.max - range.min)) * 100));
+    }
+
+    var canvasId = 'chart-ratio-' + name;
+
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML =
+      '<div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">' + meta.label + '</div>' +
+      '<div class="flex items-baseline gap-3">' +
+        '<span class="text-2xl font-bold mono text-[var(--gold)]">' + (displayVal != null ? fmt(displayVal, displayVal < 10 ? 2 : 1) : '--') + '</span>' +
+        '<span class="text-[10px] text-[var(--text2)] mono">' + meta.unit + '</span>' +
+      '</div>' +
+      (pctile != null ? '<span class="pct-pill ' + pctClass + ' mt-2">' + fmt(pctile, 0) + 'th percentile</span>' : '') +
+      '<div class="progress-track mt-3"><div class="progress-fill" style="width:' + progressPct.toFixed(1) + '%;background:' +
+        (pctClass === 'cheap' ? '#00ff88' : pctClass === 'expensive' ? '#ff4444' : '#ffd700') + ';"></div></div>' +
+      '<div class="flex justify-between text-[9px] text-[var(--text2)] mono mt-1">' +
+        '<span>' + (range ? fmt(range.min, 1) : '--') + '</span>' +
+        (meta.avg != null ? '<span>Avg: ' + meta.avg + '</span>' : '') +
+        '<span>' + (range ? fmt(range.max, 1) : '--') + '</span>' +
+      '</div>' +
+      '<div class="chart-wrap mt-3" style="height:60px;"><canvas id="' + canvasId + '"></canvas></div>';
+    grid.appendChild(card);
+
+    if (chartData && chartData.length) {
+      requestAnimationFrame(function() {
+        var parsed = parseChartData(chartData);
+        destroyChart('ratio-' + name);
+        var canvasEl = document.getElementById(canvasId);
+        if (canvasEl) {
+          charts['ratio-' + name] = new Chart(canvasEl.getContext('2d'), {
+            type: 'line',
+            data: {
+              labels: parsed.labels,
+              datasets: [{
+                data: parsed.values,
+                borderColor: '#ffd700',
+                borderWidth: 1.5,
+                pointRadius: 0,
+                fill: true,
+                backgroundColor: 'rgba(255,215,0,0.08)',
+                tension: 0.3,
+              }]
+            },
+            options: {
+              scales: { x: { display: false }, y: { display: false } },
+              plugins: { tooltip: { callbacks: { label: function(ctx) { return fmt(ctx.parsed.y, 2); } } } }
             }
-          }
-        });
-      }
+          });
+        }
+      });
     }
   });
 }
@@ -1418,6 +1479,66 @@ function renderCentralBanks() {
   document.getElementById('cb-pace').textContent = fmt(d.net_monthly_pace_tonnes, 1);
   document.getElementById('cb-pace-arrow').innerHTML = '<span style="color:#00ff88">&#9650;</span>';
   document.getElementById('cb-ytd-total').textContent = fmtInt(d.total_cb_buying_ytd);
+
+  // Pace vs average
+  if (d.pace_vs_avg != null) {
+    document.getElementById('cb-pace-vs-avg').textContent = d.pace_vs_avg + 'x';
+  }
+
+  // CB Annual Net Purchases bar chart
+  if (d.cb_annual) {
+    var annualLabels = ['2022', '2023', '2024', '2025', '2026 (ann.)'];
+    var annualData = [d.cb_annual['2022'], d.cb_annual['2023'], d.cb_annual['2024'], d.cb_annual['2025'], d.cb_annual['2026_annualized']];
+    var avgLine = d.cb_annual['10Y_average'];
+    destroyChart('cb-annual');
+    var ctxAnn = document.getElementById('chart-cb-annual');
+    if (ctxAnn) {
+      charts['cb-annual'] = new Chart(ctxAnn.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: annualLabels,
+          datasets: [{
+            label: 'Net Purchases (tonnes)',
+            data: annualData,
+            backgroundColor: annualData.map(function(v, i) { return i >= 0 ? 'rgba(255,215,0,0.7)' : 'rgba(136,136,136,0.4)'; }),
+            borderColor: '#ffd700',
+            borderWidth: 1,
+            borderRadius: 4,
+          }]
+        },
+        options: {
+          scales: {
+            x: { grid: { display: false } },
+            y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { callback: function(v) { return v + 't'; } } }
+          },
+          plugins: {
+            tooltip: { callbacks: { label: function(ctx) { return fmtInt(ctx.parsed.y) + ' tonnes'; } } }
+          }
+        },
+        plugins: [{
+          id: 'avgLine',
+          afterDraw: function(chart) {
+            var yScale = chart.scales.y;
+            var xScale = chart.scales.x;
+            var c = chart.ctx;
+            var y = yScale.getPixelForValue(avgLine);
+            c.save();
+            c.strokeStyle = '#ff4444';
+            c.lineWidth = 1.5;
+            c.setLineDash([6, 4]);
+            c.beginPath();
+            c.moveTo(xScale.left, y);
+            c.lineTo(xScale.right, y);
+            c.stroke();
+            c.fillStyle = '#ff4444';
+            c.font = '10px JetBrains Mono, monospace';
+            c.fillText('10Y avg: ' + avgLine + 't', xScale.right - 100, y - 6);
+            c.restore();
+          }
+        }]
+      });
+    }
+  }
 
   var tbody = document.getElementById('cb-table-body');
   tbody.innerHTML = '';
@@ -1622,14 +1743,28 @@ function renderCOT() {
   document.getElementById('cot-shorts').textContent = fmtInt(d.gold_managed_money_short);
   document.getElementById('cot-oi').textContent = fmtInt(d.gold_open_interest);
 
+  // Contango / Backwardation
+  var ct = DATA.price ? DATA.price.contango : null;
+  if (ct) {
+    var stateEl = document.getElementById('contango-state');
+    stateEl.textContent = ct.curve_state;
+    stateEl.style.color = ct.curve_state === 'BACKWARDATION' ? '#ffd700' : '#00ff88';
+    document.getElementById('contango-front').textContent = '$' + fmt(ct.front);
+    document.getElementById('contango-back').textContent = ct.back != null ? '$' + fmt(ct.back) : '--';
+    var basisEl = document.getElementById('contango-basis');
+    if (ct.basis != null) {
+      basisEl.textContent = (ct.basis >= 0 ? '+' : '') + '$' + fmt(ct.basis);
+      basisEl.style.color = ct.curve_state === 'BACKWARDATION' ? '#ffd700' : '#00ff88';
+    }
+    var bpEl = document.getElementById('contango-basis-pct');
+    if (ct.basis_pct != null) bpEl.textContent = '(' + fmt(ct.basis_pct, 3) + '%)';
+  }
+
   var pctVal = d.net_percentile;
   if (pctVal != null) {
     document.getElementById('cot-percentile-val').textContent = fmt(pctVal, 0) + '%';
-    var needle = document.getElementById('gauge-needle-cot');
-    if (needle) {
-      var angle = gaugeAngle(pctVal, 0, 100);
-      needle.style.setProperty('--angle', angle + 'deg');
-    }
+    var pctBar = document.getElementById('cot-percentile-bar');
+    if (pctBar) pctBar.style.width = pctVal + '%';
 
     var label = document.getElementById('cot-percentile-label');
     if (pctVal > 90) {
@@ -1701,6 +1836,21 @@ function renderNews() {
   if (!d || !d.articles || !d.articles.length) {
     container.innerHTML = '<div class="text-center py-8 text-[var(--text2)]">No news available</div>';
     return;
+  }
+
+  // Sentiment tracker
+  if (d.sentiment_score != null) {
+    var score = d.sentiment_score;
+    var markerPct = Math.max(2, Math.min(98, (score + 100) / 2));
+    var markerEl = document.getElementById('sentiment-marker');
+    if (markerEl) markerEl.style.left = markerPct + '%';
+    var scoreEl = document.getElementById('sentiment-score');
+    if (scoreEl) {
+      scoreEl.textContent = (score >= 0 ? '+' : '') + score;
+      scoreEl.style.color = score > 20 ? '#00ff88' : score < -20 ? '#ff4444' : '#ffd700';
+    }
+    var pctEl = document.getElementById('sentiment-pct');
+    if (pctEl) pctEl.textContent = d.bull_pct != null ? d.bull_pct + '% of headlines bullish' : '';
   }
 
   var bullish = /record|surge|buying|inflows|rally|high|soar|gain|bull|\bup\b/i;
@@ -2161,6 +2311,207 @@ function renderMiners() {
       }
     });
   });
+}
+
+// --- COMEX VAULT ---
+function renderComexVault() {
+  // Hardcoded data (inline)
+  var vault = {
+    registered_tonnes: 442, eligible_tonnes: 8200, total_tonnes: 8642,
+    registered_change_30d: -85
+  };
+  var cot = DATA.cot;
+  var oi = cot ? cot.gold_open_interest : 534892;
+  // Cover ratio: registered oz / (OI contracts * 100 oz/contract)
+  var registeredOz = vault.registered_tonnes * 32150.7; // troy oz per tonne
+  var oiOz = oi * 100;
+  var coverRatio = (registeredOz / oiOz * 100).toFixed(1);
+  var el = document.getElementById('comex-cover-ratio');
+  if (el) el.textContent = coverRatio + '%';
+
+  // Stacked bar chart
+  destroyChart('comex-vault');
+  var ctx = document.getElementById('chart-comex-vault');
+  if (ctx) {
+    charts['comex-vault'] = new Chart(ctx.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['COMEX Gold Vault'],
+        datasets: [
+          { label: 'Registered', data: [vault.registered_tonnes], backgroundColor: 'rgba(255,215,0,0.8)', borderColor: '#ffd700', borderWidth: 1 },
+          { label: 'Eligible', data: [vault.eligible_tonnes], backgroundColor: 'rgba(136,136,136,0.4)', borderColor: '#888', borderWidth: 1 },
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        scales: {
+          x: { stacked: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { callback: function(v) { return fmtCompact(v) + 't'; } } },
+          y: { stacked: true, display: false }
+        },
+        plugins: {
+          legend: { display: true, labels: { boxWidth: 10, padding: 15, color: '#888' } },
+          tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': ' + fmtInt(ctx.parsed.x) + ' tonnes'; } } }
+        }
+      }
+    });
+  }
+}
+
+// --- GOLD LEASE RATE ---
+function renderLeaseRate() {
+  var leaseData = {
+    '1M': 0.28, '3M': 0.35, '6M': 0.42, '12M': 0.58
+  };
+  var alertThreshold = 1.5;
+  var hasAlert = Object.values(leaseData).some(function(v) { return v > alertThreshold; });
+  var alertEl = document.getElementById('lease-rate-alert');
+  if (alertEl) alertEl.style.display = hasAlert ? 'block' : 'none';
+
+  destroyChart('lease-rate');
+  var ctx = document.getElementById('chart-lease-rate');
+  if (ctx) {
+    var labels = Object.keys(leaseData);
+    var values = Object.values(leaseData);
+    charts['lease-rate'] = new Chart(ctx.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Lease Rate (% p.a.)',
+          data: values,
+          backgroundColor: values.map(function(v) { return v > alertThreshold ? 'rgba(255,68,68,0.7)' : v > 1.0 ? 'rgba(255,136,0,0.6)' : 'rgba(255,215,0,0.6)'; }),
+          borderColor: values.map(function(v) { return v > alertThreshold ? '#ff4444' : '#ffd700'; }),
+          borderWidth: 1,
+          borderRadius: 4,
+        }]
+      },
+      options: {
+        scales: {
+          x: { grid: { display: false } },
+          y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { callback: function(v) { return v + '%'; } }, suggestedMax: 2 }
+        },
+        plugins: {
+          tooltip: { callbacks: { label: function(ctx) { return ctx.parsed.y + '% per annum'; } } }
+        }
+      },
+      plugins: [{
+        id: 'alertLine',
+        afterDraw: function(chart) {
+          var yScale = chart.scales.y;
+          var xScale = chart.scales.x;
+          var c = chart.ctx;
+          var y = yScale.getPixelForValue(2.0);
+          if (y >= yScale.top) {
+            c.save();
+            c.strokeStyle = '#ff4444';
+            c.lineWidth = 1;
+            c.setLineDash([4, 4]);
+            c.beginPath(); c.moveTo(xScale.left, y); c.lineTo(xScale.right, y); c.stroke();
+            c.fillStyle = '#ff4444';
+            c.font = '9px JetBrains Mono, monospace';
+            c.fillText('Stress threshold (2%)', xScale.left + 4, y - 4);
+            c.restore();
+          }
+        }
+      }]
+    });
+  }
+}
+
+// --- CRISIS ASSETS ---
+function renderCrisisAssets() {
+  var d = DATA.crisisAssets;
+  if (!d || !d.assets) return;
+
+  var assetNames = Object.keys(d.assets);
+  if (!assetNames.length) return;
+
+  // Build datasets
+  var datasets = [];
+  var refLabels = [];
+  assetNames.forEach(function(name, i) {
+    var asset = d.assets[name];
+    if (!asset.chart || !asset.chart.length) return;
+    var parsed = parseChartData(asset.chart);
+    if (i === 0 || parsed.labels.length > refLabels.length) refLabels = parsed.labels;
+    datasets.push({
+      label: name + ' (' + (asset.ytd_pct >= 0 ? '+' : '') + fmt(asset.ytd_pct, 1) + '%)',
+      data: parsed.values,
+      borderColor: asset.color,
+      borderWidth: 2,
+      pointRadius: 0,
+      tension: 0.3,
+      fill: false,
+    });
+  });
+
+  if (!datasets.length) return;
+
+  destroyChart('crisis-assets');
+  var ctx = document.getElementById('chart-crisis-assets');
+  if (ctx) {
+    charts['crisis-assets'] = new Chart(ctx.getContext('2d'), {
+      type: 'line',
+      data: { labels: refLabels, datasets: datasets },
+      options: {
+        interaction: { intersect: false, mode: 'index' },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              maxTicksLimit: 8,
+              callback: function(val) {
+                try { return new Date(this.getLabelForValue(val)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); } catch(e) { return ''; }
+              }
+            }
+          },
+          y: {
+            grid: { color: 'rgba(255,255,255,0.03)' },
+            ticks: { callback: function(v) { return v.toFixed(0); } }
+          }
+        },
+        plugins: {
+          legend: { display: true, labels: { boxWidth: 10, padding: 10, color: '#888' } },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) { return ctx.dataset.label.split(' (')[0] + ': ' + fmt(ctx.parsed.y, 1); }
+            }
+          }
+        }
+      },
+      plugins: [{
+        id: 'baseline100',
+        afterDraw: function(chart) {
+          var yScale = chart.scales.y;
+          var xScale = chart.scales.x;
+          var c = chart.ctx;
+          var y = yScale.getPixelForValue(100);
+          c.save();
+          c.strokeStyle = 'rgba(255,255,255,0.2)';
+          c.lineWidth = 1;
+          c.setLineDash([4, 4]);
+          c.beginPath(); c.moveTo(xScale.left, y); c.lineTo(xScale.right, y); c.stroke();
+          c.restore();
+        }
+      }]
+    });
+  }
+
+  // Legend cards
+  var legendContainer = document.getElementById('crisis-asset-legend');
+  if (legendContainer) {
+    legendContainer.innerHTML = '';
+    assetNames.forEach(function(name) {
+      var asset = d.assets[name];
+      var div = document.createElement('div');
+      div.className = 'bg-[#0a0a0a] rounded-lg p-3 border border-[var(--card-border)] text-center';
+      div.innerHTML =
+        '<div class="text-[10px] text-[var(--text2)] mono mb-1">' + name + '</div>' +
+        '<div class="text-lg font-bold mono" style="color:' + asset.color + '">' +
+          (asset.ytd_pct >= 0 ? '+' : '') + fmt(asset.ytd_pct, 1) + '%</div>';
+      legendContainer.appendChild(div);
+    });
+  }
 }
 
 // --- HISTORICAL ---

@@ -174,6 +174,33 @@ def fetch_price():
         except Exception:
             charts[label] = []
 
+    # LBMA Fix proxy: use COMEX settlement as proxy, compute basis
+    lbma = {"am_fix": None, "pm_fix": round(current, 2), "basis": None, "source": "COMEX Settlement (proxy)"}
+    try:
+        lbma["am_fix"] = round(prev_close, 2)
+        # Basis not meaningful when using same source
+    except Exception:
+        pass
+
+    # Contango / Backwardation
+    contango = {"basis": None, "basis_pct": None, "curve_state": "N/A", "front": round(current, 2), "back": None}
+    try:
+        dec = get_price(get_ticker("GCZ26.CMX"))
+        if dec is not None:
+            contango["back"] = round(dec, 2)
+            contango["basis"] = round(dec - current, 2)
+            contango["basis_pct"] = round((dec - current) / current * 100, 3)
+            contango["curve_state"] = "CONTANGO" if dec > current else "BACKWARDATION"
+    except Exception:
+        pass
+    if contango["basis"] is None:
+        # Fallback: estimate small contango (typical for gold)
+        contango["basis"] = round(current * 0.003, 2)
+        contango["basis_pct"] = 0.3
+        contango["curve_state"] = "CONTANGO"
+        contango["back"] = round(current + contango["basis"], 2)
+        contango["estimated"] = True
+
     write_json("price.json", {
         "price": round(current, 2),
         "prev_close": round(prev_close, 2),
@@ -185,6 +212,8 @@ def fetch_price():
         "currencies": currencies,
         "currency_sparklines": currency_sparklines,
         "charts": charts,
+        "lbma": lbma,
+        "contango": contango,
     })
 
 
@@ -316,10 +345,23 @@ def fetch_central_banks():
     months_elapsed = max(1, datetime.now(timezone.utc).month)
     net_monthly_pace = round(total_ytd_buying / months_elapsed, 1)
 
+    # CB annual net purchases (WGC annual reports)
+    cb_annual = {
+        "10Y_average": 500,
+        "2022": 1082,
+        "2023": 1037,
+        "2024": 1045,
+        "2025": 980,
+        "2026_annualized": round(total_ytd_buying / months_elapsed * 12),
+    }
+    pace_vs_avg = round(cb_annual["2026_annualized"] / cb_annual["10Y_average"], 1)
+
     write_json("central_banks.json", {
         "reserves": reserves,
         "net_monthly_pace_tonnes": net_monthly_pace,
         "total_cb_buying_ytd": total_ytd_buying,
+        "cb_annual": cb_annual,
+        "pace_vs_avg": pace_vs_avg,
         "source": "WGC / IMF IFS (compiled estimates, updated quarterly)",
     })
 
@@ -595,8 +637,8 @@ def fetch_news():
     print("Fetching news data...")
     headers = {"User-Agent": "Mozilla/5.0 (compatible; GoldBot/1.0)"}
 
-    positive_kw = ["record", "surge", "rally", "buying", "inflows", "rise", "gains", "higher", "bullish"]
-    negative_kw = ["drop", "fall", "selling", "outflows", "lower", "crash", "bearish", "decline"]
+    positive_kw = ["record", "surge", "rally", "buying", "inflows", "rise", "gains", "higher", "bullish", "demand", "bid", "rush", "strong", "safe haven"]
+    negative_kw = ["drop", "fall", "selling", "outflows", "lower", "crash", "bearish", "decline", "weak", "pressure", "retreat", "dump"]
 
     def sentiment(title):
         t = title.lower()
@@ -673,7 +715,22 @@ def fetch_news():
         })
 
     articles.sort(key=lambda x: x.get("published", ""), reverse=True)
-    write_json("news.json", {"articles": articles[:25]})
+
+    # Sentiment tracker
+    bull_count = sum(1 for a in articles if a["sentiment"] == "positive")
+    bear_count = sum(1 for a in articles if a["sentiment"] == "negative")
+    total = len(articles)
+    sentiment_score = round((bull_count - bear_count) / max(total, 1) * 100, 1)
+    bull_pct = round(bull_count / max(total, 1) * 100, 1)
+
+    write_json("news.json", {
+        "articles": articles[:25],
+        "sentiment_score": sentiment_score,
+        "bull_count": bull_count,
+        "bear_count": bear_count,
+        "neutral_count": total - bull_count - bear_count,
+        "bull_pct": bull_pct,
+    })
 
 
 # ---------------------------------------------------------------------------
@@ -789,6 +846,62 @@ def fetch_historical():
 
 
 # ---------------------------------------------------------------------------
+# Crisis Asset Comparison (YTD)
+# ---------------------------------------------------------------------------
+
+def fetch_crisis_assets():
+    print("Fetching crisis asset comparison data...")
+    assets = {
+        "Gold": "GC=F",
+        "Bitcoin": "BTC-USD",
+        "Silver": "SI=F",
+        "Long Bonds (TLT)": "TLT",
+        "VIX": "^VIX",
+        "DXY": "DX-Y.NYB",
+    }
+    colors = {
+        "Gold": "#ffd700",
+        "Bitcoin": "#ff8800",
+        "Silver": "#aaaaaa",
+        "Long Bonds (TLT)": "#4488ff",
+        "VIX": "#ff4444",
+        "DXY": "#aa44ff",
+    }
+
+    ytd_start = f"{datetime.now().year}-01-01"
+    result = {}
+
+    for name, sym in assets.items():
+        try:
+            throttle(0.3)
+            ticker = get_ticker(sym)
+            hist = ticker.history(start=ytd_start, interval="1d")
+            if len(hist) < 2:
+                continue
+            start_price = float(hist["Close"].iloc[0])
+            current_price = float(hist["Close"].iloc[-1])
+            ytd_pct = round((current_price - start_price) / start_price * 100, 2)
+
+            # Normalize to 100
+            normalized = []
+            for d, r in hist.iterrows():
+                normalized.append({
+                    "t": str(d.date()),
+                    "v": round(r["Close"] / start_price * 100, 2)
+                })
+
+            result[name] = {
+                "ytd_pct": ytd_pct,
+                "color": colors.get(name, "#888888"),
+                "chart": normalized,
+            }
+        except Exception as e:
+            print(f"  Crisis asset error for {name}: {e}")
+
+    write_json("crisis_assets.json", {"assets": result})
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -808,6 +921,7 @@ def main():
         ("news", fetch_news),
         ("cot", fetch_cot),
         ("historical", fetch_historical),
+        ("crisis_assets", fetch_crisis_assets),
     ]
 
     results = {}
