@@ -348,6 +348,8 @@ def fetch_central_banks():
     # CB annual net purchases (WGC annual reports)
     cb_annual = {
         "10Y_average": 500,
+        "2020": 255,
+        "2021": 450,
         "2022": 1082,
         "2023": 1037,
         "2024": 1045,
@@ -429,18 +431,21 @@ def fetch_macro():
     }
 
     data = {}
+    data_sources = {}  # Track source for each field: "fred", "yfinance", or "estimate"
+
     for name, series_id in series.items():
         try:
             url = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}"
             resp = None
-            for attempt in range(2):
+            for attempt in range(3):
                 try:
-                    resp = requests.get(url, timeout=45)
+                    resp = requests.get(url, timeout=60)
                     resp.raise_for_status()
                     break
                 except requests.exceptions.Timeout:
-                    if attempt == 0:
-                        print(f"  FRED timeout for {name}, retrying...")
+                    if attempt < 2:
+                        print(f"  FRED timeout for {name}, retry {attempt + 1}/3...")
+                        time.sleep(2)
                         continue
                     raise
             if resp is None:
@@ -469,6 +474,7 @@ def fetch_macro():
                 else:
                     data[name] = latest["value"]
                 data[f"{name}_date"] = latest["date"]
+                data_sources[name] = "fred"
                 chart_entries = values[-252:]
                 data[f"{name}_chart"] = [{"t": v["date"], "v": v["value"]} for v in chart_entries]
         except Exception as e:
@@ -482,6 +488,7 @@ def fetch_macro():
         if dxy_price:
             data["dxy"] = round(dxy_price, 2)
             data["dxy_date"] = str(datetime.now(timezone.utc).date())
+            data_sources["dxy"] = "yfinance"
             dxy_hist = dxy_ticker.history(period="1y", interval="1d")
             data["dxy_chart"] = [{"t": str(d.date()), "v": round(r["Close"], 2)} for d, r in dxy_hist.iterrows()]
         else:
@@ -489,27 +496,63 @@ def fetch_macro():
     except Exception:
         data["dxy"] = None
 
-    # Fallback: if fed_funds is None, try yfinance ^IRX (13-week T-bill)
+    # yfinance fallback: 10Y nominal yield from ^TNX
+    if data.get("us_10y") is None:
+        try:
+            throttle(0.3)
+            tnx = get_ticker("^TNX")
+            hist = tnx.history(period="5d")
+            if not hist.empty:
+                data["us_10y"] = round(float(hist["Close"].iloc[-1]), 2)
+                data["us_10y_date"] = str(datetime.now(timezone.utc).date())
+                data_sources["us_10y"] = "yfinance"
+                print(f"  us_10y from yfinance ^TNX: {data['us_10y']}")
+                # Build 1Y chart from yfinance
+                hist_1y = tnx.history(period="1y", interval="1d")
+                data["us_10y_chart"] = [{"t": str(d.date()), "v": round(r["Close"], 2)} for d, r in hist_1y.iterrows()]
+        except Exception as e:
+            print(f"  yfinance ^TNX fallback failed: {e}")
+
+    # yfinance fallback: fed_funds from ^IRX (13-week T-bill)
     if data.get("fed_funds") is None:
         try:
+            throttle(0.3)
             irx = get_price("^IRX")
             if irx is not None:
                 data["fed_funds"] = round(irx, 2)
                 data["fed_funds_date"] = str(datetime.now(timezone.utc).date())
+                data_sources["fed_funds"] = "yfinance"
+                print(f"  fed_funds from yfinance ^IRX: {data['fed_funds']}")
         except Exception:
             pass
 
-    # Fallback: if real_yield_10y is None, try yfinance ^TYX or compute from TIPS
+    # yfinance fallback: real_yield_10y computed from us_10y minus breakeven inflation
     if data.get("real_yield_10y") is None:
+        us10 = data.get("us_10y")
+        if us10 is not None:
+            # Approximate breakeven inflation ~2.3% (typical 10Y breakeven)
+            data["real_yield_10y"] = round(us10 - 2.3, 2)
+            data["real_yield_10y_date"] = str(datetime.now(timezone.utc).date())
+            data_sources["real_yield_10y"] = "yfinance"
+            print(f"  real_yield_10y computed from us_10y - breakeven: {data['real_yield_10y']}")
+
+    # Build real_yield_10y_chart from ^TNX 1Y history minus breakeven
+    if data.get("real_yield_10y_chart") is None:
         try:
-            tip = get_price("TIP")
-            if tip is not None:
-                us10 = data.get("us_10y")
-                if us10 is not None:
-                    data["real_yield_10y"] = round(us10 - 2.3, 2)  # rough breakeven
-                    data["real_yield_10y_date"] = str(datetime.now(timezone.utc).date())
-        except Exception:
-            pass
+            throttle(0.3)
+            tnx = get_ticker("^TNX")
+            tnx_hist = tnx.history(period="1y", interval="1d")
+            if not tnx_hist.empty:
+                cpi_breakeven = 2.3
+                data["real_yield_10y_chart"] = [
+                    {"t": str(d.date()), "v": round(float(r["Close"]) - cpi_breakeven, 2)}
+                    for d, r in tnx_hist.iterrows()
+                ]
+                print(f"  real_yield_10y_chart built from ^TNX ({len(tnx_hist)} points)")
+        except Exception as e:
+            print(f"  real_yield_10y_chart failed: {e}")
+
+    # yfinance fallback: CPI YoY — no good yfinance proxy, keep FRED-only
 
     # Last-resort hardcoded fallbacks for any still-None values (Apr 2026 estimates)
     fallbacks = {
@@ -524,7 +567,14 @@ def fetch_macro():
         if data.get(k) is None:
             print(f"  Using hardcoded fallback for {k}: {v}")
             data[k] = v
+            data_sources[k] = "estimate"
 
+    # Mark any remaining untracked sources
+    for k in fallbacks:
+        if k not in data_sources:
+            data_sources[k] = "estimate"
+
+    data["data_sources"] = data_sources
     write_json("macro.json", data)
 
 
@@ -650,9 +700,12 @@ def fetch_news():
 
     feeds = [
         ("Kitco", "https://feeds.kitco.com/MarketNuggets.rss"),
+        ("Kitco News", "https://www.kitco.com/rss/KitcoRSS_News.xml"),
         ("BullionVault", "https://www.bullionvault.com/gold-news/rss.do"),
         ("Mining.com", "https://www.mining.com/feed/"),
         ("GoldPrice.org", "https://goldprice.org/rss.xml"),
+        ("Reuters Commodities", "https://www.reutersagency.com/feed/?best-topics=commodities&post_type=best"),
+        ("Investing.com Gold", "https://www.investing.com/rss/news_301.rss"),
     ]
 
     articles = []
@@ -661,9 +714,9 @@ def fetch_news():
             feed = feedparser.parse(url, request_headers=headers)
             for entry in feed.entries[:15]:
                 title = entry.get("title", "")
-                # For Mining.com, filter for gold-related articles
-                if source == "Mining.com":
-                    if not any(k in title.lower() for k in ["gold", "mining", "precious", "bullion"]):
+                # For general feeds, filter for gold-related articles
+                if source in ("Mining.com", "Reuters Commodities", "Investing.com Gold"):
+                    if not any(k in title.lower() for k in ["gold", "mining", "precious", "bullion", "metal", "silver", "commodity", "reserve"]):
                         continue
                 pub = entry.get("published", entry.get("updated", ""))
                 articles.append({
@@ -678,7 +731,10 @@ def fetch_news():
 
     # Fallback: scrape Kitco headlines if we got fewer than 10 articles
     if len(articles) < 10:
-        print("  RSS feeds returned < 10 articles, trying Kitco scrape fallback...")
+        print("  RSS feeds returned < 10 articles, trying scrape fallbacks...")
+        existing_titles = {a["title"] for a in articles}
+
+        # Kitco scrape
         try:
             from bs4 import BeautifulSoup
             resp = requests.get("https://www.kitco.com/news/gold/", headers=headers, timeout=20)
@@ -691,9 +747,9 @@ def fetch_news():
                         continue
                     if link and not link.startswith("http"):
                         link = "https://www.kitco.com" + link
-                    # Avoid duplicates
-                    if any(art["title"] == title for art in articles):
+                    if title in existing_titles:
                         continue
+                    existing_titles.add(title)
                     articles.append({
                         "source": "Kitco",
                         "title": title,
@@ -703,6 +759,29 @@ def fetch_news():
                     })
         except Exception as e:
             print(f"  Kitco scrape fallback failed: {e}")
+
+    # Additional fallback: Google News RSS for gold
+    if len(articles) < 15:
+        try:
+            gnews_url = "https://news.google.com/rss/search?q=gold+price+OR+gold+market&hl=en-US&gl=US&ceid=US:en"
+            feed = feedparser.parse(gnews_url, request_headers=headers)
+            existing_titles = {a["title"] for a in articles}
+            for entry in feed.entries[:15]:
+                title = entry.get("title", "")
+                if not title or title in existing_titles:
+                    continue
+                if not any(k in title.lower() for k in ["gold", "precious", "bullion", "metal"]):
+                    continue
+                existing_titles.add(title)
+                articles.append({
+                    "source": "Google News",
+                    "title": title,
+                    "link": entry.get("link", ""),
+                    "published": entry.get("published", ""),
+                    "sentiment": sentiment(title),
+                })
+        except Exception as e:
+            print(f"  Google News RSS fallback failed: {e}")
 
     # If still empty, add placeholder so frontend doesn't break
     if not articles:
@@ -830,13 +909,36 @@ def fetch_historical():
         {"decade": "2020s (so far)", "avg_annual_return": 15.8},
     ]
 
+    # Pre-2000 annual gold prices (London PM Fix, well-documented historical data)
+    pre_2000_data = [
+        ("1971-01-01", 37.4), ("1972-01-01", 46.6), ("1973-01-01", 64.9),
+        ("1974-01-01", 129.5), ("1975-01-01", 175.0), ("1976-01-01", 140.4),
+        ("1977-01-01", 132.7), ("1978-01-01", 174.0), ("1979-01-01", 227.0),
+        ("1980-01-01", 675.0), ("1980-09-01", 674.0), ("1981-01-01", 559.5),
+        ("1982-01-01", 399.6), ("1983-01-01", 481.5), ("1984-01-01", 376.0),
+        ("1985-01-01", 302.7), ("1986-01-01", 345.4), ("1987-01-01", 408.9),
+        ("1988-01-01", 476.6), ("1989-01-01", 399.0), ("1990-01-01", 410.1),
+        ("1991-01-01", 362.1), ("1992-01-01", 353.4), ("1993-01-01", 329.0),
+        ("1994-01-01", 386.7), ("1995-01-01", 378.9), ("1996-01-01", 399.6),
+        ("1997-01-01", 367.4), ("1998-01-01", 289.2), ("1999-01-01", 287.8),
+        ("1999-08-01", 252.6),
+    ]
+
     timeline_chart = []
     try:
         gold = get_ticker("GC=F")
         hist = gold.history(period="max", interval="1mo")
-        timeline_chart = [{"t": str(d.date()), "v": round(r["Close"], 2)} for d, r in hist.iterrows()]
+        yf_chart = [{"t": str(d.date()), "v": round(r["Close"], 2)} for d, r in hist.iterrows()]
+        # Find earliest yfinance date
+        earliest_yf = yf_chart[0]["t"] if yf_chart else "2100-01-01"
+        # Prepend pre-2000 data that doesn't overlap
+        for t, v in pre_2000_data:
+            if t < earliest_yf:
+                timeline_chart.append({"t": t, "v": v})
+        timeline_chart.extend(yf_chart)
     except Exception:
-        pass
+        # If yfinance fails entirely, use just the pre-2000 data
+        timeline_chart = [{"t": t, "v": v} for t, v in pre_2000_data]
 
     write_json("historical.json", {
         "events": events,

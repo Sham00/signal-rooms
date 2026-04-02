@@ -163,6 +163,17 @@
   ],
   "net_monthly_pace_tonnes": 31.0,
   "total_cb_buying_ytd": 124,
+  "cb_annual": {
+    "10Y_average": 500,
+    "2020": 255,
+    "2021": 450,
+    "2022": 1082,
+    "2023": 1037,
+    "2024": 1045,
+    "2025": 980,
+    "2026_annualized": 372
+  },
+  "pace_vs_avg": 0.7,
   "source": "WGC / IMF IFS (compiled estimates, updated quarterly)",
-  "last_updated": "2026-04-01T23:52:19Z"
+  "last_updated": "2026-04-02T01:12:30Z"
 }
