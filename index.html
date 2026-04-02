@@ -3113,6 +3113,7 @@ function renderCentralBanks() {
     var statusHtml = '';
     if (r.status === 'buying') statusHtml = '<span class="badge" style="background:rgba(0,255,136,0.15);color:#00ff88;">BUYING</span>';
     else if (r.status === 'selling') statusHtml = '<span class="badge" style="background:rgba(255,68,68,0.15);color:#ff4444;">SELLING</span>';
+    else if (r.status === 'sell_watch') statusHtml = '<span class="badge" style="background:rgba(255,136,0,0.15);color:#ff8800;">⚠ SELL WATCH</span>';
     else statusHtml = '<span class="badge" style="background:rgba(136,136,136,0.15);color:#888;">HOLD</span>';
 
     var reserveIntensity = Math.max(0.03, r.reserves_tonnes / maxReserves * 0.15);

@@ -44,8 +44,8 @@
       "country": "China",
       "reserves_tonnes": 2280,
       "pct_of_reserves": 5.4,
-      "change_ytd": 3,
-      "last_month_change": 1,
+      "change_ytd": 15,
+      "last_month_change": 5,
       "status": "buying"
     },
     {
@@ -73,6 +73,14 @@
       "status": "unchanged"
     },
     {
+      "country": "Turkey",
+      "reserves_tonnes": 613,
+      "pct_of_reserves": 34.1,
+      "change_ytd": -28,
+      "last_month_change": -27,
+      "status": "selling"
+    },
+    {
       "country": "Netherlands",
       "reserves_tonnes": 612,
       "pct_of_reserves": 59.2,
@@ -81,20 +89,12 @@
       "status": "unchanged"
     },
     {
-      "country": "Turkey",
-      "reserves_tonnes": 570,
-      "pct_of_reserves": 34.1,
-      "change_ytd": 45,
-      "last_month_change": 15,
-      "status": "buying"
-    },
-    {
       "country": "Poland",
       "reserves_tonnes": 420,
       "pct_of_reserves": 16.4,
-      "change_ytd": 18,
-      "last_month_change": 6,
-      "status": "buying"
+      "change_ytd": 0,
+      "last_month_change": 0,
+      "status": "sell_watch"
     },
     {
       "country": "Uzbekistan",
@@ -161,8 +161,8 @@
       "status": "buying"
     }
   ],
-  "net_monthly_pace_tonnes": 31.0,
-  "total_cb_buying_ytd": 124,
+  "net_monthly_pace_tonnes": 18.2,
+  "total_cb_buying_ytd": 73,
   "cb_annual": {
     "10Y_average": 500,
     "2020": 255,
@@ -171,17 +171,24 @@
     "2023": 1037,
     "2024": 1045,
     "2025": 980,
-    "2026_annualized": 372
+    "2026_annualized": 219
   },
-  "pace_vs_avg": 0.7,
+  "pace_vs_avg": 0.4,
   "source": "WGC / IMF IFS (compiled estimates, updated quarterly)",
   "cb_news": [
     {
-      "title": "The Quiet Revolution in Central Bank Gold Buying - GoldSilver",
-      "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxPeTVCRGJ5dlBCQzNESzU0a3BoZU9tUW5uWHNONzBGdlJ5R0RYLWg0b3N1X0ZVSGZLb3ZuRE12WjhrT2RzU0xkVmhpdFdqOWpMRTdsNDgtZTR3eXJLQXI3ZFpSWjNkc3VfRTF4U0QtbHlpSEtNQm5FcmFUTW1pT0JNVTQzYXV5UlNkNVB5aGRjU21JM0YyNFFWdHBR?oc=5",
-      "source": "Google News CB",
-      "published": "Wed, 15 Oct 2025 20:30:27 GMT",
-      "sentiment": "positive"
+      "title": "TCMB Survey: Household Inflation Expectations Near 50% as Gold Remains Top Investment Choice - PA Turkey",
+      "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxPdnQ1U3FTdmFrT2ViQ0FDWmpsekFleWV6dG52TVRwa1NZd19yeWZjZVNuMERZNlMyN2FaZjF1X1JMcE05azM3T1FlR04yOTdJX2h1Tm41NnBFZEt6NTBmeW1TMjFVYXpCZER5QmZFQ2lSekVaUTVZVGRPY28zNGFSZW9uSmcxWG1YWGFmaXdOOXQxbm5LdEs5WGhnRmdOdk9wc3puUWhDT3JKaHQ4T2VRNk53cjloSkQ4eGduZ3RlWGd6VUdYZ0E5V2FDMm4?oc=5",
+      "source": "Google News Turkey Gold",
+      "published": "Wed, 25 Mar 2026 20:42:19 GMT",
+      "sentiment": "neutral"
+    },
+    {
+      "title": "Turkey strikes currency swap deal with UAE as ties warm - Reuters",
+      "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNdU0xTDNuRGVFdXhhQjREYlc1QUVoaVczUklqSVU3Vjh1Z01ONkxySTRpQTV0Sm14NFRHamVjeHJZN1ZCWnM5ZGJTN0NEYi1QRjJXSExFWWd1aHpJay1uMmh6Ym1fbmZsV0xSOUptS0VjOE9UZ1FmYnhRUl9WSDc4bVQ2MXFHMzk5UFBJb1VyRDlLYTZFY3lXNzhJSDJIUE9sY084?oc=5",
+      "source": "Google News Turkey Gold",
+      "published": "Wed, 19 Jan 2022 08:00:00 GMT",
+      "sentiment": "neutral"
     },
     {
       "title": "Central Bank Gold Buying - Robin J Brooks | Substack",
@@ -198,17 +205,10 @@
       "sentiment": "neutral"
     },
     {
-      "title": "Central bank gold buying picks up in May | Post by Marissa Salim | Gold Focus blog - World Gold Council",
-      "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxPT2V3V0RuTDJUVnJKQWNaUE12Z2FUWGNHTGFCemtIeUhvYmFWTV85dUstMUJpY0x6T2d5MjJnV3Q4WTd0X3FDSkpUOER4eDZKUktFZ1E2aTZiX25sZ2RHaHNFY2NMa1Q3Q2k1cTFZZFBpTlA5V2hNc1hNWW9EVjl1dzFmVEw0djd3NWc?oc=5",
-      "source": "Google News CB",
-      "published": "Wed, 02 Jul 2025 07:00:00 GMT",
-      "sentiment": "positive"
-    },
-    {
-      "title": "\u2018Gold's liquidity works against it\u2019 in oil shock, central bank selling and ETF liquidations still possible \u2013 Morgan Stanley\u2019s Gower - KITCO",
-      "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxOQndVUl84QUtCeWd2R0F3NXo3RFdJdGVDVXN5eTk4Vmt0UXRXZ0I1UXpfX280SmpucTVpemRYR1NJUG5MMjBCSFF0UEZwdGRSRUVUajAwVVphQUdncVM0YVdyREFtM0t3YUg3MU5JWFplWjNfdTVPZ0tXUGlPeWtPODM2WlJDZ05CakZXSlZTaHhLVkpybVRCQXFzVzhPdmF2UzRtTW5CaFA4dVVWYkJ3MWpuN1VlTFdS?oc=5",
-      "source": "Google News CB",
-      "published": "Tue, 31 Mar 2026 12:47:00 GMT",
+      "title": "China\u2019s central bank buys gold for 14th consecutive month - Mining.com",
+      "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxNYkp5SmRWM2xIVXUzR2NaZS1wOEtSSzVqcWNSdVh5V3UyUzE3Tnp0V3ItRXVpYTE1eTdBd3NLY1NuNHpjVVRRTDBtLXRoOThmSUdXMGZlc2JvbFd6YlZmT1VHQzdvcFVQWmJfN1F1UGZkTU9RbjJBWmU0M0R1WDhXWmdZNTl5WWd5cmx1MA?oc=5",
+      "source": "Google News PBOC Gold",
+      "published": "Wed, 07 Jan 2026 08:00:00 GMT",
       "sentiment": "negative"
     }
   ],
@@ -218,5 +218,5 @@
     "reliability": "estimate",
     "notes": "World Gold Council publishes quarterly. Monthly changes are estimates."
   },
-  "last_updated": "2026-04-02T14:39:27Z"
+  "last_updated": "2026-04-02T16:17:05Z"
 }

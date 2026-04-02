@@ -439,13 +439,13 @@ def fetch_central_banks():
         {"country": "Italy", "reserves_tonnes": 2452, "pct_of_reserves": 65.5, "change_ytd": 0, "last_month_change": 0, "status": "unchanged"},
         {"country": "France", "reserves_tonnes": 2437, "pct_of_reserves": 67.2, "change_ytd": 0, "last_month_change": 0, "status": "unchanged"},
         {"country": "Russia", "reserves_tonnes": 2335, "pct_of_reserves": 28.1, "change_ytd": -36, "last_month_change": -12, "status": "selling"},
-        {"country": "China", "reserves_tonnes": 2280, "pct_of_reserves": 5.4, "change_ytd": 3, "last_month_change": 1, "status": "buying"},
+        {"country": "China", "reserves_tonnes": 2280, "pct_of_reserves": 5.4, "change_ytd": 15, "last_month_change": 5, "status": "buying"},  # WGC: steady accumulator, ~180t/year pace since 2022
         {"country": "Switzerland", "reserves_tonnes": 1040, "pct_of_reserves": 6.1, "change_ytd": 0, "last_month_change": 0, "status": "unchanged"},
         {"country": "India", "reserves_tonnes": 876, "pct_of_reserves": 10.2, "change_ytd": 15, "last_month_change": 5, "status": "buying"},
         {"country": "Japan", "reserves_tonnes": 846, "pct_of_reserves": 4.6, "change_ytd": 0, "last_month_change": 0, "status": "unchanged"},
         {"country": "Netherlands", "reserves_tonnes": 612, "pct_of_reserves": 59.2, "change_ytd": 0, "last_month_change": 0, "status": "unchanged"},
-        {"country": "Turkey", "reserves_tonnes": 570, "pct_of_reserves": 34.1, "change_ytd": 45, "last_month_change": 15, "status": "buying"},
-        {"country": "Poland", "reserves_tonnes": 420, "pct_of_reserves": 16.4, "change_ytd": 18, "last_month_change": 6, "status": "buying"},
+        {"country": "Turkey", "reserves_tonnes": 613, "pct_of_reserves": 34.1, "change_ytd": -28, "last_month_change": -27, "status": "selling"},  # CEIC: 613t Q4 2025, net seller — sold 58t in 2 weeks Mar 2026 (defense/inflation hedge); Bloomberg Mar 5 2026
+        {"country": "Poland", "reserves_tonnes": 420, "pct_of_reserves": 16.4, "change_ytd": 0, "last_month_change": 0, "status": "sell_watch"},  # Bloomberg Mar 5 2026: NBP chief proposes $13B gold sale for defense — no sales confirmed yet but high risk
         {"country": "Uzbekistan", "reserves_tonnes": 380, "pct_of_reserves": 72.1, "change_ytd": 10, "last_month_change": 2, "status": "buying"},
         {"country": "United Kingdom", "reserves_tonnes": 310, "pct_of_reserves": 10.5, "change_ytd": 0, "last_month_change": 0, "status": "unchanged"},
         {"country": "Kazakhstan", "reserves_tonnes": 295, "pct_of_reserves": 68.2, "change_ytd": 24, "last_month_change": 8, "status": "buying"},
