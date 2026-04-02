@@ -2,9 +2,9 @@
   "etfs": {
     "GLD": {
       "name": "SPDR Gold Shares",
-      "price": 429.8,
-      "change": -9.6,
-      "change_pct": -2.19,
+      "price": 429.67,
+      "change": -9.73,
+      "change_pct": -2.21,
       "tonnes_est": 870,
       "daily_change_est": -0.5,
       "chart_1y": [
@@ -1014,15 +1014,15 @@
         },
         {
           "t": "2026-04-02",
-          "v": 429.8
+          "v": 429.67
         }
       ]
     },
     "IAU": {
       "name": "iShares Gold Trust",
-      "price": 88.03,
-      "change": -1.93,
-      "change_pct": -2.15,
+      "price": 88.02,
+      "change": -1.94,
+      "change_pct": -2.16,
       "tonnes_est": 460,
       "daily_change_est": 0.3,
       "chart_1y": [
@@ -2032,15 +2032,15 @@
         },
         {
           "t": "2026-04-02",
-          "v": 88.03
+          "v": 88.02
         }
       ]
     },
     "PHYS": {
       "name": "Sprott Physical Gold",
-      "price": 35.42,
-      "change": -0.92,
-      "change_pct": -2.52,
+      "price": 35.4,
+      "change": -0.93,
+      "change_pct": -2.55,
       "tonnes_est": 68,
       "daily_change_est": 0.1,
       "chart_1y": [
@@ -3050,15 +3050,15 @@
         },
         {
           "t": "2026-04-02",
-          "v": 35.42
+          "v": 35.4
         }
       ]
     },
     "BAR": {
       "name": "GraniteShares Gold",
-      "price": 46.08,
-      "change": -1.16,
-      "change_pct": -2.46,
+      "price": 45.98,
+      "change": -1.26,
+      "change_pct": -2.67,
       "tonnes_est": 18,
       "daily_change_est": 0.0,
       "chart_1y": [
@@ -4068,15 +4068,15 @@
         },
         {
           "t": "2026-04-02",
-          "v": 46.08
+          "v": 45.98
         }
       ]
     },
     "SGOL": {
       "name": "Aberdeen Physical Gold",
-      "price": 44.56,
-      "change": -0.9,
-      "change_pct": -1.97,
+      "price": 44.54,
+      "change": -0.92,
+      "change_pct": -2.01,
       "tonnes_est": 42,
       "daily_change_est": 0.0,
       "chart_1y": [
@@ -5086,7 +5086,7 @@
         },
         {
           "t": "2026-04-02",
-          "v": 44.56
+          "v": 44.54
         }
       ]
     }
@@ -5098,5 +5098,5 @@
     "reliability": "estimate",
     "notes": "Actual fund holdings from custodian reports lag 1 day. Daily tonne changes are estimates based on price movement."
   },
-  "last_updated": "2026-04-02T14:39:33Z"
+  "last_updated": "2026-04-02T19:06:25Z"
 }
