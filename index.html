@@ -3146,8 +3146,10 @@ function renderRatios() {
     gold_silver: {
       label: 'Gold / Silver', unit: 'oz of silver per oz gold', avg: 82, cheapBelow: 70, expAbove: 90,
       signal: function(val, pctile) {
+        if (pctile != null && pctile < 5) return { text: '🔥 HISTORIC LOW — Silver dominant, rare late-bull signal or peak fear', color: '#ffd700' };
         if (val != null && val < 65) return { text: '▼ Silver sharply outperforming — late-bull signal', color: '#ffd700' };
         if (val != null && val < 75) return { text: '▼ Silver outperforming — watch for catch-up', color: '#88dd44' };
+        if (pctile != null && pctile > 97) return { text: '🔥 HISTORIC HIGH — Silver deeply oversold, extreme opportunity or fear', color: '#00ff88' };
         if (val != null && val > 95) return { text: '▲ Silver deeply oversold vs gold', color: '#00ff88' };
         if (val != null && val > 85) return { text: '▲ Silver cheap — potential mean reversion', color: '#88dd44' };
         return { text: '→ Within historical range', color: '#888' };
@@ -3165,7 +3167,9 @@ function renderRatios() {
     gold_spx: {
       label: 'Gold / S&P 500', unit: 'S&P500 units per oz gold', avg: 0.9, cheapBelow: null, expAbove: null,
       signal: function(val, pctile) {
+        if (pctile != null && pctile > 95) return { text: '🔥 HISTORIC — Gold crushing stocks, extreme risk-off flight', color: '#ff4444' };
         if (pctile != null && pctile > 70) return { text: '⬆ Gold outperforming stocks — risk-off bid', color: '#00ff88' };
+        if (pctile != null && pctile < 10) return { text: '⬇ Stocks sharply outperforming — peak risk-on', color: '#ff8844' };
         if (pctile != null && pctile < 30) return { text: '⬇ Stocks outperforming — risk-on environment', color: '#ff8844' };
         return { text: '→ Neutral relative performance', color: '#888' };
       }
@@ -3173,7 +3177,9 @@ function renderRatios() {
     gold_btc: {
       label: 'Gold / Bitcoin', unit: 'oz gold per BTC (inverted)', avg: null, cheapBelow: null, expAbove: null, invert: true,
       signal: function(val, pctile) {
+        if (pctile != null && pctile > 90) return { text: '🔥 Historic — Gold dominant, BTC losing safe-haven bid', color: '#ff4444' };
         if (pctile != null && pctile > 70) return { text: '⬆ Gold outperforming BTC', color: '#ffd700' };
+        if (pctile != null && pctile < 10) return { text: '⬇ BTC surging vs gold — crypto risk appetite high', color: '#ff8800' };
         if (pctile != null && pctile < 30) return { text: '⬇ BTC outperforming gold', color: '#ff8800' };
         return { text: '→ BTC and gold tracking closely', color: '#888' };
       }
@@ -3181,6 +3187,7 @@ function renderRatios() {
     gold_copper: {
       label: 'Gold / Copper', unit: 'lbs copper per oz gold', avg: 550, cheapBelow: null, expAbove: null,
       signal: function(val, pctile) {
+        if (pctile != null && pctile > 95) return { text: '🔥 HISTORIC — Near all-time high, maximum recession fear priced in', color: '#ff4444' };
         if (pctile != null && pctile > 85) return { text: '⚠ Elevated — copper weakness signals slowdown risk', color: '#ff8844' };
         if (pctile != null && pctile > 70) return { text: '↑ Above avg — some recession fear priced in', color: '#ffd700' };
         if (pctile != null && pctile < 25) return { text: '▼ Low — copper strength, risk appetite high', color: '#00ff88' };
