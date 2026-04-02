@@ -171,14 +171,15 @@
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
   .loading-pulse { animation: pulse 1.5s ease-in-out infinite; }
 
-  /* Skeleton */
+  /* Skeleton value placeholders */
   .skeleton {
-    background: linear-gradient(90deg, #1a1a1a 25%, #222 50%, #1a1a1a 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: 6px;
+    background: linear-gradient(90deg, #161616 20%, #252525 35%, #2e2e2e 50%, #252525 65%, #161616 80%);
+    background-size: 400% 100%;
+    animation: shimmer 2s ease infinite;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.04);
   }
-  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 
   /* Section titles */
   .section-title {
@@ -474,6 +475,386 @@
     text-align: right;
     min-width: 60px;
   }
+
+  /* ===== MOBILE OPTIMIZATION ===== */
+  /* Mobile: < 480px (phones) | Tablet: 480px–767px | Desktop: >= 768px */
+
+  /* ---- Touch improvements (all mobile < 768px) ---- */
+  @media (max-width: 767px) {
+
+    /* CRITICAL: prevent any element from causing horizontal page overflow */
+    html, body {
+      overflow-x: hidden;
+      max-width: 100%;
+    }
+
+    /* Remove tap flash on interactive elements */
+    a, button, .pill, .card, [onclick] {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Hide scrollbar on touch devices */
+    ::-webkit-scrollbar { width: 0; height: 0; }
+
+    /* 4. Card padding: 16px on mobile */
+    .card { padding: 16px; }
+
+    /* 11. Section titles: compact on mobile */
+    .section-title {
+      font-size: 12px;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    /* 11. Big number: 32px on mobile */
+    .big-num { font-size: 32px; }
+
+    /* 11. Heat table: compact padding */
+    .heat-table th { font-size: 10px; padding: 6px 8px; }
+    .heat-table td { font-size: 11px; padding: 6px 8px; }
+
+    /* 12. Pill buttons: 44px touch target (Apple HIG) */
+    .pill { min-height: 44px; padding: 10px 14px; font-size: 13px; }
+
+    /* Dashboard grid: tighter gap, bottom space for nav bar */
+    .dashboard-grid {
+      gap: 12px;
+      padding: 12px;
+      /* 80px nav + 16px breathing room + safe area (iPhone home indicator ~34px) */
+      padding-bottom: calc(96px + env(safe-area-inset-bottom));
+    }
+
+    /* 13. Footer: safe area above home indicator + nav bar */
+    footer {
+      padding-bottom: calc(104px + env(safe-area-inset-bottom));
+      margin-bottom: 0;
+    }
+
+    /* 1. Header: compact padding on mobile */
+    .header > div {
+      padding-left: 16px !important;
+      padding-right: 16px !important;
+      padding-top: 8px !important;
+      padding-bottom: 8px !important;
+      gap: 8px !important;
+      flex-wrap: wrap !important;
+    }
+
+    /* 1. Header extras: hidden on mobile by default */
+    #header-extras {
+      display: none !important;
+    }
+    #header-extras.open {
+      display: flex !important;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+      width: 100%;
+      padding-top: 8px;
+      border-top: 1px solid var(--card-border);
+      margin-top: 4px;
+    }
+
+    /* 1. Header expand toggle: shown only on mobile */
+    #header-expand-btn {
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: 1px solid var(--card-border);
+      border-radius: 50%;
+      color: var(--text2);
+      cursor: pointer;
+      font-size: 13px;
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1;
+    }
+    #header-expand-btn:hover,
+    #header-expand-btn.expanded {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    #header-expand-btn.expanded { transform: rotate(180deg); }
+
+    /* 3. Charts: cap max height on mobile — only shrink tall charts, don't expand small ones */
+    .chart-wrap { max-height: 160px !important; }
+
+    /* 3. Main price chart: more vertical space on mobile */
+    .chart-wrap.chart-main-price {
+      height: 35vh !important;
+      min-height: 180px !important;
+      max-height: 280px !important;
+    }
+
+    /* RSI history: compact on mobile */
+    .chart-wrap.chart-rsi-hist { height: 100px !important; max-height: 100px !important; }
+
+    /* 5. Ratio cards: 2 per row (minmax 160px) */
+    #ratio-cards-grid {
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important;
+      gap: 10px !important;
+    }
+
+    /* 9. LBMA: 2x2 on mobile */
+    #sec-lbma .grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+    /* 6. Composite signal gauge: stack vertically */
+    .signal-gauge-wrap {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+    }
+    .signal-gauge-wrap > div[style*="min-width"] {
+      min-width: 0 !important; /* override inline min-width: 200px */
+    }
+    .signal-gauge-arc {
+      width: 85%;
+      max-width: 280px;
+      height: auto;
+      overflow: visible; /* don't clip SVG labels */
+      margin: 0 auto;
+    }
+    .signal-gauge-arc svg {
+      width: 100%;
+      height: auto;
+      overflow: visible;
+    }
+
+    /* 7. Currency grid: 2 cols on mobile */
+    #currency-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 8px !important;
+    }
+
+    /* 4. Table: hardware-accelerated touch scroll */
+    .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+
+    /* 4. Mobile swipe hint text */
+    .mobile-swipe-hint {
+      display: block;
+      font-size: 10px;
+      color: var(--text2);
+      font-family: 'JetBrains Mono', monospace;
+      text-align: right;
+      margin-bottom: 4px;
+      opacity: 0.6;
+      letter-spacing: 0.5px;
+    }
+
+    /* 4. CB Table: hide YTD Δ and % of Reserves on mobile */
+    #cb-table th:nth-child(4), #cb-table td:nth-child(4),
+    #cb-table th:nth-child(5), #cb-table td:nth-child(5) { display: none; }
+
+    /* 4. Miners Table: hide YTD%, Mkt Cap, Production koz, 6M Chart on mobile */
+    #miners-table th:nth-child(4), #miners-table td:nth-child(4),
+    #miners-table th:nth-child(5), #miners-table td:nth-child(5),
+    #miners-table th:nth-child(8), #miners-table td:nth-child(8),
+    #miners-table th:nth-child(9), #miners-table td:nth-child(9) { display: none; }
+
+    /* 10. Gold Flow SVG map: hidden by default on mobile */
+    #gold-flow-svg-wrap { display: none; }
+    #gold-flow-svg-wrap.visible { display: block; }
+    #gold-flow-toggle-btn { display: inline-flex !important; }
+
+    /* 8. News: hide items 7+ on mobile initially */
+    #news-list > div.flex:nth-child(n+7) { display: none; }
+    #news-list.mobile-expanded > div.flex:nth-child(n+7) { display: flex; }
+    .mobile-news-more { display: flex !important; }
+
+    /* Prevent macro section from spanning 2 cols (Tailwind inline span) */
+    #sec-macro { grid-column: span 1 !important; }
+
+    /* Info tooltips: constrain to viewport on mobile */
+    .info-tooltip::after {
+      width: 180px !important;
+      left: auto !important;
+      right: 0 !important;
+      transform: none !important;
+    }
+    
+    /* Macro cards: tighter grid */
+    #macro-cards { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+    
+    /* Crisis asset legend: 3 cols on mobile */
+    #crisis-asset-legend { grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; }
+    
+    /* CB table: column grid to 2 on mobile for top stats */
+    #sec-cb .grid.grid-cols-1.lg\\:grid-cols-3 { grid-template-columns: 1fr !important; }
+
+    /* Full-width sections: ensure they don't break mobile grid */
+    .full-width { grid-column: 1 / -1 !important; }
+
+    /* Timeframe pills: compact row */
+    #timeframe-pills { gap: 6px; }
+    #timeframe-pills .pill { padding: 8px 12px; min-height: 40px; }
+  }
+
+  /* ---- Phones only (< 480px) ---- */
+  @media (max-width: 479px) {
+    .big-num { font-size: 28px; }
+    .card { padding: 12px; }
+    .section-title { font-size: 11px; }
+    #timeframe-pills .pill { padding: 8px 9px; font-size: 11px; }
+  }
+
+  /* ===== LOADING / EMPTY STATES ===== */
+  /* Skeleton shimmer for chart areas while loading */
+  .chart-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 6px;
+    background: linear-gradient(90deg, #0d0d0d 20%, #191919 35%, #222 50%, #191919 65%, #0d0d0d 80%);
+    background-size: 400% 100%;
+    animation: shimmer 2s ease infinite;
+    border-radius: 8px;
+    position: relative;
+    border: 1px solid rgba(255,215,0,0.06);
+  }
+  .chart-loading canvas { opacity: 0; } /* hide empty canvas during shimmer */
+  .chart-loading::before {
+    content: '';
+    display: block;
+    width: 50%;
+    max-width: 120px;
+    height: 3px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255,215,0,0.25), transparent);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  .chart-loading::after {
+    content: 'Loading chart…';
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    color: rgba(255,215,0,0.35);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Retry button for failed data sections */
+  .data-retry-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,215,0,0.3);
+    background: rgba(255,215,0,0.06);
+    color: var(--gold);
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    margin-top: 8px;
+  }
+  .data-retry-btn:hover { background: rgba(255,215,0,0.12); border-color: var(--gold); }
+
+  /* Empty state container */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    text-align: center;
+    gap: 8px;
+  }
+  .empty-state-icon { font-size: 28px; opacity: 0.4; }
+  .empty-state-text {
+    font-size: 12px;
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ---- Desktop: always show header extras, hide mobile-only elements ---- */
+  @media (min-width: 768px) {
+    #header-extras { display: flex !important; }
+    #header-expand-btn { display: none !important; }
+    #gold-flow-toggle-btn { display: none !important; }
+    .mobile-swipe-hint { display: none !important; }
+    .mobile-news-more { display: none !important; }
+  }
+
+  /* ---- Mobile Bottom Navigation ---- */
+  .mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    z-index: 900;
+    background: rgba(17, 17, 17, 0.97);
+    border-top: 2px solid rgba(255, 215, 0, 0.2);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    overflow: hidden;
+    padding-bottom: env(safe-area-inset-bottom);
+    box-sizing: border-box;
+  }
+
+  .mobile-bottom-nav-inner {
+    display: flex;
+    width: 100%;
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* Allow scrolling within nav — but DO NOT let it overflow the page */
+    /* Each tab is flex: 1 so they share width equally, fitting all 9 within 100% */
+  }
+  .mobile-bottom-nav-inner::-webkit-scrollbar { display: none; }
+
+  .mobile-nav-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 4px;
+    flex: 1 1 0%;        /* equal share of available width */
+    min-width: 0;        /* allow shrinking below intrinsic size */
+    min-height: 52px;
+    cursor: pointer;
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    transition: color 0.2s ease, border-color 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    border: none;
+    border-top: 2px solid transparent;
+    background: none;
+    gap: 2px;
+    user-select: none;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .mobile-nav-tab .nav-icon { font-size: 15px; line-height: 1.2; }
+  .mobile-nav-tab.active,
+  .mobile-nav-tab:hover {
+    color: var(--gold);
+    border-top-color: var(--gold);
+  }
+
+  @media (max-width: 767px) {
+    .mobile-bottom-nav { display: block; }
+    /* Prevent fixed bottom nav overflow from creating document horizontal scroll */
+    body { overflow-x: hidden; }
+  }
+  /* ===== END MOBILE OPTIMIZATION ===== */
 </style>
 </head>
 <body>
@@ -484,14 +865,16 @@
     <div class="flex items-center gap-6">
       <div>
         <div class="text-xs text-[var(--text2)] uppercase tracking-widest mb-1 mono">Gold Spot XAU/USD</div>
-        <div class="flex items-baseline gap-4">
-          <span id="header-price" class="big-num text-[var(--gold)]">--</span>
-          <span id="header-change" class="text-lg font-bold mono">--</span>
+        <div class="flex items-baseline gap-4 flex-wrap">
+          <span id="header-price" class="big-num text-[var(--gold)]"><span class="skeleton" style="display:inline-block;width:130px;height:34px;border-radius:4px;vertical-align:middle;"></span></span>
+          <span id="header-change" class="text-lg font-bold mono"><span class="skeleton" style="display:inline-block;width:70px;height:18px;border-radius:4px;vertical-align:middle;"></span></span>
+          <!-- Mobile: expand/collapse extra header stats -->
+          <button id="header-expand-btn" onclick="toggleHeaderExtras()" title="Show market stats" style="display:none;">&#8964;</button>
         </div>
         <div id="price-last-updated" class="text-xs mono" style="color:#555;margin-top:4px;"></div>
       </div>
     </div>
-    <div class="flex items-center gap-6">
+    <div id="header-extras" class="flex items-center gap-6">
       <div class="text-right">
         <div class="text-xs text-[var(--text2)] mono">YTD <span class="info-tooltip" data-tip="Gold's return since January 1st of the current year.">ℹ</span></div>
         <div id="header-ytd" class="text-sm font-bold mono">--</div>
@@ -521,7 +904,7 @@
     <div class="signal-gauge-wrap">
       <!-- Arc gauge -->
       <div class="signal-gauge-arc">
-        <svg viewBox="0 0 220 115" xmlns="http://www.w3.org/2000/svg">
+        <svg viewBox="-8 0 236 126" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
           <!-- Background arc segments (5 zones) -->
           <!-- Strongly Bearish: -90° to -54° -->
           <path d="M 20 110 A 90 90 0 0 1 45.4 47.7" stroke="#ff3333" stroke-width="18" fill="none" stroke-linecap="round"/>
@@ -534,18 +917,16 @@
           <!-- Strongly Bullish: +54° to +90° -->
           <path d="M 174.6 47.7 A 90 90 0 0 1 200 110" stroke="#00ff88" stroke-width="18" fill="none" stroke-linecap="round"/>
           <!-- Labels -->
-          <text x="14" y="108" fill="#ff3333" font-size="7" font-family="monospace" text-anchor="middle">Strong</text>
-          <text x="14" y="116" fill="#ff3333" font-size="7" font-family="monospace" text-anchor="middle">Bear</text>
-          <text x="206" y="108" fill="#00ff88" font-size="7" font-family="monospace" text-anchor="middle">Strong</text>
-          <text x="206" y="116" fill="#00ff88" font-size="7" font-family="monospace" text-anchor="middle">Bull</text>
+          <text x="36" y="120" fill="#ff3333" font-size="7" font-family="monospace" text-anchor="middle">BEAR</text>
+          <text x="184" y="120" fill="#00ff88" font-size="7" font-family="monospace" text-anchor="middle">BULL</text>
           <text x="110" y="18" fill="#888" font-size="7" font-family="monospace" text-anchor="middle">Neutral</text>
         </svg>
         <div class="signal-needle" id="composite-needle"></div>
       </div>
       <!-- Label + factors -->
       <div style="flex:1; min-width: 200px;">
-        <div class="signal-label" id="composite-label" style="color: #888;">— —</div>
-        <div class="text-xs mono text-[var(--text2)] mt-1" id="composite-score-text">Score: —</div>
+        <div class="signal-label" id="composite-label" style="color: #555; font-size: 1rem; letter-spacing: 0.1em;">Awaiting data…</div>
+        <div class="text-xs mono mt-1" id="composite-score-text" style="color:#444;">Score: loading</div>
         <div id="composite-interpretation" class="text-[11px] mono mt-2" style="color:#888;line-height:1.6;"></div>
         <div class="signal-factor mt-4" id="composite-factors">
           <!-- Filled by JS -->
@@ -561,7 +942,7 @@
     <div class="section-title">Price Command Center <span class="info-tooltip" data-tip="The current market price for one troy ounce of physical gold, based on COMEX front-month futures. This is the global benchmark price.">ℹ</span><span class="freshness-badge freshness-live">● Hourly</span></div>
 
     <!-- Main chart -->
-    <div class="chart-wrap" style="height: 40vh; min-height: 300px;">
+    <div class="chart-wrap chart-main-price" style="height: 40vh; min-height: 300px;">
       <canvas id="chart-price-main"></canvas>
     </div>
 
@@ -628,7 +1009,7 @@
     <!-- RSI History Chart -->
     <div class="mt-6">
       <div class="text-xs text-[var(--text2)] uppercase tracking-widest mb-2 mono">RSI (14) — 1 Year History <span class="info-tooltip" data-tip="RSI oscillator over the past year. Zones: above 70 = overbought (red), below 30 = oversold (green). Current RSI below 30 historically signals strong buying opportunities in gold bull markets.">ℹ</span></div>
-      <div class="chart-wrap" style="height: 140px;">
+      <div class="chart-wrap chart-rsi-hist" style="height: 140px;">
         <canvas id="chart-rsi-history"></canvas>
       </div>
     </div>
@@ -662,7 +1043,7 @@
   <!-- ============================================================ -->
   <!-- SECTION 2: KEY RATIOS -->
   <!-- ============================================================ -->
-  <div class="full-width">
+  <div class="full-width" id="sec-ratios">
     <div class="section-title" style="padding: 0 0 0 0;">Key Ratios <span class="info-tooltip" data-tip="Gold priced in other assets. Percentile shows where the current ratio sits in its 10-year range. Green = gold is cheap relative to that asset.">i</span><span class="freshness-badge freshness-live">● Hourly</span></div>
   </div>
 
@@ -712,6 +1093,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Table -->
       <div class="lg:col-span-2 overflow-x-auto">
+        <div class="mobile-swipe-hint">swipe &#8594;</div>
         <table class="heat-table" id="cb-table">
           <thead>
             <tr>
@@ -745,9 +1127,18 @@
     <div class="section-title">Global Gold Flows <span class="info-tooltip" data-tip="Physical gold moves between countries for refining, investment, and jewelry. Switzerland processes ~70% of global gold. Dubai is the key conduit for gold from sanctioned countries.">ℹ</span><span class="freshness-badge freshness-estimate">Est. annual</span></div>
     <div class="text-xs text-[var(--text2)] mono mb-4">Physical gold shipments and trade flows between major countries (2025/2026 est., tonnes/year)</div>
 
+    <!-- Mobile: toggle button to show/hide the SVG map -->
+    <button id="gold-flow-toggle-btn" onclick="toggleGoldFlowMap(this)"
+      style="display:none; align-items:center; gap:8px; margin-bottom:12px;
+             padding:10px 16px; background:none; border:1px solid var(--card-border);
+             border-radius:8px; color:var(--text2); font-family:'JetBrains Mono',monospace;
+             font-size:12px; cursor:pointer; -webkit-tap-highlight-color:transparent;">
+      &#9678; Show Map
+    </button>
+
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Flow visualization -->
-      <div>
+      <!-- Flow visualization (hidden on mobile by default via CSS) -->
+      <div id="gold-flow-svg-wrap">
         <svg id="gold-flow-svg" viewBox="0 0 700 440" style="width:100%;height:auto;max-height:440px;">
           <defs>
             <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
@@ -1043,6 +1434,14 @@
     <div class="news-scroll" id="news-list">
       <div class="flex justify-center py-8"><div class="spinner"></div></div>
     </div>
+    <!-- Mobile-only: show more news button (hidden on desktop via CSS) -->
+    <button class="mobile-news-more" onclick="toggleMobileNews(this)"
+      style="display:none; width:100%; justify-content:center; align-items:center; gap:6px;
+             padding:12px; margin-top:8px; background:none; border:1px solid var(--card-border);
+             border-radius:8px; color:var(--text2); font-family:'JetBrains Mono',monospace;
+             font-size:12px; cursor:pointer; -webkit-tap-highlight-color:transparent;">
+      <span>&#8964;</span> Show more news
+    </button>
   </section>
 
   <section class="card fade-in" style="animation-delay:0.6s; grid-column: span 2;" id="sec-macro">
@@ -1084,11 +1483,29 @@
           <canvas id="chart-miners-aisc"></canvas>
         </div>
       </div>
-      <!-- GDX/Gold ratio -->
+      <!-- GDX/Gold ratio + GDXJ/GDX ratio -->
       <div>
         <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">GDX / Gold Ratio (Miner Leverage) <span class="info-tooltip" data-tip="GDX tracks gold mining stocks. This ratio shows whether miners are cheap or expensive relative to the gold price itself.">ℹ</span></div>
-        <div class="chart-wrap" style="height: 250px;">
+        <div class="chart-wrap" style="height: 200px;">
           <canvas id="chart-gdx-ratio"></canvas>
+        </div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mt-4 mb-2">GDXJ / GDX Ratio (Junior vs Senior Leverage) <span class="info-tooltip" data-tip="GDXJ tracks junior gold miners — smaller, higher-risk companies with higher leverage to the gold price. Ratio above 1 means juniors outperforming seniors (risk-on). Below 1 = flight to quality.">ℹ</span></div>
+        <div class="flex items-center gap-4 mb-2">
+          <div class="bg-[#0a0a0a] rounded p-2 border border-[var(--card-border)] text-center flex-1">
+            <div class="text-[9px] text-[var(--text2)] mono">GDXJ YTD</div>
+            <div id="gdxj-ytd" class="text-base font-bold mono">--</div>
+          </div>
+          <div class="bg-[#0a0a0a] rounded p-2 border border-[var(--card-border)] text-center flex-1">
+            <div class="text-[9px] text-[var(--text2)] mono">GDX YTD</div>
+            <div id="gdx-ytd" class="text-base font-bold mono">--</div>
+          </div>
+          <div class="bg-[#0a0a0a] rounded p-2 border border-[var(--card-border)] text-center flex-1">
+            <div class="text-[9px] text-[var(--text2)] mono">Junior Edge</div>
+            <div id="gdxj-edge" class="text-base font-bold mono">--</div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height: 120px;">
+          <canvas id="chart-gdxj-ratio"></canvas>
         </div>
       </div>
     </div>
@@ -1111,6 +1528,7 @@
 
     <!-- Miners table -->
     <div class="overflow-x-auto">
+      <div class="mobile-swipe-hint">swipe &#8594;</div>
       <table class="heat-table" id="miners-table">
         <thead>
           <tr>
@@ -1143,6 +1561,7 @@
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-4" id="crisis-asset-legend">
       <!-- Filled by JS -->
     </div>
+    <div id="crisis-context-blurb" class="text-[11px] mono mt-4 pt-4 border-t border-[var(--card-border)]" style="color:#888;line-height:1.7;"></div>
   </section>
 
   <!-- ============================================================ -->
@@ -1168,8 +1587,16 @@
       <div>
         <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Key Events</div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="event-cards">
-          <!-- Filled by JS -->
+          <div class="text-[10px] mono" style="color:#444;grid-column:1/-1;padding:8px 0;">Loading events…</div>
         </div>
+      </div>
+    </div>
+
+    <!-- Gold Seasonality Chart -->
+    <div class="mt-6">
+      <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Gold Seasonality — Avg. Monthly Return <span class="info-tooltip" data-tip="Average monthly return for gold based on all available price history. Shows which months gold has historically performed best. Bar color: green = avg positive month, red = avg negative.">ℹ</span></div>
+      <div class="chart-wrap" style="height: 200px;">
+        <canvas id="chart-seasonality"></canvas>
       </div>
     </div>
   </section>
@@ -1256,6 +1683,15 @@ function relativeTime(dateStr) {
 
 function destroyChart(id) {
   if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+// Remove loading shimmer from a chart's parent .chart-wrap container
+function clearChartLoading(canvasId) {
+  var canvas = document.getElementById(canvasId);
+  if (canvas) {
+    var wrap = canvas.closest('.chart-wrap');
+    if (wrap) wrap.classList.remove('chart-loading');
+  }
 }
 
 function goldGradient(ctx, chartArea) {
@@ -1362,6 +1798,59 @@ function fetchEndpoint(url) {
   });
 }
 
+// =====================================================================
+// LOADING / SKELETON STATES
+// =====================================================================
+
+function showSkeletonCharts() {
+  // Add shimmer to all chart-wrap containers while data loads
+  document.querySelectorAll('.chart-wrap').forEach(function(el) {
+    el.classList.add('chart-loading');
+  });
+
+  // Replace ALL "--" placeholders with shimmer skeletons for consistent loading UX
+  var placeholderIds = [
+    'lbma-am', 'lbma-pm', 'lbma-basis', 'lbma-source',
+    'cb-pace-vs-avg', 'cb-pace', 'cb-pace-arrow', 'cb-ytd-total',
+    'etf-total',
+    'cot-net', 'cot-longs', 'cot-shorts', 'cot-oi',
+    'cot-percentile-val', 'cot-percentile-label',
+    'contango-state', 'contango-front', 'contango-back', 'contango-basis', 'contango-basis-pct',
+    'comex-cover-ratio',
+    'sentiment-pct', 'sentiment-score',
+    'ma50-val', 'ma50-signal', 'ma200-val', 'ma200-signal', 'rsi-val', 'rsi-signal',
+    'ath-pct-label',
+    'header-ytd', 'header-ath', 'header-updated',
+    'gdxj-ytd', 'gdx-ytd', 'gdxj-edge',
+  ];
+  placeholderIds.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && el.textContent.trim() === '--') {
+      var isBig = el.className && (el.className.indexOf('text-4xl') >= 0 || el.className.indexOf('text-3xl') >= 0);
+      var isMed = el.className && (el.className.indexOf('text-2xl') >= 0 || el.className.indexOf('text-xl') >= 0);
+      var w = isBig ? 80 : isMed ? 60 : 45;
+      var h = isBig ? 28 : isMed ? 20 : 14;
+      el.innerHTML = '<span class="skeleton" style="display:inline-block;width:' + w + 'px;height:' + h + 'px;border-radius:3px;vertical-align:middle;"></span>';
+    }
+  });
+
+  // Show spinners in tables
+  var cbBody = document.getElementById('cb-table-body');
+  if (cbBody) cbBody.innerHTML = '<tr><td colspan="6" class="text-center py-6"><div class="spinner mx-auto"></div><div class="text-[10px] text-[var(--text2)] mono mt-2 text-center">Loading data…</div></td></tr>';
+  var minersBody = document.getElementById('miners-table-body');
+  if (minersBody) minersBody.innerHTML = '<tr><td colspan="9" class="text-center py-6"><div class="spinner mx-auto"></div><div class="text-[10px] text-[var(--text2)] mono mt-2 text-center">Loading data…</div></td></tr>';
+  var newsList = document.getElementById('news-list');
+  if (newsList) newsList.innerHTML = '<div class="empty-state"><div class="spinner"></div><div class="empty-state-text" style="margin-top:8px;">Fetching headlines…</div></div>';
+}
+
+function makeEmptyState(icon, message, showRetry) {
+  return '<div class="empty-state">' +
+    '<div class="empty-state-icon">' + icon + '</div>' +
+    '<div class="empty-state-text">' + message + '</div>' +
+    (showRetry ? '<button class="data-retry-btn" onclick="loadAllData()">↺ Retry</button>' : '') +
+    '</div>';
+}
+
 function loadAllData() {
   var endpoints = [
     { key: 'price', url: 'data/price.json' },
@@ -1376,19 +1865,47 @@ function loadAllData() {
     { key: 'crisisAssets', url: 'data/crisis_assets.json' },
   ];
 
+  // Show loading states immediately
+  showSkeletonCharts();
+
   Promise.allSettled(
     endpoints.map(function(ep) { return fetchEndpoint(ep.url); })
   ).then(function(results) {
+    var anyLoaded = false;
     endpoints.forEach(function(ep, i) {
       var result = results[i];
       if (result.status === 'fulfilled' && result.value && !result.value.error) {
         DATA[ep.key] = result.value;
+        anyLoaded = true;
       } else {
         DATA[ep.key] = null;
       }
     });
+    // Don't bulk-remove chart-loading — let each render function
+    // clear it only after successfully drawing the chart
     renderAll();
+    if (!anyLoaded) {
+      showGlobalErrorBanner();
+    }
   });
+}
+
+function showGlobalErrorBanner() {
+  var existing = document.getElementById('global-error-banner');
+  if (existing) return;
+  // Insert directly after the header so it flows naturally (no overlap)
+  var banner = document.createElement('div');
+  banner.id = 'global-error-banner';
+  banner.style.cssText = 'background:rgba(255,68,68,0.10);border-bottom:1px solid rgba(255,68,68,0.25);padding:8px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;';
+  banner.innerHTML =
+    '<span style="font-size:11px;font-family:JetBrains Mono,monospace;color:#ff7755;letter-spacing:0.03em;">⚠ Market data unavailable — check connection</span>' +
+    '<button onclick="document.getElementById(\'global-error-banner\').remove();loadAllData();" style="background:rgba(255,68,68,0.2);border:1px solid rgba(255,68,68,0.35);color:#ff6644;border-radius:10px;padding:4px 12px;font-size:11px;font-family:JetBrains Mono,monospace;cursor:pointer;white-space:nowrap;">↺ Retry</button>';
+  var header = document.querySelector('header.header');
+  if (header && header.nextSibling) {
+    header.parentNode.insertBefore(banner, header.nextSibling);
+  } else {
+    document.body.appendChild(banner);
+  }
 }
 
 // =====================================================================
@@ -1412,6 +1929,26 @@ function renderAll() {
   renderHistorical();
   renderCompositeSignal();
   updateFreshnessBadges();
+
+  // After all renders: clear shimmer from charts that got drawn,
+  // keep shimmer on charts that are still empty (data unavailable)
+  requestAnimationFrame(function() {
+    document.querySelectorAll('.chart-wrap.chart-loading').forEach(function(wrap) {
+      // If a Chart.js instance was drawn on the canvas inside, clear the loading state
+      var canvas = wrap.querySelector('canvas');
+      if (canvas) {
+        var chartKeys = Object.keys(charts);
+        for (var i = 0; i < chartKeys.length; i++) {
+          if (charts[chartKeys[i]].canvas === canvas) {
+            wrap.classList.remove('chart-loading');
+            return;
+          }
+        }
+      }
+      // Still loading — keep the shimmer, but add a subtle "Loading…" text
+      // (the ::after pseudo-element already does this via CSS)
+    });
+  });
 }
 
 // --- COMPOSITE BULL/BEAR SIGNAL ---
@@ -1570,6 +2107,7 @@ function renderHeader() {
   if (!d) return;
 
   var priceEl = document.getElementById('header-price');
+  priceEl.innerHTML = ''; // clear skeleton
   animateCounter(priceEl, d.price, 1500, '$');
 
   // Update page title with current gold price
@@ -1577,6 +2115,7 @@ function renderHeader() {
   document.title = '🟡 Gold $' + fmtInt(d.price) + ' ' + sign + ' | Situation Room';
 
   var changeEl = document.getElementById('header-change');
+  changeEl.innerHTML = ''; // clear skeleton
   var sign = d.change >= 0 ? '+' : '';
   changeEl.textContent = sign + '$' + fmt(d.change) + ' (' + sign + fmt(d.change_pct) + '%)';
   changeEl.style.color = colorForChange(d.change);
@@ -1630,7 +2169,7 @@ function updateFreshnessBadges() {
 function renderPriceSection() {
   var d = DATA.price;
   if (!d) {
-    document.getElementById('sec-price').innerHTML = '<div class="section-title">Price Command Center</div><div class="text-center py-12 text-[var(--text2)]">Price data unavailable</div>';
+    document.getElementById('sec-price').innerHTML = '<div class="section-title">Price Command Center</div>' + makeEmptyState('📡', 'Price data unavailable', true);
     return;
   }
 
@@ -2153,7 +2692,7 @@ function renderRatios() {
 function renderCentralBanks() {
   var d = DATA.centralBanks;
   if (!d) {
-    document.getElementById('cb-table-body').innerHTML = '<tr><td colspan="6" class="text-center py-4 text-[var(--text2)]">Data unavailable</td></tr>';
+    document.getElementById('cb-table-body').innerHTML = '<tr><td colspan="6">' + makeEmptyState('🏦', 'Central bank data unavailable', true) + '</td></tr>';
     return;
   }
 
@@ -2515,7 +3054,7 @@ function renderNews() {
   var container = document.getElementById('news-list');
 
   if (!d || !d.articles || !d.articles.length) {
-    container.innerHTML = '<div class="text-center py-8 text-[var(--text2)]">No news available</div>';
+    container.innerHTML = makeEmptyState('📰', 'Headlines unavailable', true);
     return;
   }
 
@@ -2888,6 +3427,95 @@ function renderMiners() {
     });
   }
 
+  // GDXJ/GDX junior vs senior ratio
+  var gdxjData = d.miners && d.miners['GDXJ'];
+  var gdxData = d.miners && d.miners['GDX'];
+  if (gdxjData && gdxData) {
+    var gdxjYtd = gdxjData.ytd_pct;
+    var gdxYtd = gdxData.ytd_pct;
+    var edge = gdxjYtd != null && gdxYtd != null ? gdxjYtd - gdxYtd : null;
+    var gdxjYtdEl = document.getElementById('gdxj-ytd');
+    var gdxYtdEl = document.getElementById('gdx-ytd');
+    var edgeEl = document.getElementById('gdxj-edge');
+    if (gdxjYtdEl && gdxjYtd != null) {
+      gdxjYtdEl.textContent = (gdxjYtd >= 0 ? '+' : '') + fmt(gdxjYtd, 1) + '%';
+      gdxjYtdEl.style.color = gdxjYtd >= 0 ? '#00ff88' : '#ff4444';
+    }
+    if (gdxYtdEl && gdxYtd != null) {
+      gdxYtdEl.textContent = (gdxYtd >= 0 ? '+' : '') + fmt(gdxYtd, 1) + '%';
+      gdxYtdEl.style.color = gdxYtd >= 0 ? '#00ff88' : '#ff4444';
+    }
+    if (edgeEl && edge != null) {
+      edgeEl.textContent = (edge >= 0 ? '+' : '') + fmt(edge, 1) + '%';
+      edgeEl.style.color = edge >= 0 ? '#00ff88' : '#ff4444';
+      edgeEl.title = edge >= 0 ? 'Juniors outperforming — risk-on for miners' : 'Seniors outperforming — quality preference';
+    }
+    // GDXJ/GDX sparkline ratio chart
+    if (gdxjData.sparkline && gdxData.sparkline && gdxjData.sparkline.length && gdxData.sparkline.length) {
+      // Build ratio series by aligning dates
+      var gdxjMap = {};
+      gdxjData.sparkline.forEach(function(pt) { gdxjMap[pt.t] = pt.v; });
+      var ratioLabels = [], ratioValues = [];
+      gdxData.sparkline.forEach(function(pt) {
+        if (gdxjMap[pt.t] && pt.v > 0) {
+          ratioLabels.push(pt.t);
+          ratioValues.push(parseFloat((gdxjMap[pt.t] / pt.v).toFixed(4)));
+        }
+      });
+      if (ratioLabels.length > 5) {
+        destroyChart('gdxj-ratio');
+        var ctxJr = document.getElementById('chart-gdxj-ratio');
+        if (ctxJr) {
+          charts['gdxj-ratio'] = new Chart(ctxJr.getContext('2d'), {
+            type: 'line',
+            data: {
+              labels: ratioLabels,
+              datasets: [{
+                data: ratioValues,
+                borderColor: '#ff8800',
+                borderWidth: 2,
+                pointRadius: 0,
+                fill: true,
+                backgroundColor: 'rgba(255,136,0,0.08)',
+                tension: 0.3,
+              }]
+            },
+            options: {
+              interaction: { intersect: false, mode: 'index' },
+              scales: {
+                x: {
+                  grid: { display: false },
+                  ticks: {
+                    maxTicksLimit: 5,
+                    callback: function(val) {
+                      try { return new Date(this.getLabelForValue(val)).toLocaleDateString('en-US', { month: 'short' }); } catch(e) { return ''; }
+                    }
+                  }
+                },
+                y: {
+                  position: 'right',
+                  grid: { color: 'rgba(255,255,255,0.03)' },
+                  ticks: { callback: function(v) { return v.toFixed(2); } }
+                }
+              },
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    title: function(items) {
+                      try { return new Date(items[0].label + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); } catch(e) { return items[0].label; }
+                    },
+                    label: function(ctx) { return 'GDXJ/GDX: ' + ctx.parsed.y.toFixed(3); }
+                  }
+                }
+              }
+            }
+          });
+        }
+      }
+    }
+  }
+
   // Mining production stacked area chart
   if (d.mining_production) {
     var mp = d.mining_production;
@@ -2941,7 +3569,7 @@ function renderMiners() {
 
     // Miner production bar chart with AISC labels
     var minerProdData = [
-      { name: 'Barrick (B)', koz: 4100, aisc: 1050 },
+      { name: 'Barrick (GOLD)', koz: 4100, aisc: 1050 },
       { name: 'Newmont (NEM)', koz: 5500, aisc: 1400 },
       { name: 'Agnico Eagle (AEM)', koz: 3500, aisc: 1150 },
     ];
@@ -3271,6 +3899,38 @@ function renderCrisisAssets() {
       legendContainer.appendChild(div);
     });
   }
+
+  // Dynamic context blurb
+  var blurbEl = document.getElementById('crisis-context-blurb');
+  if (blurbEl) {
+    var goldAsset = d.assets['Gold'];
+    var btcAsset = d.assets['Bitcoin'];
+    var vixAsset = d.assets['VIX'];
+    var bondAsset = d.assets['Long Bonds (TLT)'];
+    var silverAsset = d.assets['Silver'];
+    var dxyAsset = d.assets['DXY'];
+    var lines = [];
+    // Gold vs Bitcoin divergence
+    if (goldAsset && btcAsset) {
+      var gdiff = goldAsset.ytd_pct - btcAsset.ytd_pct;
+      if (gdiff > 20) lines.push('🟡 Gold is outperforming Bitcoin by ' + fmt(gdiff, 1) + 'pp YTD — a clear flight-to-safety signal as institutional capital prioritizes stable stores of value over risk assets.');
+      else if (gdiff < -20) lines.push('₿ Bitcoin is outperforming Gold by ' + fmt(-gdiff, 1) + 'pp YTD — risk appetite is elevated; crypto may be absorbing capital that historically flowed to gold.');
+      else lines.push('Gold and Bitcoin are closely tracking YTD, suggesting mixed safe-haven sentiment.');
+    }
+    // VIX reading
+    if (vixAsset && vixAsset.ytd_pct > 50) lines.push('⚠️ VIX is up ' + fmt(vixAsset.ytd_pct, 0) + '% YTD — fear is elevated. Historically, gold performs well in high-VIX environments as investors seek hedges.');
+    else if (vixAsset && vixAsset.ytd_pct < -20) lines.push('VIX is down ' + fmt(vixAsset.ytd_pct, 0) + '% YTD — complacency rising. Low fear can precede gold consolidation.');
+    // Bonds
+    if (bondAsset) {
+      if (bondAsset.ytd_pct > 5) lines.push('📈 Long bonds (TLT) up ' + fmt(bondAsset.ytd_pct, 1) + '% YTD — falling yields may be boosting gold alongside bonds as dual safe havens.');
+      else if (bondAsset.ytd_pct < -5) lines.push('📉 Long bonds (TLT) down ' + fmt(Math.abs(bondAsset.ytd_pct), 1) + '% YTD — gold diverging from bonds, suggesting gold is driven by inflation/currency concerns rather than rate moves.');
+    }
+    // DXY
+    if (dxyAsset && dxyAsset.ytd_pct < -3) lines.push('💵 DXY down ' + fmt(Math.abs(dxyAsset.ytd_pct), 1) + '% YTD — dollar weakness is typically a powerful tailwind for gold.');
+    else if (dxyAsset && dxyAsset.ytd_pct > 3) lines.push('💵 DXY up ' + fmt(dxyAsset.ytd_pct, 1) + '% YTD — gold rising despite dollar strength signals exceptionally strong underlying demand.');
+    if (lines.length === 0) lines.push('Monitoring crisis asset divergences. All assets tracking close to baseline.');
+    blurbEl.innerHTML = lines.join('<br>');
+  }
 }
 
 // --- HISTORICAL ---
@@ -3402,6 +4062,55 @@ function renderHistorical() {
     });
   }
 
+  // Seasonality chart
+  if (d.seasonal_monthly && d.seasonal_monthly.length) {
+    destroyChart('seasonality');
+    var ctxS = document.getElementById('chart-seasonality');
+    if (ctxS) {
+      var sLabels = d.seasonal_monthly.map(function(s) { return s.month; });
+      var sValues = d.seasonal_monthly.map(function(s) { return s.avg_return; });
+      var sBgColors = sValues.map(function(v) { return v >= 0 ? 'rgba(0,255,136,0.65)' : 'rgba(255,68,68,0.65)'; });
+      var sBorderColors = sValues.map(function(v) { return v >= 0 ? '#00ff88' : '#ff4444'; });
+      charts['seasonality'] = new Chart(ctxS.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: sLabels,
+          datasets: [{
+            label: 'Avg Monthly Return',
+            data: sValues,
+            backgroundColor: sBgColors,
+            borderColor: sBorderColors,
+            borderWidth: 1,
+            borderRadius: 3,
+          }]
+        },
+        options: {
+          scales: {
+            x: { grid: { display: false } },
+            y: {
+              grid: { color: 'rgba(255,255,255,0.03)' },
+              ticks: { callback: function(v) { return v.toFixed(1) + '%'; } }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  var s = d.seasonal_monthly[ctx.dataIndex];
+                  return [
+                    (ctx.parsed.y >= 0 ? '+' : '') + fmt(ctx.parsed.y, 2) + '% avg return',
+                    s.positive_pct + '% of years positive (' + s.n + ' years)',
+                  ];
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+  }
+
   // Event cards
   var evtContainer = document.getElementById('event-cards');
   evtContainer.innerHTML = '';
@@ -3431,6 +4140,123 @@ setInterval(function() {
 // =====================================================================
 
 loadAllData();
+</script>
+
+<!-- ===== MOBILE BOTTOM NAVIGATION ===== -->
+<nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Section navigation">
+  <div class="mobile-bottom-nav-inner">
+    <button class="mobile-nav-tab active" onclick="mobileNavTo('sec-composite', this)">
+      <span class="nav-icon">⚡</span>Signal
+    </button>
+    <button class="mobile-nav-tab" onclick="mobileNavTo('sec-price', this)">
+      <span class="nav-icon">$</span>Price
+    </button>
+    <button class="mobile-nav-tab" onclick="mobileNavTo('sec-ratios', this)">
+      <span class="nav-icon">⚖</span>Ratios
+    </button>
+    <button class="mobile-nav-tab" onclick="mobileNavTo('sec-cb', this)">
+      <span class="nav-icon">🏦</span>Banks
+    </button>
+    <button class="mobile-nav-tab" onclick="mobileNavTo('sec-etf', this)">
+      <span class="nav-icon">📊</span>ETF
+    </button>
+    <button class="mobile-nav-tab" onclick="mobileNavTo('sec-news', this)">
+      <span class="nav-icon">📰</span>News
+    </button>
+    <button class="mobile-nav-tab" onclick="mobileNavTo('sec-macro', this)">
+      <span class="nav-icon">📈</span>Macro
+    </button>
+    <button class="mobile-nav-tab" onclick="mobileNavTo('sec-miners', this)">
+      <span class="nav-icon">⛏</span>Miners
+    </button>
+    <button class="mobile-nav-tab" onclick="mobileNavTo('sec-historical', this)">
+      <span class="nav-icon">🕰</span>History
+    </button>
+  </div>
+</nav>
+
+<!-- ===== MOBILE JAVASCRIPT ===== -->
+<script>
+// ---- 1. Header expand / collapse (mobile only) ----
+function toggleHeaderExtras() {
+  var btn = document.getElementById('header-expand-btn');
+  var extras = document.getElementById('header-extras');
+  if (!extras) return;
+  var isOpen = extras.classList.toggle('open');
+  btn.classList.toggle('expanded', isOpen);
+  btn.textContent = isOpen ? '\u2303' : '\u2304';
+}
+
+// ---- 10. Gold Flow map toggle (mobile only) ----
+function toggleGoldFlowMap(btn) {
+  var wrap = document.getElementById('gold-flow-svg-wrap');
+  if (!wrap) return;
+  var visible = wrap.classList.toggle('visible');
+  btn.innerHTML = visible ? '&#9678; Hide Map' : '&#9678; Show Map';
+}
+
+// ---- 8. Mobile news show more ----
+function toggleMobileNews(btn) {
+  var list = document.getElementById('news-list');
+  if (!list) return;
+  var expanded = list.classList.toggle('mobile-expanded');
+  btn.innerHTML = expanded ? '&#8963; Show less' : '&#8964; Show more news';
+}
+
+// ---- 2. Bottom nav: smooth scroll to section ----
+function mobileNavTo(sectionId, tabEl) {
+  var section = document.getElementById(sectionId);
+  if (section) {
+    var headerH = (document.querySelector('.header') || {}).offsetHeight || 60;
+    var y = section.getBoundingClientRect().top + window.pageYOffset - headerH - 8;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }
+  document.querySelectorAll('.mobile-nav-tab').forEach(function(t) { t.classList.remove('active'); });
+  if (tabEl) tabEl.classList.add('active');
+}
+
+// ---- 2. Bottom nav: highlight active tab while scrolling ----
+(function() {
+  var sectionIds = [
+    'sec-composite', 'sec-price', 'sec-ratios', 'sec-cb',
+    'sec-etf', 'sec-news', 'sec-macro', 'sec-miners', 'sec-historical'
+  ];
+  var timer;
+  window.addEventListener('scroll', function() {
+    clearTimeout(timer);
+    timer = setTimeout(function() {
+      if (window.innerWidth >= 768) return;
+      var headerH = (document.querySelector('.header') || {}).offsetHeight || 60;
+      var threshold = window.pageYOffset + headerH + 40;
+      var activeIdx = 0;
+      for (var i = 0; i < sectionIds.length; i++) {
+        var el = document.getElementById(sectionIds[i]);
+        if (el && (el.getBoundingClientRect().top + window.pageYOffset) <= threshold) {
+          activeIdx = i;
+        }
+      }
+      document.querySelectorAll('.mobile-nav-tab').forEach(function(t, idx) {
+        t.classList.toggle('active', idx === activeIdx);
+      });
+    }, 80);
+  }, { passive: true });
+})();
+
+// ---- 14. Trigger Chart.js resize when charts scroll into view ----
+if ('IntersectionObserver' in window) {
+  var chartObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && typeof Chart !== 'undefined' && Chart.getChart) {
+        var inst = Chart.getChart(entry.target);
+        if (inst) inst.resize();
+        chartObserver.unobserve(entry.target);
+      }
+    });
+  }, { rootMargin: '100px' });
+  document.querySelectorAll('.chart-wrap canvas').forEach(function(c) {
+    chartObserver.observe(c);
+  });
+}
 </script>
 </body>
 </html>
