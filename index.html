@@ -371,11 +371,11 @@
     </div>
     <div class="flex items-center gap-6">
       <div class="text-right">
-        <div class="text-xs text-[var(--text2)] mono">YTD</div>
+        <div class="text-xs text-[var(--text2)] mono">YTD <span class="info-tooltip" data-tip="Gold's return since January 1st of the current year.">ℹ</span></div>
         <div id="header-ytd" class="text-sm font-bold mono">--</div>
       </div>
       <div class="text-right">
-        <div class="text-xs text-[var(--text2)] mono">ATH</div>
+        <div class="text-xs text-[var(--text2)] mono">ATH <span class="info-tooltip" data-tip="The highest price gold has ever traded. Gold set its current ATH in 2025 during a historic bull run driven by central bank buying and dollar weakness.">ℹ</span></div>
         <div id="header-ath" class="text-sm font-bold mono">--</div>
       </div>
       <div class="text-right">
@@ -395,7 +395,7 @@
   <!-- SECTION 1: PRICE COMMAND CENTER -->
   <!-- ============================================================ -->
   <section class="full-width card fade-in" id="sec-price" style="animation-delay:0.1s">
-    <div class="section-title">Price Command Center</div>
+    <div class="section-title">Price Command Center <span class="info-tooltip" data-tip="The current market price for one troy ounce of physical gold, based on COMEX front-month futures. This is the global benchmark price.">ℹ</span></div>
 
     <!-- Main chart -->
     <div class="chart-wrap" style="height: 40vh; min-height: 300px;">
@@ -414,7 +414,7 @@
     </div>
 
     <!-- Multi-currency grid -->
-    <div class="text-xs text-[var(--text2)] uppercase tracking-widest mb-3 mono">Gold in World Currencies</div>
+    <div class="text-xs text-[var(--text2)] uppercase tracking-widest mb-3 mono">Gold in World Currencies <span class="info-tooltip" data-tip="Gold price expressed in local currencies. Reflects both gold's USD price and the current exchange rate.">ℹ</span></div>
     <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3" id="currency-grid">
       <!-- Filled by JS -->
     </div>
@@ -422,7 +422,7 @@
     <!-- ATH progress bar -->
     <div class="mt-6">
       <div class="flex justify-between items-center mb-2">
-        <span class="text-xs text-[var(--text2)] mono uppercase tracking-wider">Distance to All-Time High</span>
+        <span class="text-xs text-[var(--text2)] mono uppercase tracking-wider">Distance to All-Time High <span class="info-tooltip" data-tip="How far the current price is below the all-time high. 0% means you're AT the all-time high.">ℹ</span></span>
         <span id="ath-pct-label" class="text-sm font-bold mono text-[var(--gold)]">--</span>
       </div>
       <div class="progress-track">
@@ -442,15 +442,15 @@
     <div class="section-title">LBMA Gold Fix <span class="info-tooltip" data-tip="The LBMA Fix is the benchmark price used in most central bank and institutional gold contracts. Twice-daily London auction.">i</span></div>
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
       <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
-        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">AM Fix</div>
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">AM Fix <span class="info-tooltip" data-tip="The morning London gold fix, set around 10:30 AM London time. Used as the reference for most Asian and European physical transactions.">ℹ</span></div>
         <div id="lbma-am" class="text-xl font-bold mono text-[var(--gold)]">--</div>
       </div>
       <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
-        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">PM Fix</div>
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">PM Fix <span class="info-tooltip" data-tip="The afternoon London gold fix, set around 3:00 PM London time. The primary global benchmark — most derivatives contracts and physical deals reference this price.">ℹ</span></div>
         <div id="lbma-pm" class="text-xl font-bold mono text-[var(--gold)]">--</div>
       </div>
       <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
-        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">COMEX-LBMA Basis</div>
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">COMEX-LBMA Basis <span class="info-tooltip" data-tip="The price difference between COMEX futures and the LBMA spot fix. A large positive basis signals strong US futures demand or physical delivery stress.">ℹ</span></div>
         <div id="lbma-basis" class="text-xl font-bold mono">--</div>
       </div>
       <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
@@ -476,7 +476,7 @@
   <!-- SECTION 3: CENTRAL BANK TRACKER -->
   <!-- ============================================================ -->
   <section class="full-width card fade-in" id="sec-cb" style="animation-delay:0.4s">
-    <div class="section-title">Central Bank Tracker</div>
+    <div class="section-title">Central Bank Tracker <span class="info-tooltip" data-tip="Central banks are the largest holders of gold globally. Since 2022, they have been buying at record pace — over 1,000 tonnes/year — driven by de-dollarization.">ℹ</span></div>
 
     <!-- CB PACE indicator -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
@@ -488,7 +488,7 @@
         </div>
       </div>
       <div>
-        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Net Global Buying Pace</div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Net Global Buying Pace <span class="info-tooltip" data-tip="The annualized rate of central bank net gold purchases. The 2022-2025 surge marked a structural regime change from ~500t/year to over 1,000t/year.">ℹ</span></div>
         <div class="flex items-baseline gap-3">
           <span id="cb-pace" class="text-4xl font-bold mono text-[var(--gold)]">--</span>
           <span class="text-sm text-[var(--text2)] mono">tonnes / month</span>
@@ -496,7 +496,7 @@
         </div>
       </div>
       <div>
-        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">YTD Total Buying</div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">YTD Total Buying <span class="info-tooltip" data-tip="Total tonnes of gold purchased by central banks year-to-date.">ℹ</span></div>
         <span id="cb-ytd-total" class="text-2xl font-bold mono text-[var(--green)]">--</span>
         <span class="text-sm text-[var(--text2)] mono ml-1">tonnes</span>
       </div>
@@ -504,7 +504,7 @@
 
     <!-- CB Annual Net Purchases bar chart -->
     <div class="mb-6">
-      <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Central Bank Net Purchases (tonnes/year)</div>
+      <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Central Bank Net Purchases (tonnes/year) <span class="info-tooltip" data-tip="Net central bank gold purchases by year. The post-2022 surge was triggered by the US-led freeze of Russian central bank assets.">ℹ</span></div>
       <div class="chart-wrap" style="height: 200px;">
         <canvas id="chart-cb-annual"></canvas>
       </div>
@@ -543,7 +543,7 @@
   <!-- SECTION: GLOBAL GOLD FLOWS -->
   <!-- ============================================================ -->
   <section class="full-width card fade-in" id="sec-gold-flows" style="animation-delay:0.42s">
-    <div class="section-title">Global Gold Flows</div>
+    <div class="section-title">Global Gold Flows <span class="info-tooltip" data-tip="Physical gold moves between countries for refining, investment, and jewelry. Switzerland processes ~70% of global gold. Dubai is the key conduit for gold from sanctioned countries.">ℹ</span></div>
     <div class="text-xs text-[var(--text2)] mono mb-4">Physical gold shipments and trade flows between major countries (2025/2026 est., tonnes/year)</div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -680,11 +680,11 @@
   <!-- SECTION 4: ETF FLOWS -->
   <!-- ============================================================ -->
   <section class="full-width card fade-in" id="sec-etf" style="animation-delay:0.45s">
-    <div class="section-title">ETF Flows &amp; Holdings</div>
+    <div class="section-title">ETF Flows &amp; Holdings <span class="info-tooltip" data-tip="Gold ETFs like GLD and IAU hold physical gold on behalf of investors. ETF flows are a real-time gauge of Western investor sentiment — inflows = bullish, outflows = bearish.">ℹ</span></div>
 
     <div class="flex flex-wrap gap-6 mb-6">
       <div>
-        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Total ETF Holdings (Est.)</div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Total ETF Holdings (Est.) <span class="info-tooltip" data-tip="Estimated total physical gold held across all major gold ETFs.">ℹ</span></div>
         <span id="etf-total" class="text-3xl font-bold mono text-[var(--gold)]">--</span>
         <span class="text-sm text-[var(--text2)] mono ml-1">tonnes</span>
       </div>
@@ -709,7 +709,7 @@
   <!-- SECTION 5: COT POSITIONING -->
   <!-- ============================================================ -->
   <section class="full-width card fade-in" id="sec-cot" style="animation-delay:0.5s">
-    <div class="section-title">COT Positioning (Managed Money)</div>
+    <div class="section-title">COT Positioning (Managed Money) <span class="info-tooltip" data-tip="The CFTC Commitment of Traders report shows how speculators are positioned in COMEX gold futures. Published every Friday for the prior Tuesday's data.">ℹ</span></div>
 
     <!-- Contango / Backwardation indicator -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
@@ -718,13 +718,13 @@
         <div id="contango-state" class="text-2xl font-bold mono">--</div>
       </div>
       <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
-        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Front Month</div>
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Front Month <span class="info-tooltip" data-tip="The nearest-expiring COMEX gold futures contract price.">ℹ</span></div>
         <div id="contango-front" class="text-lg font-bold mono text-[var(--gold)]">--</div>
         <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1 mt-2">Dec 2026</div>
         <div id="contango-back" class="text-lg font-bold mono text-[var(--text2)]">--</div>
       </div>
       <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
-        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Basis (Spread)</div>
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Basis (Spread) <span class="info-tooltip" data-tip="The dollar difference between front-month futures and far-dated futures. Negative = backwardation (unusual, bullish).">ℹ</span></div>
         <div id="contango-basis" class="text-xl font-bold mono">--</div>
         <div id="contango-basis-pct" class="text-xs mono text-[var(--text2)] mt-1">--</div>
       </div>
@@ -732,19 +732,19 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
       <div>
-        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Net Position</div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Net Position <span class="info-tooltip" data-tip="Longs minus shorts. Positive = speculators are net bullish. Extreme net longs (>250k contracts) historically precede corrections.">ℹ</span></div>
         <div id="cot-net" class="text-3xl font-bold mono text-[var(--green)]">--</div>
       </div>
       <div>
-        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Longs</div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Longs <span class="info-tooltip" data-tip="Speculative futures contracts betting on gold price rising. Primarily hedge funds and CTAs.">ℹ</span></div>
         <div id="cot-longs" class="text-xl font-bold mono text-[var(--green)]">--</div>
       </div>
       <div>
-        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Shorts</div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Shorts <span class="info-tooltip" data-tip="Speculative contracts betting on gold price falling. Extreme short positioning can fuel short-covering rallies.">ℹ</span></div>
         <div id="cot-shorts" class="text-xl font-bold mono text-[var(--red)]">--</div>
       </div>
       <div>
-        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Open Interest</div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Open Interest <span class="info-tooltip" data-tip="Total number of outstanding futures contracts. Rising OI with rising price = new money entering = bullish confirmation.">ℹ</span></div>
         <div id="cot-oi" class="text-xl font-bold mono">--</div>
       </div>
     </div>
@@ -758,7 +758,7 @@
       </div>
       <!-- Percentile indicator -->
       <div class="flex flex-col items-center justify-center">
-        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-3">Net Percentile</div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-3">Net Percentile <span class="info-tooltip" data-tip="Where current net speculative positioning sits vs the last 5 years. >90th = crowded long = correction risk. <10th = extreme pessimism = potential buy signal.">ℹ</span></div>
         <div id="cot-percentile-val" class="text-4xl font-bold mono text-[var(--gold)]">--</div>
         <div id="cot-percentile-label" class="text-xs mono mt-2">--</div>
         <div class="progress-track mt-3" style="width:120px;">
@@ -783,11 +783,11 @@
         <div class="text-2xl font-bold mono text-[var(--text2)]">8,200<span class="text-sm text-[var(--text2)] ml-1">tonnes</span></div>
       </div>
       <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
-        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">30-Day Registered Change</div>
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">30-Day Registered Change <span class="info-tooltip" data-tip="How much registered inventory has changed in 30 days. Declining registered with rising open interest = supply squeeze risk.">ℹ</span></div>
         <div class="text-2xl font-bold mono text-[var(--red)]">-85t <span class="text-sm">&#9660;</span></div>
       </div>
       <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
-        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Cover Ratio</div>
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Cover Ratio <span class="info-tooltip" data-tip="How many ounces of registered gold back each open futures contract. A declining cover ratio signals shorts may struggle to deliver.">ℹ</span></div>
         <div id="comex-cover-ratio" class="text-2xl font-bold mono text-[var(--gold)]">--</div>
         <div class="text-[9px] text-[var(--text2)] mono mt-1">oz registered / open interest</div>
       </div>
@@ -817,7 +817,7 @@
   <!-- SECTION 6: NEWS FEED + SECTION 7: MACRO CONTEXT -->
   <!-- ============================================================ -->
   <section class="card fade-in" id="sec-news" style="animation-delay:0.55s">
-    <div class="section-title">News Feed</div>
+    <div class="section-title">News Feed <span class="info-tooltip" data-tip="Latest gold market headlines with automated sentiment scoring. Green = bullish, Red = bearish, Gray = neutral.">ℹ</span></div>
 
     <!-- Sentiment Tracker -->
     <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)] mb-4">
@@ -841,7 +841,7 @@
   </section>
 
   <section class="card fade-in" style="animation-delay:0.6s; grid-column: span 2;" id="sec-macro">
-    <div class="section-title">Macro Context</div>
+    <div class="section-title">Macro Context <span class="info-tooltip" data-tip="Key macroeconomic indicators that drive gold prices. Gold typically rises with inflation, falling real yields, and dollar weakness.">ℹ</span></div>
 
     <!-- Macro stat cards -->
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6" id="macro-cards">
@@ -851,13 +851,13 @@
     <!-- Dual-axis correlation charts -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div>
-        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Gold vs Real Yields (inverted)</div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Gold vs Real Yields (inverted) <span class="info-tooltip" data-tip="Real yields = Treasury yield minus inflation. Gold has a strong inverse correlation with real yields. When real yields fall, gold rises.">ℹ</span></div>
         <div class="chart-wrap" style="height: 250px;">
           <canvas id="chart-macro-yields"></canvas>
         </div>
       </div>
       <div>
-        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Gold vs DXY (inverted)</div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Gold vs DXY (inverted) <span class="info-tooltip" data-tip="DXY = US Dollar Index. Gold typically moves inversely to the dollar — when USD weakens, gold strengthens.">ℹ</span></div>
         <div class="chart-wrap" style="height: 250px;">
           <canvas id="chart-macro-dxy"></canvas>
         </div>
@@ -869,19 +869,19 @@
   <!-- SECTION 8: MINING SNAPSHOT -->
   <!-- ============================================================ -->
   <section class="full-width card fade-in" id="sec-miners" style="animation-delay:0.65s">
-    <div class="section-title">Mining Snapshot</div>
+    <div class="section-title">Mining Snapshot <span class="info-tooltip" data-tip="Gold mining adds ~3,600-3,750 tonnes of new supply each year — about 2% of total above-ground stock. Supply is relatively inelastic.">ℹ</span></div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       <!-- AISC bar chart -->
       <div>
-        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">All-In Sustaining Cost vs Gold Price</div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">All-In Sustaining Cost vs Gold Price <span class="info-tooltip" data-tip="AISC is the true cost to mine one ounce of gold. When gold price approaches AISC, high-cost mines shut down, constraining supply.">ℹ</span></div>
         <div class="chart-wrap" style="height: 250px;">
           <canvas id="chart-miners-aisc"></canvas>
         </div>
       </div>
       <!-- GDX/Gold ratio -->
       <div>
-        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">GDX / Gold Ratio (Miner Leverage)</div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">GDX / Gold Ratio (Miner Leverage) <span class="info-tooltip" data-tip="GDX tracks gold mining stocks. This ratio shows whether miners are cheap or expensive relative to the gold price itself.">ℹ</span></div>
         <div class="chart-wrap" style="height: 250px;">
           <canvas id="chart-gdx-ratio"></canvas>
         </div>
@@ -891,13 +891,13 @@
     <!-- Production supply charts -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       <div>
-        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Global Gold Production by Country (tonnes)</div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Global Gold Production by Country (tonnes) <span class="info-tooltip" data-tip="Annual gold mine production by country. China leads with ~320t, followed by Russia and Australia. Global production grows slowly.">ℹ</span></div>
         <div class="chart-wrap" style="height: 280px;">
           <canvas id="chart-mining-production"></canvas>
         </div>
       </div>
       <div>
-        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Miner Annual Production &amp; AISC</div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Miner Annual Production &amp; AISC <span class="info-tooltip" data-tip="Individual miner production volumes and their all-in sustaining costs. Higher margin = more profitable at current gold prices.">ℹ</span></div>
         <div class="chart-wrap" style="height: 280px;">
           <canvas id="chart-miner-production-bars"></canvas>
         </div>
@@ -942,7 +942,7 @@
   <!-- SECTION 9: HISTORICAL CONTEXT -->
   <!-- ============================================================ -->
   <section class="full-width card fade-in" id="sec-historical" style="animation-delay:0.7s">
-    <div class="section-title">Historical Context</div>
+    <div class="section-title">Historical Context <span class="info-tooltip" data-tip="Gold's 50+ year price history since the US ended the gold standard in 1971. Major bull markets: 1971-1980, 1999-2011, 2018-present.">ℹ</span></div>
 
     <!-- Timeline chart -->
     <div class="chart-wrap" style="height: 300px;">
@@ -952,7 +952,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
       <!-- Decade returns -->
       <div>
-        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Avg. Annual Return by Decade</div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Avg. Annual Return by Decade <span class="info-tooltip" data-tip="Gold's average annual return for each decade. Shows long-term cyclical nature of gold bull and bear markets.">ℹ</span></div>
         <div class="chart-wrap" style="height: 220px;">
           <canvas id="chart-decade-returns"></canvas>
         </div>
