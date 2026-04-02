@@ -3,8 +3,8 @@
     "GLD": {
       "name": "SPDR Gold Shares",
       "price": 437.82,
-      "change": 6.65,
-      "change_pct": 1.54,
+      "change": -1.58,
+      "change_pct": -0.36,
       "tonnes_est": 870,
       "daily_change_est": -0.5,
       "chart_1y": [
@@ -1017,8 +1017,8 @@
     "IAU": {
       "name": "iShares Gold Trust",
       "price": 89.68,
-      "change": 1.32,
-      "change_pct": 1.49,
+      "change": -0.28,
+      "change_pct": -0.31,
       "tonnes_est": 460,
       "daily_change_est": 0.3,
       "chart_1y": [
@@ -2031,8 +2031,8 @@
     "PHYS": {
       "name": "Sprott Physical Gold",
       "price": 36.1,
-      "change": 0.46,
-      "change_pct": 1.3,
+      "change": -0.23,
+      "change_pct": -0.64,
       "tonnes_est": 68,
       "daily_change_est": 0.1,
       "chart_1y": [
@@ -3045,8 +3045,8 @@
     "BAR": {
       "name": "GraniteShares Gold",
       "price": 46.93,
-      "change": 0.65,
-      "change_pct": 1.4,
+      "change": -0.31,
+      "change_pct": -0.66,
       "tonnes_est": 18,
       "daily_change_est": 0.0,
       "chart_1y": [
@@ -4059,8 +4059,8 @@
     "SGOL": {
       "name": "Aberdeen Physical Gold",
       "price": 45.4,
-      "change": 0.79,
-      "change_pct": 1.77,
+      "change": -0.06,
+      "change_pct": -0.13,
       "tonnes_est": 42,
       "daily_change_est": 0.0,
       "chart_1y": [
@@ -5072,5 +5072,5 @@
     }
   },
   "total_holdings_tonnes_est": 1458,
-  "last_updated": "2026-04-02T07:23:09Z"
+  "last_updated": "2026-04-02T09:07:58Z"
 }
