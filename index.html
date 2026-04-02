@@ -215,7 +215,7 @@
   .freshness-live { background: rgba(0,255,136,0.12); color: #00ff88; border: 1px solid rgba(0,255,136,0.25); }
   .freshness-weekly { background: rgba(255,215,0,0.12); color: #ffd700; border: 1px solid rgba(255,215,0,0.25); }
   .freshness-quarterly { background: rgba(136,136,136,0.12); color: #888; border: 1px solid rgba(136,136,136,0.25); }
-  .freshness-estimate { background: rgba(136,136,136,0.12); color: #777; border: 1px solid rgba(136,136,136,0.25); }
+  .freshness-estimate { background: rgba(255,170,0,0.12); color: #ffaa00; border: 1px solid rgba(255,170,0,0.3); }
   .freshness-stale { background: rgba(255,68,68,0.12); color: #ff6644; border: 1px solid rgba(255,68,68,0.3); animation: stalePulse 2s ease-in-out infinite; }
   @keyframes stalePulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
 
@@ -1134,6 +1134,9 @@
         <div id="header-updated" class="text-sm text-[var(--text2)] mono">--</div>
       </div>
       <button id="refresh-btn" onclick="loadAllData()" class="pill flex items-center gap-2" title="Refresh data">&#x1f504; Refresh</button>
+      <button onclick="toggleDataModal()" class="pill flex items-center gap-2" title="Data sources &amp; methodology" id="data-quality-btn">
+        📋 Data Quality
+      </button>
       <div id="header-live-dot" class="w-2 h-2 rounded-full bg-[var(--green)] loading-pulse" title="Auto-refresh every 5m"></div>
     </div>
   </div>
@@ -4742,6 +4745,100 @@ if ('IntersectionObserver' in window) {
     chartObserver.observe(c);
   });
 }
+</script>
+
+<!-- Data Quality Modal -->
+<div id="data-quality-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);overflow-y:auto;">
+  <div style="max-width:900px;margin:40px auto;background:#111;border:1px solid #222;border-radius:16px;padding:32px;position:relative;">
+    <button onclick="toggleDataModal()" style="position:absolute;top:16px;right:16px;background:none;border:1px solid #333;border-radius:50%;width:32px;height:32px;color:#888;cursor:pointer;font-size:16px;">✕</button>
+    <h2 style="color:#ffd700;font-family:'JetBrains Mono',monospace;font-size:18px;margin-bottom:8px;">📋 Data Sources & Methodology</h2>
+    <p style="color:#888;font-size:12px;font-family:'JetBrains Mono',monospace;margin-bottom:24px;">Every data point labeled by source, frequency, and reliability. No hidden limitations.</p>
+    <div id="data-quality-content">
+      <!-- Filled dynamically by JS -->
+    </div>
+    <div style="margin-top:24px;padding-top:16px;border-top:1px solid #222;font-size:11px;color:#555;font-family:'JetBrains Mono',monospace;">
+      Full methodology: <a href="docs/data-methodology.md" target="_blank" style="color:#ffd700;">docs/data-methodology.md</a> ·
+      Source: <a href="https://github.com/Sham00/gold-situation-room" target="_blank" style="color:#ffd700;">github.com/Sham00/gold-situation-room</a>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleDataModal() {
+  var modal = document.getElementById('data-quality-modal');
+  var isOpen = modal.style.display !== 'none';
+  modal.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) renderDataQualityModal();
+}
+
+function renderDataQualityModal() {
+  var sources = [
+    { section: 'Gold Spot Price', freq: 'Hourly', source: 'yfinance → COMEX GC=F', reliability: 'live' },
+    { section: 'Key Ratios', freq: 'Daily', source: 'yfinance (SI=F, CL=F, ^GSPC, BTC-USD, HG=F)', reliability: 'live' },
+    { section: 'LBMA AM/PM Fix', freq: 'Daily', source: 'COMEX proxy estimate', reliability: 'estimate' },
+    { section: 'Central Bank Reserves', freq: 'Quarterly (WGC)', source: 'World Gold Council Q4 2025 reports', reliability: 'estimate' },
+    { section: 'Central Bank News', freq: 'Hourly', source: 'Google News RSS (CB keyword filter)', reliability: 'live' },
+    { section: 'ETF Holdings', freq: 'Daily', source: 'yfinance prices + AUM tonne estimate', reliability: 'estimate' },
+    { section: 'COT Positioning', freq: 'Weekly (Fri, Tue data)', source: 'CFTC disaggregated futures report', reliability: 'live' },
+    { section: 'COMEX Vault', freq: 'Monthly', source: 'COMEX vault reports (compiled)', reliability: 'estimate' },
+    { section: 'Gold Lease Rate', freq: 'Static', source: 'Market estimates (LBMA requires subscription)', reliability: 'estimate' },
+    { section: 'News Feed', freq: 'Hourly', source: 'RSS: Kitco, BullionVault, Reuters, Mining.com', reliability: 'live' },
+    { section: 'Macro Indicators', freq: 'Daily', source: 'yfinance (TNX, TIP, DX-Y.NYB) + FRED proxy', reliability: 'live' },
+    { section: 'Mining Stocks', freq: 'Daily', source: 'yfinance (GDX, GDXJ, GOLD, NEM, AEM)', reliability: 'live' },
+    { section: 'Miner AISC & Production', freq: 'Quarterly', source: 'Company Q4 2025 earnings reports', reliability: 'estimate' },
+    { section: 'Market Alerts', freq: 'Hourly', source: 'Google News RSS + internal signals', reliability: 'live' },
+    { section: 'Historical Price (post-2000)', freq: 'Monthly update', source: 'yfinance GC=F monthly close', reliability: 'live' },
+    { section: 'Historical Price (pre-2000)', freq: 'Static', source: 'London PM Fix historical dataset', reliability: 'archival' },
+    { section: 'Gold Seasonality', freq: 'Static', source: 'Calculated from full yfinance history', reliability: 'calculated' },
+  ];
+
+  var reliabilityBadge = {
+    'live': '<span style="background:rgba(0,255,136,0.15);color:#00ff88;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;">● LIVE</span>',
+    'estimate': '<span style="background:rgba(255,215,0,0.15);color:#ffd700;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;">⚠ ESTIMATE</span>',
+    'archival': '<span style="background:rgba(136,136,136,0.15);color:#888;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;">📚 ARCHIVAL</span>',
+    'calculated': '<span style="background:rgba(68,136,255,0.15);color:#4488ff;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;">∑ CALCULATED</span>',
+  };
+
+  var html = '<table style="width:100%;border-collapse:collapse;font-family:JetBrains Mono,monospace;font-size:12px;">';
+  html += '<thead><tr style="border-bottom:1px solid #333;">';
+  html += '<th style="text-align:left;padding:8px 12px;color:#888;font-size:11px;text-transform:uppercase;">Section</th>';
+  html += '<th style="text-align:left;padding:8px 12px;color:#888;font-size:11px;text-transform:uppercase;">Updates</th>';
+  html += '<th style="text-align:left;padding:8px 12px;color:#888;font-size:11px;text-transform:uppercase;">Source</th>';
+  html += '<th style="text-align:left;padding:8px 12px;color:#888;font-size:11px;text-transform:uppercase;">Reliability</th>';
+  html += '</tr></thead><tbody>';
+
+  sources.forEach(function(s, i) {
+    var bg = i % 2 === 0 ? 'background:rgba(255,255,255,0.02);' : '';
+    html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.04);' + bg + '">';
+    html += '<td style="padding:10px 12px;color:#ddd;font-weight:600;">' + s.section + '</td>';
+    html += '<td style="padding:10px 12px;color:#888;">' + s.freq + '</td>';
+    html += '<td style="padding:10px 12px;color:#aaa;">' + s.source + '</td>';
+    html += '<td style="padding:10px 12px;">' + (reliabilityBadge[s.reliability] || s.reliability) + '</td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+
+  // Key limitations
+  html += '<div style="margin-top:24px;padding:16px;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.1);border-radius:8px;">';
+  html += '<div style="font-size:12px;font-weight:700;color:#ffd700;margin-bottom:10px;font-family:JetBrains Mono,monospace;">⚠ Key Limitations</div>';
+  html += '<ul style="font-size:11px;color:#888;font-family:JetBrains Mono,monospace;line-height:1.8;margin:0;padding-left:16px;">';
+  html += '<li><strong style="color:#ddd;">Central Bank data</strong> lags 3-6 months — WGC publishes quarterly. Turkey &amp; Poland flagged with live news feeds.</li>';
+  html += '<li><strong style="color:#ddd;">COT data</strong> is always 3-4 days stale (CFTC publishes Fridays for prior Tuesday). Fast markets can shift positioning significantly.</li>';
+  html += '<li><strong style="color:#ddd;">Gold Lease Rate</strong> is an estimate — live LBMA/GOFO data requires a paid subscription (LBMA.org.uk).</li>';
+  html += '<li><strong style="color:#ddd;">LBMA Fix</strong> is proxied from COMEX — not directly from LBMA (subscription-only). Basis diverges during market stress.</li>';
+  html += '<li><strong style="color:#ddd;">AISC &amp; production</strong> figures are from Q4 2025 earnings — updated quarterly when companies report.</li>';
+  html += '<li><strong style="color:#ddd;">Market Signal score</strong> is a momentum composite — not a price forecast. Read the methodology section for factor weights.</li>';
+  html += '</ul></div>';
+
+  document.getElementById('data-quality-content').innerHTML = html;
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    var modal = document.getElementById('data-quality-modal');
+    if (modal) modal.style.display = 'none';
+  }
+});
 </script>
 
 <!-- More menu sheet -->

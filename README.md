@@ -1,6 +1,63 @@
-# Gold Situation Room
+# 🟡 Gold Situation Room
 
-A fully static, Bloomberg-terminal-style gold market dashboard. No server required — deploys directly to GitHub Pages with automated hourly data updates via GitHub Actions.
+**Live gold market intelligence dashboard** — price, ratios, central bank flows, ETF positioning, COT data, macro context, and mining stocks in one place.
+
+🔗 **Live site:** https://sham00.github.io/gold-situation-room/
+
+---
+
+## What's Inside
+
+| Section | Data | Updates |
+|---|---|---|
+| **Spot Price** | COMEX GC=F live price, YTD, ATH, multi-currency | Hourly |
+| **Market Signal** | Composite bull/bear score from 5 factors (RSI, real yields, DXY, ETF flows, COT) | Hourly |
+| **Key Ratios** | Gold/Silver, Gold/Oil, Gold/S&P500, Gold/BTC, Gold/Copper with 10Y percentiles | Daily |
+| **Central Bank Tracker** | 20 CBs tracked — reserves, monthly change, buy/sell status with live news | Hourly news / Quarterly reserves |
+| **ETF Flows** | GLD, IAU, PHYS, BAR, SGOL — price, tonne estimates, daily flow | Daily |
+| **COT Positioning** | CFTC managed money longs/shorts, net percentile vs 5Y range | Weekly |
+| **COMEX Vault** | Registered vs eligible inventory, cover ratio | Monthly |
+| **Gold Lease Rate** | 1M/3M/6M/12M term structure | Estimate |
+| **News Feed** | Real-time headlines with sentiment scoring (Kitco, BullionVault, Reuters) | Hourly |
+| **Macro Context** | Real yields, DXY, CPI, Fed Funds, M2 growth — dual-axis vs gold | Daily |
+| **Mining Snapshot** | GDX/GDXJ/majors — price, AISC, margin, production, miner leverage | Daily |
+| **Crisis Assets** | YTD performance: Gold vs BTC vs Silver vs TLT vs DXY | Daily |
+| **Historical Context** | 50+ year price history, decade returns, seasonality | Monthly/Static |
+
+## Data Transparency
+
+All data is labeled with source, update frequency, and reliability. Click **📋 Data Quality** in the header for the full breakdown.
+
+**Key data sources:** yfinance (prices), CFTC (COT), World Gold Council (CB reserves), RSS feeds (news)
+
+**Known limitations:** CB data lags 3-6 months; lease rates are estimates; LBMA fix is COMEX-proxied.
+
+See [docs/data-methodology.md](docs/data-methodology.md) for the complete methodology.
+
+## Tech Stack
+
+- **Static site** — HTML/CSS/JS + Chart.js + Tailwind CDN
+- **Data pipeline** — Python (yfinance, feedparser, requests)
+- **Hosting** — GitHub Pages
+- **Updates** — GitHub Actions (hourly cron)
+
+## Run Locally
+
+```bash
+git clone https://github.com/Sham00/gold-situation-room
+cd gold-situation-room
+pip install -r requirements.txt
+python fetch_data.py   # regenerate data/
+open index.html        # view in browser
+```
+
+## Deploy to GitHub Pages
+
+1. Push to GitHub
+2. **Settings > Pages** → Source: `main` branch, `/ (root)`
+3. **Settings > Actions > General** → Workflow permissions: Read and write
+4. Run **Actions > Fetch Gold Data** once to populate `data/`
+5. Live at `https://<username>.github.io/<repo>/`
 
 ## Architecture
 
@@ -8,87 +65,6 @@ A fully static, Bloomberg-terminal-style gold market dashboard. No server requir
 index.html          Static single-page dashboard (reads data/*.json)
 fetch_data.py       Python script that fetches all market data
 data/*.json         Pre-fetched JSON data files (auto-updated hourly)
+docs/               Methodology and data source documentation
 .github/workflows/  GitHub Actions workflow for data pipeline
 ```
-
-**Data sources:**
-- **Price & market data:** yfinance (Gold futures, Silver, Oil, S&P500, Bitcoin, DXY, Copper, ETFs, Miners)
-- **Macro indicators:** FRED CSV endpoints (Real yields, DXY, CPI, Fed Funds, M2, 10Y yield)
-- **News:** RSS feeds (Kitco, BullionVault)
-- **Central banks:** WGC/IMF IFS compiled data (updated quarterly in code)
-- **COT positioning:** CFTC disaggregated futures data
-
-No API keys required.
-
-## Deploy to GitHub Pages
-
-1. **Push to GitHub** — push this repo to a GitHub repository
-
-2. **Enable GitHub Pages:**
-   - Go to **Settings > Pages**
-   - Under "Source", select **Deploy from a branch**
-   - Branch: `main`, folder: `/ (root)`
-   - Click **Save**
-
-3. **Enable Actions permissions:**
-   - Go to **Settings > Actions > General**
-   - Under "Workflow permissions", select **Read and write permissions**
-   - Click **Save**
-
-4. **Run the first data fetch:**
-   - Go to **Actions** tab
-   - Click **Fetch Gold Data** workflow
-   - Click **Run workflow** button
-   - Wait for it to complete — this populates the `data/` directory
-
-5. Your dashboard is now live at `https://<username>.github.io/<repo>/`
-
-## How it works
-
-- **GitHub Actions** runs `fetch_data.py` every hour (on the hour)
-- The script fetches fresh market data and writes JSON files to `data/`
-- Actions commits and pushes the updated JSON files
-- The static `index.html` loads these JSON files via `fetch()` and renders the dashboard
-- The page auto-refreshes data every 5 minutes (just reloads JSON, not the whole page)
-- A manual **Refresh** button in the header triggers an immediate data reload
-
-## Manual data refresh
-
-### From GitHub (trigger Actions)
-1. Go to **Actions** > **Fetch Gold Data**
-2. Click **Run workflow**
-
-### Locally
-```bash
-pip install -r requirements.txt
-python fetch_data.py
-# Open with a local server (needed for fetch() to work):
-python -m http.server 8000
-# Visit http://localhost:8000
-```
-
-## Sections
-
-1. **Price Command Center** - Gold spot + gradient area chart + multi-currency grid with sparklines + ATH progress bar
-2. **Key Ratios** - Gold/Silver, Gold/Oil, Gold/SPX, Gold/BTC, Gold/Copper with gauge dials + sparklines
-3. **Central Bank Tracker** - Heat map table + top 15 bar chart + buying pace
-4. **ETF Flows** - GLD/IAU/PHYS/BAR/SGOL overlaid area charts + tonnage cards
-5. **COT Positioning** - 52-week stacked bars + percentile gauge
-6. **News Feed** - Kitco + BullionVault RSS with sentiment dots
-7. **Macro Context** - Real yields, DXY, Fed Funds, CPI, M2, 10Y + dual-axis correlation charts
-8. **Mining Snapshot** - AISC bar chart + margin table + miner sparklines
-9. **Historical Context** - Annotated timeline chart + decade return bars + event cards
-
-## Data files
-
-| File | Contents |
-|------|----------|
-| `data/price.json` | Gold spot price, multi-currency, intraday/historical charts |
-| `data/ratios.json` | Gold/Silver, Gold/Oil, Gold/SPX, Gold/BTC, Gold/Copper ratios |
-| `data/central_banks.json` | Central bank reserves, buying/selling activity |
-| `data/etfs.json` | GLD, IAU, PHYS, BAR, SGOL prices and charts |
-| `data/macro.json` | Real yields, DXY, CPI, Fed Funds, M2, 10Y yield from FRED |
-| `data/miners.json` | GDX, Barrick, Newmont, Agnico Eagle, Alamos Gold |
-| `data/news.json` | Latest gold news from RSS feeds |
-| `data/cot.json` | CFTC Commitments of Traders positioning data |
-| `data/historical.json` | Historical gold events, decade returns, full timeline |
