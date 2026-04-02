@@ -2930,6 +2930,63 @@ def fetch_analyst_targets():
 # Main
 # ---------------------------------------------------------------------------
 
+def generate_og_preview():
+    """Generate og-preview.svg with the current gold price from price.json."""
+    try:
+        price_file = DATA_DIR / "price.json"
+        if not price_file.exists():
+            print("OG preview: price.json not found, skipping")
+            return
+        with open(price_file) as f:
+            price_data = json.load(f)
+        price = price_data.get("price")
+        change_pct = price_data.get("change_pct", 0)
+        if price is None:
+            print("OG preview: no price found, skipping")
+            return
+        # Format values
+        price_str = f"${price:,.0f}"
+        sign = "▲" if change_pct >= 0 else "▼"
+        change_color = "#00ff88" if change_pct >= 0 else "#ff4444"
+        change_str = f"{sign} {abs(change_pct):.2f}%"
+        svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0a0a"/>
+      <stop offset="100%" stop-color="#111111"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="#ffd700"/>
+  
+  <!-- Gold bar icon -->
+  <rect x="80" y="200" width="120" height="70" rx="8" fill="#ffd700"/>
+  <rect x="90" y="210" width="100" height="50" rx="4" fill="#b8960f" opacity="0.5"/>
+  <text x="140" y="245" font-family="Arial" font-size="28" font-weight="bold" fill="#0a0a0a" text-anchor="middle">Au</text>
+  
+  <!-- Title -->
+  <text x="80" y="150" font-family="Arial" font-size="36" font-weight="bold" fill="#888888" letter-spacing="4">GOLD SITUATION ROOM</text>
+  
+  <!-- Price -->
+  <text x="80" y="350" font-family="Arial" font-size="96" font-weight="900" fill="#ffd700">{price_str}</text>
+  
+  <!-- Change -->
+  <text x="85" y="420" font-family="Arial" font-size="48" fill="{change_color}">{change_str}</text>
+  
+  <!-- Tagline -->
+  <text x="80" y="530" font-family="Arial" font-size="28" fill="#555555">Real-time gold intelligence · sham00.github.io/gold-situation-room</text>
+  
+  <!-- Decorative lines -->
+  <line x1="80" y1="460" x2="800" y2="460" stroke="#1a1a1a" stroke-width="2"/>
+</svg>"""
+        og_path = Path(__file__).parent / "og-preview.svg"
+        with open(og_path, "w") as f:
+            f.write(svg)
+        print(f"OG preview updated: {price_str} {change_str}")
+    except Exception as e:
+        print(f"OG preview error: {e}")
+
+
 def main():
     print("=" * 60)
     print("Gold Situation Room — Data Fetch")
@@ -2959,6 +3016,9 @@ def main():
         # safe() returns None on success (fn returns None after write_json)
         # and None on error too, but we printed the error
         throttle(1)  # Pause between fetchers to avoid Yahoo rate limits
+
+    # Generate OG preview SVG with current price
+    generate_og_preview()
 
     print("\n" + "=" * 60)
     print("Fetch complete. Files in data/:")

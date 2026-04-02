@@ -6,7 +6,7 @@
       "target_low": 4600,
       "target_high": 5055,
       "target_date": "end-2026",
-      "rationale": "Persistent central bank buying, Fed pivot signaling (expected Q2), geopolitical risk premium. Revised end-Apr target to $4,600.",
+      "rationale": "Persistent central bank buying, Fed pivot signaling expected Q2, geopolitical risk premium. Revised end-Apr target to $4,600 (Mar 2026 note).",
       "sentiment": "BULLISH",
       "data_source": "Goldman Sachs Research (Mar 2026)"
     },
@@ -16,7 +16,7 @@
       "target_low": 4500,
       "target_high": 5055,
       "target_date": "2026",
-      "rationale": "De-dollarization trend, EM central bank demand, gold as geopolitical hedge.",
+      "rationale": "De-dollarization trend, emerging market CB demand, gold as geopolitical hedge.",
       "sentiment": "BULLISH",
       "data_source": "JPMorgan Commodities Research (Q1 2026)"
     },
@@ -26,7 +26,7 @@
       "target_low": 4500,
       "target_high": 5700,
       "target_date": "2026",
-      "rationale": "Bull-case target of $5,700. Real rate decline and USD weakness support gold versus historical correlations.",
+      "rationale": "Bull-case target of $5,700. Real rate decline and USD weakness support gold vs historical correlations.",
       "sentiment": "BULLISH",
       "data_source": "Morgan Stanley Research (Q1 2026)"
     },
@@ -66,7 +66,7 @@
       "target_low": 3800,
       "target_high": 4500,
       "target_date": "2026",
-      "rationale": "Geopolitical tailwinds and CB demand; hawkish Fed risk as downside.",
+      "rationale": "Geopolitical tailwinds and CB demand; hawkish Fed overshoot remains downside risk.",
       "sentiment": "NEUTRAL",
       "data_source": "Deutsche Bank Research (2026)"
     },
@@ -76,7 +76,7 @@
       "target_low": 4000,
       "target_high": 5000,
       "target_date": "2026",
-      "rationale": "Commodity supercycle thesis; gold remains preferred hard asset.",
+      "rationale": "Commodity supercycle thesis; gold remains preferred hard asset with macro tailwinds.",
       "sentiment": "BULLISH",
       "data_source": "Wells Fargo Investment Institute (2026)"
     }
@@ -84,13 +84,41 @@
   "consensus_low": 3800,
   "consensus_high": 5700,
   "consensus_mid": 4594,
-  "upside_pct": -2.2,
+  "upside_pct": -2.3,
   "most_bullish": "Morgan Stanley",
-  "current_price": 4697.4,
-  "news_snippets": [],
+  "current_price": 4702.7,
+  "news_snippets": [
+    {
+      "title": "Factbox-Wells Fargo lifts end-2026 target for gold to $6,100-$6,300/oz By Reuters - Investing.com",
+      "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQOGN1Yy1sTE9wRUxxZEt6c1JXcy01Mm1BV0hFZk1HLVZNWnVQcUh6VDRVcnFGWlk0a1pzcTlEVjUyQTg4MUJHd1lCMWJIeXh2NXRRbV9HelMydFdHdy1YNm5YYmhLMTNmU2NnRExucnBEX2diRjNORWlQRFJYQ0QxQjYyeXJHaFZJY25TdlVUd3VZV3ZzV3gxZVNpSEFyRm40dHVrSnpaeGw2WkhwNEZvYVV1MFo?oc=5",
+      "published": "Thu, 02 Apr 2026 17:36:35 GMT"
+    },
+    {
+      "title": "Gold Forecast 2026: Goldman Sachs Sees Gold at $5,400 by Year-End - News and Statistics - IndexBox",
+      "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxPeFJsZ0NnOFZZdnVQUmdodTE4dVhzQ05RRFA5ZmJfcGpFUTh4Wk83aG5pZFpTSEctaElTTEhaN2NCYlcwYkI1ajE0UmRyMFJubG01QkZGQ3ZzczhJM2NzNkhtOEo5UXNaT2xUZGVJVFdtOFliUU92b0JnUTh5TWFNN29nb251SFBrSVB5QXFn?oc=5",
+      "published": "Wed, 01 Apr 2026 20:00:00 GMT"
+    },
+    {
+      "title": "Why Gold Is Going Up? Goldman Gold Price Prediction Sees $5,400 as XAU Rebounds - Finance Magnates",
+      "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxNV19Qc2tpZnNfSE1OMW5yYTRYQWtPVjdUc09UVC1FZ1JhQ0NLMFpGU09wa0VYWmhDQk5PcTJlbnhBZGtNdzBjUzR4TEhZS3VpMlFpSW0xTW5WY1hnRTRvQ3VkN1RNamx2aC1ZdVd1RkdmR0pzOGJqSHBpNzJnTXhZU1pvN2oxQlhFTUlGaEZ6MEZLRjZYcENXMTE3ekk2aFNwV2hJVFhjMlhUWnR0YlNmYVgtQkxBbUt6UXfSAb8BQVVfeXFMT2ZpOFRsa0lyUnRwRi1aR0ZhcV9wQWstM1V6Ukx2THZJeFYzeXFHR05Pa192NEVHblN0T003d0ltMmx6YmV0a2xFUi1sdFc2T0VTV1pVOFVxN2xGOEFRWU9pTDN5a1FsWVR1aEx1azZnbXB3bUVtS1lqYmdtS1BfNXVwTEJURmFKV3hFUHVlU1FNaUlIbHF6Q1Q2QVFEUlI2T3FQWW0zd0s1TC1hYkE1NHJYVlZxQmVkdktJMkVXdUE?oc=5",
+      "published": "Wed, 01 Apr 2026 09:50:20 GMT"
+    },
+    {
+      "title": "Gold price prediction: Why Goldman Sachs says gold price will touch $5,400 by end of 2026 amid Iran war, i - The Economic Times",
+      "link": "https://news.google.com/rss/articles/CBMinAJBVV95cUxOSTFZV1VDNU9lU2dMRE90enpjWkhwR3dqSXN3aWp2bVNXZXFuV1VqTkFuNnVJVUJZRW40Zy1OaWhueW1Ga01ocmR3Sld3aUZhWF9DZzNNSjE4RW10YmhXOFNfV3JYX3hQX0xNWDNTR2laeGEtMVlTeWR5c1JUZUZMX19icXF6SGxOSVQxYS1LNC1MX1MtUzVsaEZseGs0N29mMThXX2cyWER3MmxBdW1XMjJ6SGI4MGlfT0hrLVI0Z3lTLUxkYlVXV1cyRFFjSlRWODIzamw4NzR0ckd1dDlYQWJqQ0ptNS12ZENER1dNOGFqb1JNWDVza0FSQXVFYzRkT2ZOVFc4emlzTF9CY1puR2RBa3pZNVRXMWZOMdIBogJBVV95cUxQbHI1VFQzZDhJd1p2MWg5Z2NkdTNMZlotM0FVWXRXSDNHRUVXSkN1X2JaamNDSHpRWGlMbEs0RGxPSy1OX0VER1AyZVJOWDdRcWpGUmJBRHZsOHpHa2N6NVNSN0syanUwcVVjQzZNV09zRWE3cnJiSnNndUFyWGtmT2diQUZIMHozaWpGMnU1dDR4aTlZbGVDdlFsdnNZR0hSamYxdFhvdUlDUWpoT19OaGphRWFJeThZQ1VrUXhzLXlBTHpoMXh1M2VrSFAzY21JZ0NRMHFSaWY3bGtxaGRXRFY3X2N3LTBNWkJtdDJUQkNKTDYyMVRDam9fdWhJaEJHc3BQT25aeUZBRWJDRmQ4VVd2M3MyYjJXRGhWN2Q3a0k0QQ?oc=5",
+      "published": "Tue, 31 Mar 2026 16:37:29 GMT"
+    },
+    {
+      "title": "Gold Had a Disappointing First Quarter. Here's Why Wall Street Is Sticking to Its Forecasts - Investopedia",
+      "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxOQ1FnZnZBZGp2X011Q202bTdWY3N1WnMtZ1J0NlVtTnNEelFjYmRlMFR6Zno0VkZoUWN3VWZDQ2lyUElvWUVqbWpUSjRBNFpwYU9ZR1M4SjRTd1ZodkxZc2dwSlhoZXM4S2s5TWN2aThjZGpCOTNmLTlsQ3U5ZDZGeHVrTVItRElnZ0lUVG5WWldQUXhMWEFCUWNuLUp4aUFkZy1vYXAwVTVRcVlnZGtNQzhWY1luV05YcVNReDZNOXo2YWg2bDQw?oc=5",
+      "published": "Tue, 31 Mar 2026 16:50:05 GMT"
+    }
+  ],
   "data_quality": {
-    "source": "Updated analyst targets Apr 2026 (Goldman, JPMorgan, Morgan Stanley, BofA, Citi, UBS, Deutsche, Wells Fargo)",
-    "confidence": "high"
+    "source": "hardcoded published analyst targets (early 2026) + 10 Google News RSS headlines",
+    "freshness": "quarterly (price target revisions)",
+    "reliability": "published analyst estimates",
+    "notes": "Targets from major bank research notes (2025-2026). Updated when banks revise publicly. News snippets from Google News RSS."
   },
-  "last_updated": "2026-04-02T20:48Z"
+  "last_updated": "2026-04-02T21:13:08Z"
 }

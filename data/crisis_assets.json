@@ -1,7 +1,7 @@
 {
   "assets": {
     "Gold": {
-      "ytd_pct": 8.89,
+      "ytd_pct": 9.0,
       "color": "#ffd700",
       "chart": [
         {
@@ -254,12 +254,12 @@
         },
         {
           "t": "2026-04-02",
-          "v": 108.89
+          "v": 109.0
         }
       ]
     },
     "Bitcoin": {
-      "ytd_pct": -24.48,
+      "ytd_pct": -24.62,
       "color": "#ff8800",
       "chart": [
         {
@@ -628,12 +628,12 @@
         },
         {
           "t": "2026-04-02",
-          "v": 75.52
+          "v": 75.38
         }
       ]
     },
     "Silver": {
-      "ytd_pct": 3.62,
+      "ytd_pct": 3.7,
       "color": "#aaaaaa",
       "chart": [
         {
@@ -886,7 +886,7 @@
         },
         {
           "t": "2026-04-02",
-          "v": 103.62
+          "v": 103.7
         }
       ]
     },
@@ -1407,7 +1407,7 @@
       ]
     },
     "DXY": {
-      "ytd_pct": 1.62,
+      "ytd_pct": 1.63,
       "color": "#aa44ff",
       "chart": [
         {
@@ -1660,7 +1660,7 @@
         },
         {
           "t": "2026-04-02",
-          "v": 101.62
+          "v": 101.63
         }
       ]
     }
@@ -1671,5 +1671,5 @@
     "reliability": "live",
     "notes": "All assets rebased to 100 at Jan 1 of current year for YTD comparison."
   },
-  "last_updated": "2026-04-02T20:49:01Z"
+  "last_updated": "2026-04-02T21:13:02Z"
 }

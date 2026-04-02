@@ -7094,7 +7094,7 @@
     },
     {
       "t": "2026-04-02",
-      "v": 4697.8
+      "v": 4702.7
     }
   ],
   "next_fomc_date": "2026-05-06",
@@ -7105,5 +7105,5 @@
     "reliability": "live",
     "notes": "Real yield 10Y from TIP/TNX calculation. Some inflation estimates lag 1 month (BLS release schedule)."
   },
-  "last_updated": "2026-04-02T20:48:36Z"
+  "last_updated": "2026-04-02T21:12:36Z"
 }
