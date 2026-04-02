@@ -79,7 +79,7 @@
     },
     {
       "source": "Google News",
-      "title": "3 gold price questions investors should ask this April - cbsnews.com",
+      "title": "3 gold price questions investors should ask this April - CBS News",
       "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTE5DLTF6c1U0SGFPYWpXVTVSaUhfeVFmb19sQVlicjdpYkxqUktfbkhIZzBKWnFpemtuWVRpU0l3STlZQ18zY29TRHhWVkN5Mkh5eUR3cU15SmFzanFTRmFEWGZ0Y2I0b1RoaHMtQ2RHSUVxY1g5Vm81a210SQ?oc=5",
       "published": "Tue, 31 Mar 2026 19:18:36 GMT",
       "sentiment": "neutral"
@@ -142,7 +142,7 @@
     },
     {
       "source": "Google News",
-      "title": "Gold Price Forecast \u2013 Will Recession Fears Trigger a Final Drop Before the Next Rally? - FXEmpire",
+      "title": "Gold Price Forecast \u2013 Will Recession Fears Trigger a Final Drop Before the Next Rally? - fxempire.com",
       "link": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxOcjdBQ3gtWFZ4bzNMMDZBamdnNHI1R2RkWXd2RzNBMHRwTDNXcUk5YzVXQjFUX3c3eVBNNmFPTFFGX291V0tSRDJ1Ukl0d01CN3JhVnVFc1VvdWN1LUNmVzY3RWxLZ200V1c4ZjNrTjlMM2xyc1FfOTZnVktIanV5eVRSUUZEbjlXT2VTTldkV3dBOGlfMmdoa2tYaTBtckgycG9nS1RpZUxJbEpPR3h1VHI1N3NzTU9xbjY3djllbHhQMFJTNk1zdHhQTHhGU2F3cUc4WTFCRGI4dw?oc=5",
       "published": "Thu, 02 Apr 2026 14:38:00 GMT",
       "sentiment": "positive"
@@ -187,5 +187,5 @@
     "reliability": "live",
     "notes": "Sentiment scoring is keyword-based heuristic. Not a substitute for full NLP sentiment analysis."
   },
-  "last_updated": "2026-04-02T23:43:16Z"
+  "last_updated": "2026-04-02T23:51:53Z"
 }

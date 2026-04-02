@@ -5031,10 +5031,19 @@ function renderCrisisAssets() {
       var asset = d.assets[name];
       var div = document.createElement('div');
       div.className = 'bg-[#0a0a0a] rounded-lg p-3 border border-[var(--card-border)] text-center';
+      var priceStr = '';
+      if (asset.price != null) {
+        var p = asset.price;
+        if (name === 'VIX') priceStr = fmt(p, 2);
+        else if (p >= 1000) priceStr = '$' + p.toLocaleString('en-US', {maximumFractionDigits: 0});
+        else if (p >= 100) priceStr = '$' + fmt(p, 2);
+        else priceStr = '$' + fmt(p, 4);
+      }
       div.innerHTML =
         '<div class="text-[10px] text-[var(--text2)] mono mb-1">' + name + '</div>' +
+        (priceStr ? '<div class="text-[11px] mono text-[var(--text2)] mb-1">' + priceStr + '</div>' : '') +
         '<div class="text-lg font-bold mono" style="color:' + asset.color + '">' +
-          (asset.ytd_pct >= 0 ? '+' : '') + fmt(asset.ytd_pct, 1) + '%</div>';
+          (asset.ytd_pct >= 0 ? '+' : '') + fmt(asset.ytd_pct, 1) + '% YTD</div>';
       legendContainer.appendChild(div);
     });
   }

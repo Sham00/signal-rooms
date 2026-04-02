@@ -1,6 +1,8 @@
 {
   "assets": {
     "Gold": {
+      "price": 4702.7,
+      "start_price": 4314.4,
       "ytd_pct": 9.0,
       "color": "#ffd700",
       "chart": [
@@ -259,7 +261,9 @@
       ]
     },
     "Bitcoin": {
-      "ytd_pct": -24.6,
+      "price": 66876.0,
+      "start_price": 88731.98,
+      "ytd_pct": -24.63,
       "color": "#ff8800",
       "chart": [
         {
@@ -628,11 +632,13 @@
         },
         {
           "t": "2026-04-02",
-          "v": 75.4
+          "v": 75.37
         }
       ]
     },
     "Silver": {
+      "price": 73.17,
+      "start_price": 70.56,
       "ytd_pct": 3.7,
       "color": "#aaaaaa",
       "chart": [
@@ -891,6 +897,8 @@
       ]
     },
     "Long Bonds (TLT)": {
+      "price": 86.79,
+      "start_price": 86.07,
       "ytd_pct": 0.84,
       "color": "#4488ff",
       "chart": [
@@ -1149,6 +1157,8 @@
       ]
     },
     "VIX": {
+      "price": 23.87,
+      "start_price": 14.51,
       "ytd_pct": 64.51,
       "color": "#ff4444",
       "chart": [
@@ -1407,6 +1417,8 @@
       ]
     },
     "DXY": {
+      "price": 100.02,
+      "start_price": 98.42,
       "ytd_pct": 1.62,
       "color": "#aa44ff",
       "chart": [
@@ -1671,5 +1683,5 @@
     "reliability": "live",
     "notes": "All assets rebased to 100 at Jan 1 of current year for YTD comparison."
   },
-  "last_updated": "2026-04-02T23:43:22Z"
+  "last_updated": "2026-04-02T23:52:01Z"
 }

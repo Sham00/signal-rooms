@@ -2597,6 +2597,8 @@ def fetch_crisis_assets():
                 })
 
             result[name] = {
+                "price": round(current_price, 2),
+                "start_price": round(start_price, 2),
                 "ytd_pct": ytd_pct,
                 "color": colors.get(name, "#888888"),
                 "chart": normalized,
