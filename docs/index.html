@@ -1,0 +1,3191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gold Situation Room</title>
+<meta name="description" content="Real-time gold price dashboard with ratios, macro indicators, crisis asset comparisons, and market news. The ultimate gold situation room.">
+<meta property="og:title" content="Gold Situation Room 🟡">
+<meta property="og:description" content="Real-time gold price, ratios (Gold/Silver, Gold/Oil, Gold/BTC), macro indicators, and market news — all in one dashboard.">
+<meta property="og:url" content="https://sham00.github.io/gold-situation-room/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://sham00.github.io/gold-situation-room/og-preview.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Gold Situation Room 🟡">
+<meta name="twitter:description" content="Real-time gold price dashboard with ratios, macro indicators, and market intelligence.">
+<meta name="twitter:image" content="https://sham00.github.io/gold-situation-room/og-preview.svg">
+<meta name="theme-color" content="#ffd700">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://sham00.github.io/gold-situation-room/">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  :root {
+    --bg: #0a0a0a;
+    --card-bg: #111111;
+    --card-border: #1a1a1a;
+    --gold: #ffd700;
+    --gold-dim: #b8960f;
+    --green: #00ff88;
+    --red: #ff4444;
+    --blue: #4488ff;
+    --gray: #555555;
+    --text: #ffffff;
+    --text2: #888888;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .card:hover {
+    border-color: var(--gold);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.05);
+  }
+
+  /* Header */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: linear-gradient(180deg, var(--card-bg) 0%, rgba(17,17,17,0.95) 100%);
+    border-top: 3px solid var(--gold);
+    border-bottom: 1px solid var(--card-border);
+    backdrop-filter: blur(20px);
+  }
+
+  /* Pill buttons */
+  .pill {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--card-border);
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .pill:hover { border-color: var(--gold); color: var(--gold); }
+  .pill.active {
+    background: var(--gold);
+    color: #000;
+    border-color: var(--gold);
+    font-weight: 700;
+  }
+
+  /* Percentile pill */
+  .pct-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .pct-pill.cheap { background: rgba(0,255,136,0.15); color: #00ff88; }
+  .pct-pill.mid { background: rgba(255,215,0,0.15); color: #ffd700; }
+  .pct-pill.expensive { background: rgba(255,68,68,0.15); color: #ff4444; }
+
+  /* Sentiment bar */
+  .sentiment-bar {
+    position: relative;
+    height: 24px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #ff4444, #ff8800, #888, #88cc44, #00ff88);
+    overflow: visible;
+  }
+  .sentiment-marker {
+    position: absolute;
+    top: -4px;
+    width: 4px;
+    height: 32px;
+    background: #fff;
+    border-radius: 2px;
+    transform: translateX(-50%);
+    box-shadow: 0 0 6px rgba(255,255,255,0.5);
+    transition: left 1s ease;
+  }
+
+  /* Heatmap table */
+  .heat-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+  .heat-table th {
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--card-border);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .heat-table td {
+    padding: 8px 12px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .heat-table tr:hover td { background: rgba(255,215,0,0.03); }
+
+  /* Loading spinner */
+  .spinner {
+    width: 24px; height: 24px;
+    border: 2px solid var(--card-border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Pulse */
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .loading-pulse { animation: pulse 1.5s ease-in-out infinite; }
+
+  /* Skeleton */
+  .skeleton {
+    background: linear-gradient(90deg, #1a1a1a 25%, #222 50%, #1a1a1a 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+  }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  /* Section titles */
+  .section-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    opacity: 0.3;
+  }
+
+  /* Freshness badges */
+  .freshness-badge {
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin-left: 8px;
+    vertical-align: middle;
+    display: inline-block;
+  }
+  .freshness-live { background: rgba(0,255,136,0.12); color: #00ff88; border: 1px solid rgba(0,255,136,0.25); }
+  .freshness-weekly { background: rgba(255,215,0,0.12); color: #ffd700; border: 1px solid rgba(255,215,0,0.25); }
+  .freshness-quarterly { background: rgba(136,136,136,0.12); color: #888; border: 1px solid rgba(136,136,136,0.25); }
+  .freshness-estimate { background: rgba(136,136,136,0.12); color: #777; border: 1px solid rgba(136,136,136,0.25); }
+
+  /* Progress bar */
+  .progress-track {
+    height: 8px;
+    background: #1a1a1a;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  /* Badge */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Thermometer */
+  .thermo-track {
+    width: 16px;
+    height: 80px;
+    background: #1a1a1a;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .thermo-fill {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    border-radius: 8px;
+    transition: height 1.5s ease;
+  }
+
+  /* News */
+  .news-scroll {
+    max-height: 500px;
+    overflow-y: auto;
+  }
+  .news-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+
+  /* Big number */
+  .big-num {
+    font-size: 48px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1;
+  }
+
+  /* Chart container */
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+  }
+
+  /* Mini sparkline canvas */
+  .sparkline-canvas {
+    display: block;
+  }
+
+  /* Grid layout */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  @media (min-width: 768px) {
+    .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+    .full-width { grid-column: 1 / -1; }
+  }
+  @media (min-width: 1200px) {
+    .dashboard-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* Fade in */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in {
+    animation: fadeIn 0.6s ease forwards;
+    opacity: 0;
+  }
+
+  /* Mini bar */
+  .mini-bar {
+    display: inline-block;
+    height: 4px;
+    border-radius: 2px;
+    min-width: 2px;
+    vertical-align: middle;
+  }
+
+  /* Info tooltip */
+  .info-tooltip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: #333;
+    color: #888;
+    font-size: 10px;
+    cursor: help;
+    margin-left: 6px;
+    position: relative;
+    vertical-align: middle;
+    flex-shrink: 0;
+  }
+  .info-tooltip::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1a1a;
+    color: #ddd;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    white-space: normal;
+    width: 220px;
+    border: 1px solid #333;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 100;
+    line-height: 1.4;
+  }
+  .info-tooltip:hover::after { opacity: 1; }
+
+  /* Range marker */
+  .range-bar {
+    position: relative;
+    height: 6px;
+    background: #1a1a1a;
+    border-radius: 3px;
+    margin-top: 6px;
+  }
+  .range-marker {
+    position: absolute;
+    top: -3px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 2px solid var(--card-bg);
+    transform: translateX(-50%);
+    transition: left 1.5s ease;
+  }
+
+  /* Composite Signal Gauge */
+  .signal-gauge-wrap {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .signal-gauge-arc {
+    position: relative;
+    width: 220px;
+    height: 115px;
+    flex-shrink: 0;
+  }
+  .signal-gauge-arc svg {
+    width: 100%;
+    height: 100%;
+  }
+  .signal-needle {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 3px;
+    height: 80px;
+    background: white;
+    transform-origin: bottom center;
+    transform: translateX(-50%) rotate(0deg);
+    border-radius: 2px 2px 0 0;
+    transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 6px rgba(255,255,255,0.6);
+  }
+  .signal-needle::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: white;
+  }
+  .signal-label {
+    font-size: 1.5rem;
+    font-weight: 800;
+    font-family: monospace;
+    letter-spacing: 0.05em;
+    transition: color 1s ease;
+  }
+  .signal-score-bar {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+  }
+  .signal-factor {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .signal-factor-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.7rem;
+    font-family: monospace;
+  }
+  .signal-factor-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .signal-factor-label {
+    color: var(--text2);
+    flex: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .signal-factor-val {
+    font-weight: bold;
+    text-align: right;
+    min-width: 60px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="max-w-[1600px] mx-auto px-5 py-4 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mb-1 mono">Gold Spot XAU/USD</div>
+        <div class="flex items-baseline gap-4">
+          <span id="header-price" class="big-num text-[var(--gold)]">--</span>
+          <span id="header-change" class="text-lg font-bold mono">--</span>
+        </div>
+        <div id="price-last-updated" class="text-xs mono" style="color:#555;margin-top:4px;"></div>
+      </div>
+    </div>
+    <div class="flex items-center gap-6">
+      <div class="text-right">
+        <div class="text-xs text-[var(--text2)] mono">YTD <span class="info-tooltip" data-tip="Gold's return since January 1st of the current year.">ℹ</span></div>
+        <div id="header-ytd" class="text-sm font-bold mono">--</div>
+      </div>
+      <div class="text-right">
+        <div class="text-xs text-[var(--text2)] mono">ATH <span class="info-tooltip" data-tip="The highest price gold has ever traded. Gold set its current ATH in 2025 during a historic bull run driven by central bank buying and dollar weakness.">ℹ</span></div>
+        <div id="header-ath" class="text-sm font-bold mono">--</div>
+      </div>
+      <div class="text-right">
+        <div class="text-xs text-[var(--text2)] mono">Data as of</div>
+        <div id="header-updated" class="text-sm text-[var(--text2)] mono">--</div>
+      </div>
+      <button id="refresh-btn" onclick="loadAllData()" class="pill flex items-center gap-2" title="Refresh data">&#x1f504; Refresh</button>
+      <div id="header-live-dot" class="w-2 h-2 rounded-full bg-[var(--green)] loading-pulse" title="Auto-refresh every 5m"></div>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN DASHBOARD -->
+<main class="dashboard-grid" id="dashboard">
+
+  <!-- ============================================================ -->
+  <!-- SECTION 0: COMPOSITE BULL/BEAR SIGNAL -->
+  <!-- ============================================================ -->
+  <section class="full-width card fade-in" id="sec-composite" style="animation-delay:0.05s">
+    <div class="section-title">Market Signal <span class="info-tooltip" data-tip="Composite bull/bear score computed from 5 factors: RSI momentum, real yield (10Y TIPS), DXY trend, ETF flows, and COT positioning. Score ranges from -10 (Strongly Bearish) to +10 (Strongly Bullish).">ℹ</span><span class="freshness-badge freshness-live">● Hourly</span></div>
+    <div class="signal-gauge-wrap">
+      <!-- Arc gauge -->
+      <div class="signal-gauge-arc">
+        <svg viewBox="0 0 220 115" xmlns="http://www.w3.org/2000/svg">
+          <!-- Background arc segments (5 zones) -->
+          <!-- Strongly Bearish: -90° to -54° -->
+          <path d="M 20 110 A 90 90 0 0 1 45.4 47.7" stroke="#ff3333" stroke-width="18" fill="none" stroke-linecap="round"/>
+          <!-- Bearish: -54° to -18° -->
+          <path d="M 45.4 47.7 A 90 90 0 0 1 88.7 21.4" stroke="#ff8844" stroke-width="18" fill="none" stroke-linecap="round"/>
+          <!-- Neutral: -18° to +18° -->
+          <path d="M 88.7 21.4 A 90 90 0 0 1 131.3 21.4" stroke="#888888" stroke-width="18" fill="none" stroke-linecap="round"/>
+          <!-- Bullish: +18° to +54° -->
+          <path d="M 131.3 21.4 A 90 90 0 0 1 174.6 47.7" stroke="#88dd44" stroke-width="18" fill="none" stroke-linecap="round"/>
+          <!-- Strongly Bullish: +54° to +90° -->
+          <path d="M 174.6 47.7 A 90 90 0 0 1 200 110" stroke="#00ff88" stroke-width="18" fill="none" stroke-linecap="round"/>
+          <!-- Labels -->
+          <text x="14" y="108" fill="#ff3333" font-size="7" font-family="monospace" text-anchor="middle">Strong</text>
+          <text x="14" y="116" fill="#ff3333" font-size="7" font-family="monospace" text-anchor="middle">Bear</text>
+          <text x="206" y="108" fill="#00ff88" font-size="7" font-family="monospace" text-anchor="middle">Strong</text>
+          <text x="206" y="116" fill="#00ff88" font-size="7" font-family="monospace" text-anchor="middle">Bull</text>
+          <text x="110" y="18" fill="#888" font-size="7" font-family="monospace" text-anchor="middle">Neutral</text>
+        </svg>
+        <div class="signal-needle" id="composite-needle"></div>
+      </div>
+      <!-- Label + factors -->
+      <div style="flex:1; min-width: 200px;">
+        <div class="signal-label" id="composite-label" style="color: #888;">— —</div>
+        <div class="text-xs mono text-[var(--text2)] mt-1" id="composite-score-text">Score: —</div>
+        <div class="signal-factor mt-4" id="composite-factors">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 1: PRICE COMMAND CENTER -->
+  <!-- ============================================================ -->
+  <section class="full-width card fade-in" id="sec-price" style="animation-delay:0.1s">
+    <div class="section-title">Price Command Center <span class="info-tooltip" data-tip="The current market price for one troy ounce of physical gold, based on COMEX front-month futures. This is the global benchmark price.">ℹ</span><span class="freshness-badge freshness-live">● Hourly</span></div>
+
+    <!-- Main chart -->
+    <div class="chart-wrap" style="height: 40vh; min-height: 300px;">
+      <canvas id="chart-price-main"></canvas>
+    </div>
+
+    <!-- Timeframe pills -->
+    <div class="flex flex-wrap gap-2 mt-4 mb-6" id="timeframe-pills">
+      <button class="pill active" data-tf="1d">1D</button>
+      <button class="pill" data-tf="5d">5D</button>
+      <button class="pill" data-tf="1m">1M</button>
+      <button class="pill" data-tf="3m">3M</button>
+      <button class="pill" data-tf="1y">1Y</button>
+      <button class="pill" data-tf="5y">5Y</button>
+      <button class="pill" data-tf="all">All</button>
+    </div>
+
+    <!-- Multi-currency grid -->
+    <div class="text-xs text-[var(--text2)] uppercase tracking-widest mb-3 mono">Gold in World Currencies <span class="info-tooltip" data-tip="Gold price expressed in local currencies. Reflects both gold's USD price and the current exchange rate.">ℹ</span></div>
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3" id="currency-grid">
+      <!-- Filled by JS -->
+    </div>
+
+    <!-- ATH progress bar -->
+    <div class="mt-6">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-xs text-[var(--text2)] mono uppercase tracking-wider">Distance to All-Time High <span class="info-tooltip" data-tip="How far the current price is below the all-time high. 0% means you're AT the all-time high.">ℹ</span></span>
+        <span id="ath-pct-label" class="text-sm font-bold mono text-[var(--gold)]">--</span>
+      </div>
+      <div class="progress-track">
+        <div id="ath-progress" class="progress-fill" style="width:0%; background: linear-gradient(90deg, var(--gold), #ffec80);"></div>
+      </div>
+      <div class="flex justify-between mt-1">
+        <span class="text-[10px] text-[var(--text2)] mono">$0</span>
+        <span id="ath-value" class="text-[10px] text-[var(--text2)] mono">ATH: --</span>
+      </div>
+    </div>
+
+    <!-- Technical Indicators: MA50 / MA200 / RSI -->
+    <div class="mt-6">
+      <div class="text-xs text-[var(--text2)] uppercase tracking-widest mb-3 mono">Technical Indicators <span class="info-tooltip" data-tip="Moving averages and RSI calculated from daily COMEX closing prices. MA50/MA200 crossovers are widely-watched trend signals. RSI above 70 = overbought, below 30 = oversold.">ℹ</span></div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- MA50 -->
+        <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+          <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">50-Day MA <span class="info-tooltip" data-tip="50-day simple moving average. Price above MA50 suggests short-term uptrend.">ℹ</span></div>
+          <div class="text-xl font-bold mono" id="ma50-val">--</div>
+          <div class="text-xs mt-1" id="ma50-signal" style="color: var(--text2)">--</div>
+        </div>
+        <!-- MA200 -->
+        <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+          <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">200-Day MA <span class="info-tooltip" data-tip="200-day simple moving average. The 'Golden Cross' (MA50 crosses above MA200) is a major bullish signal. 'Death Cross' is bearish.">ℹ</span></div>
+          <div class="text-xl font-bold mono" id="ma200-val">--</div>
+          <div class="text-xs mt-1" id="ma200-signal" style="color: var(--text2)">--</div>
+        </div>
+        <!-- RSI -->
+        <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+          <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">RSI (14) <span class="info-tooltip" data-tip="Relative Strength Index over 14 days. Above 70 = overbought (potential pullback). Below 30 = oversold (potential bounce). Gold has historically sustained RSI>70 in strong bull markets.">ℹ</span></div>
+          <div class="text-xl font-bold mono" id="rsi-val">--</div>
+          <div class="text-xs mt-1" id="rsi-signal" style="color: var(--text2)">--</div>
+          <div class="progress-track mt-2" style="height: 4px;">
+            <div id="rsi-bar" class="progress-fill" style="width:0%; background: var(--gold);"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 1b: LBMA FIX PRICE -->
+  <!-- ============================================================ -->
+  <section class="full-width card fade-in" id="sec-lbma" style="animation-delay:0.12s">
+    <div class="section-title">LBMA Gold Fix <span class="info-tooltip" data-tip="The LBMA Fix is the benchmark price used in most central bank and institutional gold contracts. Twice-daily London auction.">i</span><span class="freshness-badge freshness-estimate">Est.</span></div>
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">AM Fix <span class="info-tooltip" data-tip="The morning London gold fix, set around 10:30 AM London time. Used as the reference for most Asian and European physical transactions.">ℹ</span></div>
+        <div id="lbma-am" class="text-xl font-bold mono text-[var(--gold)]">--</div>
+      </div>
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">PM Fix <span class="info-tooltip" data-tip="The afternoon London gold fix, set around 3:00 PM London time. The primary global benchmark — most derivatives contracts and physical deals reference this price.">ℹ</span></div>
+        <div id="lbma-pm" class="text-xl font-bold mono text-[var(--gold)]">--</div>
+      </div>
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">COMEX-LBMA Basis <span class="info-tooltip" data-tip="The price difference between COMEX futures and the LBMA spot fix. A large positive basis signals strong US futures demand or physical delivery stress.">ℹ</span></div>
+        <div id="lbma-basis" class="text-xl font-bold mono">--</div>
+      </div>
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Source</div>
+        <div id="lbma-source" class="text-xs mono text-[var(--text2)]">--</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 2: KEY RATIOS -->
+  <!-- ============================================================ -->
+  <div class="full-width">
+    <div class="section-title" style="padding: 0 0 0 0;">Key Ratios <span class="info-tooltip" data-tip="Gold priced in other assets. Percentile shows where the current ratio sits in its 10-year range. Green = gold is cheap relative to that asset.">i</span><span class="freshness-badge freshness-live">● Hourly</span></div>
+  </div>
+
+  <!-- Ratio cards container — filled dynamically by JS -->
+  <div class="full-width" id="ratio-cards-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+    <!-- JS populates compact ratio cards here -->
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 3: CENTRAL BANK TRACKER -->
+  <!-- ============================================================ -->
+  <section class="full-width card fade-in" id="sec-cb" style="animation-delay:0.4s">
+    <div class="section-title">Central Bank Tracker <span class="info-tooltip" data-tip="Central banks are the largest holders of gold globally. Since 2022, they have been buying at record pace — over 1,000 tonnes/year — driven by de-dollarization.">ℹ</span><span class="freshness-badge freshness-quarterly">● Quarterly</span></div>
+
+    <!-- CB PACE indicator -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div class="bg-[#0a0a0a] rounded-lg p-5 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Current Pace vs 10Y Average <span class="info-tooltip" data-tip="Central banks have been buying gold at an unprecedented pace since 2022, driven by de-dollarization and geopolitical hedging.">i</span></div>
+        <div class="flex items-baseline gap-2">
+          <span id="cb-pace-vs-avg" class="text-4xl font-bold mono text-[var(--gold)]">--</span>
+          <span class="text-sm text-[var(--text2)] mono">above historical average</span>
+        </div>
+      </div>
+      <div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Net Global Buying Pace <span class="info-tooltip" data-tip="The annualized rate of central bank net gold purchases. The 2022-2025 surge marked a structural regime change from ~500t/year to over 1,000t/year.">ℹ</span></div>
+        <div class="flex items-baseline gap-3">
+          <span id="cb-pace" class="text-4xl font-bold mono text-[var(--gold)]">--</span>
+          <span class="text-sm text-[var(--text2)] mono">tonnes / month</span>
+          <span id="cb-pace-arrow" class="text-2xl">--</span>
+        </div>
+      </div>
+      <div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">YTD Total Buying <span class="info-tooltip" data-tip="Total tonnes of gold purchased by central banks year-to-date.">ℹ</span></div>
+        <span id="cb-ytd-total" class="text-2xl font-bold mono text-[var(--green)]">--</span>
+        <span class="text-sm text-[var(--text2)] mono ml-1">tonnes</span>
+      </div>
+    </div>
+
+    <!-- CB Annual Net Purchases bar chart -->
+    <div class="mb-6">
+      <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Central Bank Net Purchases (tonnes/year) <span class="info-tooltip" data-tip="Net central bank gold purchases by year. The post-2022 surge was triggered by the US-led freeze of Russian central bank assets.">ℹ</span></div>
+      <div class="chart-wrap" style="height: 200px;">
+        <canvas id="chart-cb-annual"></canvas>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Table -->
+      <div class="lg:col-span-2 overflow-x-auto">
+        <table class="heat-table" id="cb-table">
+          <thead>
+            <tr>
+              <th>Country</th>
+              <th>Reserves (t)</th>
+              <th>Monthly &Delta;</th>
+              <th>YTD &Delta;</th>
+              <th>% of Reserves</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="cb-table-body">
+            <tr><td colspan="6" class="text-center py-8"><div class="spinner mx-auto"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Bar chart -->
+      <div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Top 15 by Reserves</div>
+        <div class="chart-wrap" style="height: 400px;">
+          <canvas id="chart-cb-bars"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SECTION: GLOBAL GOLD FLOWS -->
+  <!-- ============================================================ -->
+  <section class="full-width card fade-in" id="sec-gold-flows" style="animation-delay:0.42s">
+    <div class="section-title">Global Gold Flows <span class="info-tooltip" data-tip="Physical gold moves between countries for refining, investment, and jewelry. Switzerland processes ~70% of global gold. Dubai is the key conduit for gold from sanctioned countries.">ℹ</span><span class="freshness-badge freshness-estimate">Est. annual</span></div>
+    <div class="text-xs text-[var(--text2)] mono mb-4">Physical gold shipments and trade flows between major countries (2025/2026 est., tonnes/year)</div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Flow visualization -->
+      <div>
+        <svg id="gold-flow-svg" viewBox="0 0 700 440" style="width:100%;height:auto;max-height:440px;">
+          <defs>
+            <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#ffd700" opacity="0.5"/>
+            </marker>
+            <style>
+              .flow-line { stroke: #ffd700; stroke-width: 1.5; fill: none; opacity: 0.35; stroke-dasharray: 6 4; animation: flowDash 2s linear infinite; marker-end: url(#arrowhead); }
+              .flow-line-thick { stroke-width: 2.5; opacity: 0.5; }
+              @keyframes flowDash { to { stroke-dashoffset: -20; } }
+              .hub-label { fill: #ddd; font-size: 10px; font-family: 'JetBrains Mono', monospace; text-anchor: middle; }
+              .hub-sublabel { fill: #888; font-size: 8px; font-family: 'JetBrains Mono', monospace; text-anchor: middle; }
+            </style>
+          </defs>
+          <!-- Hubs: positioned on simplified world map layout -->
+          <!-- London -->
+          <circle cx="280" cy="100" r="28" fill="rgba(255,215,0,0.15)" stroke="#ffd700" stroke-width="1.5"/>
+          <text class="hub-label" x="280" y="97">London</text>
+          <text class="hub-sublabel" x="280" y="108">Market Hub</text>
+          <!-- Zurich/Switzerland -->
+          <circle cx="310" cy="180" r="30" fill="rgba(255,215,0,0.2)" stroke="#ffd700" stroke-width="1.5"/>
+          <text class="hub-label" x="310" y="177">Zurich</text>
+          <text class="hub-sublabel" x="310" y="188">Refining Hub</text>
+          <!-- New York -->
+          <circle cx="130" cy="140" r="22" fill="rgba(255,215,0,0.12)" stroke="#ffd700" stroke-width="1"/>
+          <text class="hub-label" x="130" y="137">New York</text>
+          <text class="hub-sublabel" x="130" y="148">200t</text>
+          <!-- Dubai/UAE -->
+          <circle cx="430" cy="230" r="22" fill="rgba(255,170,0,0.15)" stroke="#ffaa00" stroke-width="1"/>
+          <text class="hub-label" x="430" y="227">Dubai</text>
+          <text class="hub-sublabel" x="430" y="238">240t</text>
+          <!-- Shanghai -->
+          <circle cx="580" cy="160" r="26" fill="rgba(255,170,0,0.18)" stroke="#ffaa00" stroke-width="1.5"/>
+          <text class="hub-label" x="580" y="157">Shanghai</text>
+          <text class="hub-sublabel" x="580" y="168">370t dom.</text>
+          <!-- Mumbai/India -->
+          <circle cx="490" cy="280" r="28" fill="rgba(255,170,0,0.2)" stroke="#ffaa00" stroke-width="1.5"/>
+          <text class="hub-label" x="490" y="277">India</text>
+          <text class="hub-sublabel" x="490" y="288">800t imp.</text>
+          <!-- Singapore -->
+          <circle cx="560" cy="310" r="16" fill="rgba(255,215,0,0.1)" stroke="#ffd700" stroke-width="1"/>
+          <text class="hub-label" x="560" y="307">Singapore</text>
+          <text class="hub-sublabel" x="560" y="318">Hub</text>
+          <!-- Tokyo -->
+          <circle cx="640" cy="120" r="14" fill="rgba(255,215,0,0.08)" stroke="#ffd700" stroke-width="0.8"/>
+          <text class="hub-label" x="640" y="117">Tokyo</text>
+          <text class="hub-sublabel" x="640" y="128">Trad.</text>
+          <!-- Australia -->
+          <circle cx="610" cy="380" r="18" fill="rgba(0,255,136,0.12)" stroke="#00ff88" stroke-width="1"/>
+          <text class="hub-label" x="610" y="377">Australia</text>
+          <text class="hub-sublabel" x="610" y="388">Mining</text>
+          <!-- South Africa -->
+          <circle cx="340" cy="380" r="16" fill="rgba(0,255,136,0.1)" stroke="#00ff88" stroke-width="1"/>
+          <text class="hub-label" x="340" y="377">S. Africa</text>
+          <text class="hub-sublabel" x="340" y="388">80t</text>
+          <!-- Russia -->
+          <circle cx="440" cy="80" r="18" fill="rgba(0,255,136,0.1)" stroke="#00ff88" stroke-width="1"/>
+          <text class="hub-label" x="440" y="77">Russia</text>
+          <text class="hub-sublabel" x="440" y="88">100t exp</text>
+
+          <!-- Flow lines (animated dashed) -->
+          <!-- Switzerland -> UK: 400t (thickest) -->
+          <line class="flow-line flow-line-thick" x1="300" y1="165" x2="280" y2="128"/>
+          <!-- Switzerland -> India: 180t -->
+          <line class="flow-line" x1="330" y1="195" x2="470" y2="265"/>
+          <!-- Switzerland -> UAE: 150t -->
+          <line class="flow-line" x1="330" y1="190" x2="415" y2="220"/>
+          <!-- US -> Switzerland: 200t -->
+          <line class="flow-line" x1="150" y1="145" x2="285" y2="175"/>
+          <!-- Australia -> China: 120t -->
+          <line class="flow-line" x1="610" y1="362" x2="585" y2="178"/>
+          <!-- Russia -> UAE: 100t -->
+          <line class="flow-line" x1="440" y1="98" x2="432" y2="210"/>
+          <!-- UAE -> India: 90t -->
+          <line class="flow-line" x1="445" y1="240" x2="475" y2="265"/>
+          <!-- S. Africa -> Switzerland: 80t -->
+          <line class="flow-line" x1="340" y1="364" x2="315" y2="208"/>
+
+          <!-- Legend -->
+          <rect x="10" y="405" width="12" height="12" rx="6" fill="rgba(0,255,136,0.3)" stroke="#00ff88" stroke-width="0.8"/>
+          <text x="28" y="415" fill="#888" font-size="9" font-family="JetBrains Mono, monospace">Producer/Exporter</text>
+          <rect x="160" y="405" width="12" height="12" rx="6" fill="rgba(255,170,0,0.3)" stroke="#ffaa00" stroke-width="0.8"/>
+          <text x="178" y="415" fill="#888" font-size="9" font-family="JetBrains Mono, monospace">Major Importer</text>
+          <rect x="310" y="405" width="12" height="12" rx="6" fill="rgba(255,215,0,0.3)" stroke="#ffd700" stroke-width="0.8"/>
+          <text x="328" y="415" fill="#888" font-size="9" font-family="JetBrains Mono, monospace">Trading Hub</text>
+          <line x1="460" y1="411" x2="500" y2="411" stroke="#ffd700" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.5"/>
+          <text x="508" y="415" fill="#888" font-size="9" font-family="JetBrains Mono, monospace">Gold flow</text>
+        </svg>
+      </div>
+
+      <!-- Flow table -->
+      <div class="overflow-x-auto">
+        <table class="heat-table">
+          <thead>
+            <tr>
+              <th>Route</th>
+              <th>Direction</th>
+              <th>Tonnes/Year</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Switzerland &rarr; UK</td><td style="color:#ffd700;">Export</td><td>400</td><td><span class="badge" style="background:rgba(255,215,0,0.15);color:#ffd700;">Refining &rarr; Market</span></td></tr>
+            <tr><td>US &rarr; Switzerland</td><td style="color:#ffd700;">Export</td><td>200</td><td><span class="badge" style="background:rgba(255,215,0,0.15);color:#ffd700;">Refining</span></td></tr>
+            <tr><td>Switzerland &rarr; India</td><td style="color:#ffaa00;">Export</td><td>180</td><td><span class="badge" style="background:rgba(255,170,0,0.15);color:#ffaa00;">Jewelry demand</span></td></tr>
+            <tr><td>Switzerland &rarr; UAE</td><td style="color:#ffaa00;">Export</td><td>150</td><td><span class="badge" style="background:rgba(255,170,0,0.15);color:#ffaa00;">Trading hub</span></td></tr>
+            <tr><td>Australia &rarr; China</td><td style="color:#00ff88;">Mining export</td><td>120</td><td><span class="badge" style="background:rgba(0,255,136,0.15);color:#00ff88;">Producer</span></td></tr>
+            <tr><td>Russia &rarr; UAE</td><td style="color:#ff8800;">Export</td><td>100</td><td><span class="badge" style="background:rgba(255,136,0,0.15);color:#ff8800;">Sanctions bypass</span></td></tr>
+            <tr><td>UAE &rarr; India</td><td style="color:#ffaa00;">Re-export</td><td>90</td><td><span class="badge" style="background:rgba(255,170,0,0.15);color:#ffaa00;">Jewelry demand</span></td></tr>
+            <tr><td>S. Africa &rarr; Switzerland</td><td style="color:#00ff88;">Mining export</td><td>80</td><td><span class="badge" style="background:rgba(0,255,136,0.15);color:#00ff88;">Producer</span></td></tr>
+          </tbody>
+        </table>
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="bg-[#0a0a0a] rounded-lg p-3 border border-[var(--card-border)]">
+            <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">China Domestic Mining</div>
+            <div class="text-lg font-bold mono text-[var(--gold)]">370<span class="text-xs text-[var(--text2)] ml-1">t/year</span></div>
+            <div class="text-[9px] text-[var(--text2)] mono">Consumed internally, not exported</div>
+          </div>
+          <div class="bg-[#0a0a0a] rounded-lg p-3 border border-[var(--card-border)]">
+            <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">India Total Imports</div>
+            <div class="text-lg font-bold mono" style="color:#ffaa00;">~800<span class="text-xs text-[var(--text2)] ml-1">t/year</span></div>
+            <div class="text-[9px] text-[var(--text2)] mono">World's largest jewelry consumer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 4: ETF FLOWS -->
+  <!-- ============================================================ -->
+  <section class="full-width card fade-in" id="sec-etf" style="animation-delay:0.45s">
+    <div class="section-title">ETF Flows &amp; Holdings <span class="info-tooltip" data-tip="Gold ETFs like GLD and IAU hold physical gold on behalf of investors. ETF flows are a real-time gauge of Western investor sentiment — inflows = bullish, outflows = bearish.">ℹ</span><span class="freshness-badge freshness-live">● Daily</span></div>
+
+    <div class="flex flex-wrap gap-6 mb-6">
+      <div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Total ETF Holdings (Est.) <span class="info-tooltip" data-tip="Estimated total physical gold held across all major gold ETFs.">ℹ</span></div>
+        <span id="etf-total" class="text-3xl font-bold mono text-[var(--gold)]">--</span>
+        <span class="text-sm text-[var(--text2)] mono ml-1">tonnes</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Overlaid area chart -->
+      <div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">1Y Price (GLD + IAU + PHYS)</div>
+        <div class="chart-wrap" style="height: 280px;">
+          <canvas id="chart-etf-overlay"></canvas>
+        </div>
+      </div>
+      <!-- ETF detail cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="etf-cards">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 5: COT POSITIONING -->
+  <!-- ============================================================ -->
+  <section class="full-width card fade-in" id="sec-cot" style="animation-delay:0.5s">
+    <div class="section-title">COT Positioning (Managed Money) <span class="info-tooltip" data-tip="The CFTC Commitment of Traders report shows how speculators are positioned in COMEX gold futures. Published every Friday for the prior Tuesday's data.">ℹ</span><span class="freshness-badge freshness-weekly">● Weekly (CFTC)</span></div>
+
+    <!-- Contango / Backwardation indicator -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)] flex flex-col items-center justify-center">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-2">Futures Curve <span class="info-tooltip" data-tip="Backwardation means spot gold is MORE expensive than futures — signals physical scarcity and strong immediate demand. Historically bullish. Contango is normal for gold.">i</span></div>
+        <div id="contango-state" class="text-2xl font-bold mono">--</div>
+      </div>
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Front Month <span class="info-tooltip" data-tip="The nearest-expiring COMEX gold futures contract price.">ℹ</span></div>
+        <div id="contango-front" class="text-lg font-bold mono text-[var(--gold)]">--</div>
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1 mt-2">Dec 2026</div>
+        <div id="contango-back" class="text-lg font-bold mono text-[var(--text2)]">--</div>
+      </div>
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Basis (Spread) <span class="info-tooltip" data-tip="The dollar difference between front-month futures and far-dated futures. Negative = backwardation (unusual, bullish).">ℹ</span></div>
+        <div id="contango-basis" class="text-xl font-bold mono">--</div>
+        <div id="contango-basis-pct" class="text-xs mono text-[var(--text2)] mt-1">--</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+      <div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Net Position <span class="info-tooltip" data-tip="Longs minus shorts. Positive = speculators are net bullish. Extreme net longs (>250k contracts) historically precede corrections.">ℹ</span></div>
+        <div id="cot-net" class="text-3xl font-bold mono text-[var(--green)]">--</div>
+      </div>
+      <div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Longs <span class="info-tooltip" data-tip="Speculative futures contracts betting on gold price rising. Primarily hedge funds and CTAs.">ℹ</span></div>
+        <div id="cot-longs" class="text-xl font-bold mono text-[var(--green)]">--</div>
+      </div>
+      <div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Shorts <span class="info-tooltip" data-tip="Speculative contracts betting on gold price falling. Extreme short positioning can fuel short-covering rallies.">ℹ</span></div>
+        <div id="cot-shorts" class="text-xl font-bold mono text-[var(--red)]">--</div>
+      </div>
+      <div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Open Interest <span class="info-tooltip" data-tip="Total number of outstanding futures contracts. Rising OI with rising price = new money entering = bullish confirmation.">ℹ</span></div>
+        <div id="cot-oi" class="text-xl font-bold mono">--</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <!-- COT history chart -->
+      <div class="lg:col-span-3">
+        <div class="chart-wrap" style="height: 250px;">
+          <canvas id="chart-cot-history"></canvas>
+        </div>
+      </div>
+      <!-- Percentile indicator -->
+      <div class="flex flex-col items-center justify-center">
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-3">Net Percentile <span class="info-tooltip" data-tip="Where current net speculative positioning sits vs the last 5 years. >90th = crowded long = correction risk. <10th = extreme pessimism = potential buy signal.">ℹ</span></div>
+        <div id="cot-percentile-val" class="text-4xl font-bold mono text-[var(--gold)]">--</div>
+        <div id="cot-percentile-label" class="text-xs mono mt-2">--</div>
+        <div class="progress-track mt-3" style="width:120px;">
+          <div id="cot-percentile-bar" class="progress-fill" style="width:0%;background:var(--gold);"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- COMEX VAULT INVENTORY -->
+  <!-- ============================================================ -->
+  <section class="full-width card fade-in" id="sec-comex-vault" style="animation-delay:0.52s">
+    <div class="section-title">COMEX Vault Inventory <span class="info-tooltip" data-tip="Registered inventory is physical gold available for COMEX delivery. Declining registered stocks with rising open interest = supply squeeze risk.">i</span><span class="freshness-badge freshness-estimate">Est. monthly</span></div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Registered <span class="info-tooltip" data-tip="Physical gold available for delivery against futures contracts.">i</span></div>
+        <div class="text-2xl font-bold mono text-[var(--gold)]">442<span class="text-sm text-[var(--text2)] ml-1">tonnes</span></div>
+      </div>
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Eligible <span class="info-tooltip" data-tip="Gold stored in COMEX vaults but not available for delivery. Owners have not registered it.">i</span></div>
+        <div class="text-2xl font-bold mono text-[var(--text2)]">8,200<span class="text-sm text-[var(--text2)] ml-1">tonnes</span></div>
+      </div>
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">30-Day Registered Change <span class="info-tooltip" data-tip="How much registered inventory has changed in 30 days. Declining registered with rising open interest = supply squeeze risk.">ℹ</span></div>
+        <div class="text-2xl font-bold mono text-[var(--red)]">-85t <span class="text-sm">&#9660;</span></div>
+      </div>
+      <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]">
+        <div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Cover Ratio <span class="info-tooltip" data-tip="How many ounces of registered gold back each open futures contract. A declining cover ratio signals shorts may struggle to deliver.">ℹ</span></div>
+        <div id="comex-cover-ratio" class="text-2xl font-bold mono text-[var(--gold)]">--</div>
+        <div class="text-[9px] text-[var(--text2)] mono mt-1">oz registered / open interest</div>
+      </div>
+    </div>
+    <div class="mt-4">
+      <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Registered vs Eligible</div>
+      <div class="chart-wrap" style="height: 160px;">
+        <canvas id="chart-comex-vault"></canvas>
+      </div>
+    </div>
+    <div class="text-[9px] text-[var(--text2)] mono mt-2">Last updated: 2026-03-31 | Source: COMEX daily vault reports (compiled)</div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- GOLD LEASE RATE -->
+  <!-- ============================================================ -->
+  <section class="card fade-in" id="sec-lease-rate" style="animation-delay:0.53s">
+    <div class="section-title">Gold Lease Rate (GLR) <span class="info-tooltip" data-tip="Gold lease rate is what it costs to borrow physical gold. Spikes above 2% signal severe physical tightness — a historically reliable bullish indicator.">i</span><span class="freshness-badge freshness-estimate">Est.</span></div>
+    <div class="chart-wrap" style="height: 200px;">
+      <canvas id="chart-lease-rate"></canvas>
+    </div>
+    <div id="lease-rate-alert" class="text-xs mono mt-2" style="display:none;color:#ff4444;font-weight:600;">ALERT: Lease rate elevated — physical tightness detected</div>
+    <div class="text-[9px] text-[var(--text2)] mono mt-2">Last updated: 2026-04-01 | Rates approximate (subscription sources required for live data)</div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 6: NEWS FEED + SECTION 7: MACRO CONTEXT -->
+  <!-- ============================================================ -->
+  <section class="card fade-in" id="sec-news" style="animation-delay:0.55s">
+    <div class="section-title">News Feed <span class="info-tooltip" data-tip="Latest gold market headlines with automated sentiment scoring. Green = bullish, Red = bearish, Gray = neutral.">ℹ</span><span class="freshness-badge freshness-live">● Hourly</span></div>
+
+    <!-- Sentiment Tracker -->
+    <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)] mb-4">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono">Headline Sentiment <span class="info-tooltip" data-tip="Simple word-based sentiment score from recent gold news headlines. -100 = max bearish, +100 = max bullish.">i</span></span>
+        <span id="sentiment-pct" class="text-xs mono text-[var(--text2)]">--</span>
+      </div>
+      <div class="sentiment-bar">
+        <div id="sentiment-marker" class="sentiment-marker" style="left:50%;"></div>
+      </div>
+      <div class="flex justify-between text-[9px] text-[var(--text2)] mono mt-1">
+        <span>BEARISH</span>
+        <span id="sentiment-score" class="text-sm font-bold">--</span>
+        <span>BULLISH</span>
+      </div>
+      <!-- Bull/Bear/Neutral counts -->
+      <div id="sentiment-counts" class="flex items-center gap-3 mt-3 pt-3 border-t border-[var(--card-border)]" style="display:none!important">
+        <span class="text-[10px] mono" style="color:#00ff88">▲ <span id="bull-count">0</span> bullish</span>
+        <span class="text-[10px] mono" style="color:#ff4444">▼ <span id="bear-count">0</span> bearish</span>
+        <span class="text-[10px] mono" style="color:#888">● <span id="neutral-count">0</span> neutral</span>
+      </div>
+    </div>
+
+    <div class="news-scroll" id="news-list">
+      <div class="flex justify-center py-8"><div class="spinner"></div></div>
+    </div>
+  </section>
+
+  <section class="card fade-in" style="animation-delay:0.6s; grid-column: span 2;" id="sec-macro">
+    <div class="section-title">Macro Context <span class="info-tooltip" data-tip="Key macroeconomic indicators that drive gold prices. Gold typically rises with inflation, falling real yields, and dollar weakness.">ℹ</span><span class="freshness-badge freshness-live">● Daily</span></div>
+
+    <!-- Macro stat cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6" id="macro-cards">
+      <!-- Filled by JS -->
+    </div>
+
+    <!-- Dual-axis correlation charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Gold vs Real Yields (inverted) <span class="info-tooltip" data-tip="Real yields = Treasury yield minus inflation. Gold has a strong inverse correlation with real yields. When real yields fall, gold rises.">ℹ</span></div>
+        <div class="chart-wrap" style="height: 250px;">
+          <canvas id="chart-macro-yields"></canvas>
+        </div>
+      </div>
+      <div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Gold vs DXY (inverted) <span class="info-tooltip" data-tip="DXY = US Dollar Index. Gold typically moves inversely to the dollar — when USD weakens, gold strengthens.">ℹ</span></div>
+        <div class="chart-wrap" style="height: 250px;">
+          <canvas id="chart-macro-dxy"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 8: MINING SNAPSHOT -->
+  <!-- ============================================================ -->
+  <section class="full-width card fade-in" id="sec-miners" style="animation-delay:0.65s">
+    <div class="section-title">Mining Snapshot <span class="info-tooltip" data-tip="Gold mining adds ~3,600-3,750 tonnes of new supply each year — about 2% of total above-ground stock. Supply is relatively inelastic.">ℹ</span><span class="freshness-badge freshness-live">● Daily</span></div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <!-- AISC bar chart -->
+      <div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">All-In Sustaining Cost vs Gold Price <span class="info-tooltip" data-tip="AISC is the true cost to mine one ounce of gold. When gold price approaches AISC, high-cost mines shut down, constraining supply.">ℹ</span></div>
+        <div class="chart-wrap" style="height: 250px;">
+          <canvas id="chart-miners-aisc"></canvas>
+        </div>
+      </div>
+      <!-- GDX/Gold ratio -->
+      <div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">GDX / Gold Ratio (Miner Leverage) <span class="info-tooltip" data-tip="GDX tracks gold mining stocks. This ratio shows whether miners are cheap or expensive relative to the gold price itself.">ℹ</span></div>
+        <div class="chart-wrap" style="height: 250px;">
+          <canvas id="chart-gdx-ratio"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Production supply charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Global Gold Production by Country (tonnes) <span class="info-tooltip" data-tip="Annual gold mine production by country. China leads with ~320t, followed by Russia and Australia. Global production grows slowly.">ℹ</span></div>
+        <div class="chart-wrap" style="height: 280px;">
+          <canvas id="chart-mining-production"></canvas>
+        </div>
+      </div>
+      <div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Miner Annual Production &amp; AISC <span class="info-tooltip" data-tip="Individual miner production volumes and their all-in sustaining costs. Higher margin = more profitable at current gold prices.">ℹ</span></div>
+        <div class="chart-wrap" style="height: 280px;">
+          <canvas id="chart-miner-production-bars"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Miners table -->
+    <div class="overflow-x-auto">
+      <table class="heat-table" id="miners-table">
+        <thead>
+          <tr>
+            <th>Miner</th>
+            <th>Price</th>
+            <th>Change %</th>
+            <th>AISC</th>
+            <th>Margin</th>
+            <th>Production (koz)</th>
+            <th>6M Chart</th>
+          </tr>
+        </thead>
+        <tbody id="miners-table-body">
+          <tr><td colspan="7" class="text-center py-8"><div class="spinner mx-auto"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- CRISIS ASSET COMPARISON (YTD) -->
+  <!-- ============================================================ -->
+  <section class="full-width card fade-in" id="sec-crisis" style="animation-delay:0.67s">
+    <div class="section-title">Crisis Asset Performance (YTD) <span class="info-tooltip" data-tip="All assets rebased to 100 at Jan 1 2026. Shows which safe-haven/risk assets are leading or lagging year-to-date.">i</span><span class="freshness-badge freshness-live">● Hourly</span></div>
+    <div class="chart-wrap" style="height: 320px;">
+      <canvas id="chart-crisis-assets"></canvas>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-4" id="crisis-asset-legend">
+      <!-- Filled by JS -->
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 9: HISTORICAL CONTEXT -->
+  <!-- ============================================================ -->
+  <section class="full-width card fade-in" id="sec-historical" style="animation-delay:0.7s">
+    <div class="section-title">Historical Context <span class="info-tooltip" data-tip="Gold's 50+ year price history since the US ended the gold standard in 1971. Major bull markets: 1971-1980, 1999-2011, 2018-present.">ℹ</span><span class="freshness-badge freshness-estimate">Monthly</span></div>
+
+    <!-- Timeline chart -->
+    <div class="chart-wrap" style="height: 300px;">
+      <canvas id="chart-historical-timeline"></canvas>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+      <!-- Decade returns -->
+      <div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Avg. Annual Return by Decade <span class="info-tooltip" data-tip="Gold's average annual return for each decade. Shows long-term cyclical nature of gold bull and bear markets.">ℹ</span></div>
+        <div class="chart-wrap" style="height: 220px;">
+          <canvas id="chart-decade-returns"></canvas>
+        </div>
+      </div>
+      <!-- Event timeline cards -->
+      <div>
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Key Events</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="event-cards">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="text-center py-6 text-xs text-[var(--text2)] mono border-t border-[var(--card-border)]">
+  Gold Situation Room &mdash; Data refreshes automatically &mdash; Not financial advice
+</footer>
+
+<script>
+// =====================================================================
+// GOLD SITUATION ROOM -- Main Application
+// =====================================================================
+
+// Chart.js global defaults
+Chart.defaults.color = '#888888';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
+Chart.defaults.font.family = "'JetBrains Mono', monospace";
+Chart.defaults.font.size = 11;
+Chart.defaults.animation.duration = 1000;
+Chart.defaults.animation.easing = 'easeInOutQuart';
+Chart.defaults.responsive = true;
+Chart.defaults.maintainAspectRatio = false;
+Chart.defaults.plugins.tooltip.backgroundColor = '#1a1a1a';
+Chart.defaults.plugins.tooltip.borderColor = '#ffd700';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+Chart.defaults.plugins.tooltip.titleColor = '#ffffff';
+Chart.defaults.plugins.tooltip.bodyColor = '#ffffff';
+Chart.defaults.plugins.tooltip.padding = 10;
+Chart.defaults.plugins.tooltip.cornerRadius = 8;
+Chart.defaults.plugins.legend.display = false;
+
+// Store all chart instances for cleanup
+const charts = {};
+
+// Store fetched data
+let DATA = {};
+
+// =====================================================================
+// UTILITY FUNCTIONS
+// =====================================================================
+
+function fmt(n, decimals) {
+  if (n == null || isNaN(n)) return '--';
+  if (decimals === undefined) decimals = 2;
+  return Number(n).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+function fmtInt(n) {
+  if (n == null || isNaN(n)) return '--';
+  return Number(n).toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+
+function fmtCompact(n) {
+  if (n == null || isNaN(n)) return '--';
+  if (Math.abs(n) >= 1e12) return (n / 1e12).toFixed(1) + 'T';
+  if (Math.abs(n) >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+  if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+  if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  return n.toFixed(0);
+}
+
+function colorForChange(val) {
+  if (val > 0) return '#00ff88';
+  if (val < 0) return '#ff4444';
+  return '#888888';
+}
+
+function relativeTime(dateStr) {
+  if (!dateStr) return '';
+  try {
+    var d = new Date(dateStr);
+    var now = new Date();
+    var diff = (now - d) / 1000;
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+    return d.toLocaleDateString();
+  } catch(e) { return dateStr; }
+}
+
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+function goldGradient(ctx, chartArea) {
+  if (!chartArea) return '#ffd700';
+  var gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+  gradient.addColorStop(0, 'rgba(255, 215, 0, 0.4)');
+  gradient.addColorStop(0.5, 'rgba(255, 215, 0, 0.1)');
+  gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+  return gradient;
+}
+
+function parseChartData(arr) {
+  if (!arr || !arr.length) return { labels: [], values: [] };
+  return {
+    labels: arr.map(function(p) { return p.t; }),
+    values: arr.map(function(p) { return p.v; })
+  };
+}
+
+// =====================================================================
+// ANIMATED COUNTER
+// =====================================================================
+
+function animateCounter(el, targetVal, duration, prefix, decimals) {
+  if (duration === undefined) duration = 1500;
+  if (prefix === undefined) prefix = '$';
+  if (decimals === undefined) decimals = 2;
+  var start = performance.now();
+  function step(now) {
+    var elapsed = now - start;
+    var progress = Math.min(elapsed / duration, 1);
+    var eased = 1 - Math.pow(1 - progress, 4);
+    var current = targetVal * eased;
+    el.textContent = prefix + fmt(current, decimals);
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// =====================================================================
+// SPARKLINE FACTORY
+// =====================================================================
+
+function createSparkline(canvasEl, data, color, fill, width, height) {
+  if (color === undefined) color = '#ffd700';
+  if (fill === undefined) fill = false;
+  if (width === undefined) width = 100;
+  if (height === undefined) height = 30;
+
+  var ctx = canvasEl.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  canvasEl.width = width * dpr;
+  canvasEl.height = height * dpr;
+  canvasEl.style.width = width + 'px';
+  canvasEl.style.height = height + 'px';
+  ctx.scale(dpr, dpr);
+
+  if (!data || data.length < 2) return;
+
+  var values = data.map(function(d) { return typeof d === 'object' ? d.v : d; });
+  var min = Math.min.apply(null, values);
+  var max = Math.max.apply(null, values);
+  var range = max - min || 1;
+  var padding = 2;
+  var w = width - padding * 2;
+  var h = height - padding * 2;
+
+  ctx.clearRect(0, 0, width, height);
+  ctx.beginPath();
+  values.forEach(function(v, i) {
+    var x = padding + (i / (values.length - 1)) * w;
+    var y = padding + h - ((v - min) / range) * h;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  if (fill) {
+    ctx.lineTo(padding + w, padding + h);
+    ctx.lineTo(padding, padding + h);
+    ctx.closePath();
+    var gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, color + '4d');
+    gradient.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = gradient;
+    ctx.fill();
+  }
+}
+
+// =====================================================================
+// DATA FETCHING
+// =====================================================================
+
+function fetchEndpoint(url) {
+  var bustUrl = url + '?t=' + Date.now();
+  return fetch(bustUrl).then(function(resp) {
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return resp.json();
+  }).catch(function(e) {
+    console.warn('Failed to fetch ' + url + ':', e);
+    return null;
+  });
+}
+
+function loadAllData() {
+  var endpoints = [
+    { key: 'price', url: 'data/price.json' },
+    { key: 'ratios', url: 'data/ratios.json' },
+    { key: 'centralBanks', url: 'data/central_banks.json' },
+    { key: 'etfs', url: 'data/etfs.json' },
+    { key: 'cot', url: 'data/cot.json' },
+    { key: 'news', url: 'data/news.json' },
+    { key: 'macro', url: 'data/macro.json' },
+    { key: 'miners', url: 'data/miners.json' },
+    { key: 'historical', url: 'data/historical.json' },
+    { key: 'crisisAssets', url: 'data/crisis_assets.json' },
+  ];
+
+  Promise.allSettled(
+    endpoints.map(function(ep) { return fetchEndpoint(ep.url); })
+  ).then(function(results) {
+    endpoints.forEach(function(ep, i) {
+      var result = results[i];
+      if (result.status === 'fulfilled' && result.value && !result.value.error) {
+        DATA[ep.key] = result.value;
+      } else {
+        DATA[ep.key] = null;
+      }
+    });
+    renderAll();
+  });
+}
+
+// =====================================================================
+// RENDER FUNCTIONS
+// =====================================================================
+
+function renderAll() {
+  renderHeader();
+  renderPriceSection();
+  renderLBMA();
+  renderRatios();
+  renderCentralBanks();
+  renderETFs();
+  renderCOT();
+  renderComexVault();
+  renderLeaseRate();
+  renderNews();
+  renderMacro();
+  renderMiners();
+  renderCrisisAssets();
+  renderHistorical();
+  renderCompositeSignal();
+}
+
+// --- COMPOSITE BULL/BEAR SIGNAL ---
+function renderCompositeSignal() {
+  var price = DATA.price;
+  var macro = DATA.macro;
+  var cot = DATA.cot;
+  var etfs = DATA.etfs;
+  if (!price || !macro) return;
+
+  var factors = [];
+  var totalScore = 0;
+
+  // Factor 1: RSI momentum (-2 to +2)
+  var rsi = price.rsi;
+  var rsiScore = 0, rsiLabel = '', rsiColor = '#888';
+  if (rsi != null) {
+    if (rsi > 70)       { rsiScore = -1.5; rsiLabel = 'Overbought (' + rsi.toFixed(1) + ')'; rsiColor = '#ff8844'; }
+    else if (rsi > 60)  { rsiScore = 1;    rsiLabel = 'Bullish (' + rsi.toFixed(1) + ')'; rsiColor = '#88dd44'; }
+    else if (rsi > 45)  { rsiScore = 0.5;  rsiLabel = 'Neutral+ (' + rsi.toFixed(1) + ')'; rsiColor = '#aaa'; }
+    else if (rsi > 35)  { rsiScore = -0.5; rsiLabel = 'Neutral− (' + rsi.toFixed(1) + ')'; rsiColor = '#aaa'; }
+    else if (rsi > 30)  { rsiScore = 1.5;  rsiLabel = 'Oversold/Bounce (' + rsi.toFixed(1) + ')'; rsiColor = '#88dd44'; }
+    else               { rsiScore = 2;    rsiLabel = 'Deeply Oversold (' + rsi.toFixed(1) + ')'; rsiColor = '#00ff88'; }
+    totalScore += rsiScore;
+    factors.push({ label: 'RSI Momentum', val: rsiLabel, score: rsiScore, color: rsiColor });
+  }
+
+  // Factor 2: Real yield — lower/negative = bullish for gold (-2 to +2)
+  var ry = macro.real_yield_10y;
+  var ryScore = 0, ryLabel = '', ryColor = '#888';
+  if (ry != null) {
+    if (ry < 0)         { ryScore = 2;     ryLabel = 'Negative (' + ry.toFixed(2) + '%)'; ryColor = '#00ff88'; }
+    else if (ry < 0.5)  { ryScore = 1.5;   ryLabel = 'Very Low (' + ry.toFixed(2) + '%)'; ryColor = '#88dd44'; }
+    else if (ry < 1.5)  { ryScore = 0.5;   ryLabel = 'Low (' + ry.toFixed(2) + '%)'; ryColor = '#aaa'; }
+    else if (ry < 2.5)  { ryScore = -0.5;  ryLabel = 'Moderate (' + ry.toFixed(2) + '%)'; ryColor = '#ff8844'; }
+    else               { ryScore = -2;    ryLabel = 'High (' + ry.toFixed(2) + '%)'; ryColor = '#ff3333'; }
+    totalScore += ryScore;
+    factors.push({ label: 'Real Yield (10Y)', val: ryLabel, score: ryScore, color: ryColor });
+  }
+
+  // Factor 3: DXY — falling dollar = bullish for gold (-2 to +2)
+  var dxy = macro.dxy;
+  var dxyScore = 0, dxyLabel = '', dxyColor = '#888';
+  if (dxy != null) {
+    // DXY < 98 = strong bull for gold, > 106 = bearish
+    if (dxy < 96)       { dxyScore = 2;    dxyLabel = 'Weak USD (' + dxy.toFixed(2) + ')'; dxyColor = '#00ff88'; }
+    else if (dxy < 100) { dxyScore = 1;    dxyLabel = 'Soft USD (' + dxy.toFixed(2) + ')'; dxyColor = '#88dd44'; }
+    else if (dxy < 104) { dxyScore = 0;    dxyLabel = 'Neutral (' + dxy.toFixed(2) + ')'; dxyColor = '#888'; }
+    else if (dxy < 108) { dxyScore = -1;   dxyLabel = 'Strong USD (' + dxy.toFixed(2) + ')'; dxyColor = '#ff8844'; }
+    else               { dxyScore = -2;   dxyLabel = 'Very Strong USD (' + dxy.toFixed(2) + ')'; dxyColor = '#ff3333'; }
+    totalScore += dxyScore;
+    factors.push({ label: 'DXY (USD Index)', val: dxyLabel, score: dxyScore, color: dxyColor });
+  }
+
+  // Factor 4: ETF flows — positive = bullish (-2 to +2)
+  var etfScore = 0, etfLabel = '', etfColor = '#888';
+  if (etfs && etfs.etfs) {
+    var totalFlow = 0;
+    Object.values(etfs.etfs).forEach(function(e) { totalFlow += (e.daily_change_est || 0); });
+    if (totalFlow > 3)        { etfScore = 2;    etfLabel = 'Strong Inflows (+' + totalFlow.toFixed(1) + 't)'; etfColor = '#00ff88'; }
+    else if (totalFlow > 0.5) { etfScore = 1;    etfLabel = 'Inflows (+' + totalFlow.toFixed(1) + 't)'; etfColor = '#88dd44'; }
+    else if (totalFlow > -0.5){ etfScore = 0;    etfLabel = 'Flat (' + totalFlow.toFixed(1) + 't)'; etfColor = '#888'; }
+    else if (totalFlow > -3)  { etfScore = -1;   etfLabel = 'Outflows (' + totalFlow.toFixed(1) + 't)'; etfColor = '#ff8844'; }
+    else                      { etfScore = -2;   etfLabel = 'Heavy Outflows (' + totalFlow.toFixed(1) + 't)'; etfColor = '#ff3333'; }
+    totalScore += etfScore;
+    factors.push({ label: 'ETF Flows (Daily)', val: etfLabel, score: etfScore, color: etfColor });
+  }
+
+  // Factor 5: COT positioning — high net percentile = crowded long (caution) vs low = room to run
+  var cotScore = 0, cotLabel = '', cotColor = '#888';
+  if (cot && cot.net_percentile != null) {
+    var pct = cot.net_percentile;
+    if (pct > 85)       { cotScore = -1.5; cotLabel = 'Crowded Long (' + pct.toFixed(0) + 'th %ile)'; cotColor = '#ff8844'; }
+    else if (pct > 65)  { cotScore = 0.5;  cotLabel = 'Bullish (' + pct.toFixed(0) + 'th %ile)'; cotColor = '#88dd44'; }
+    else if (pct > 40)  { cotScore = 0;    cotLabel = 'Neutral (' + pct.toFixed(0) + 'th %ile)'; cotColor = '#888'; }
+    else if (pct > 20)  { cotScore = -0.5; cotLabel = 'Bearish (' + pct.toFixed(0) + 'th %ile)'; cotColor = '#ff8844'; }
+    else               { cotScore = 1.5;  cotLabel = 'Extreme Short (' + pct.toFixed(0) + 'th %ile)'; cotColor = '#00ff88'; }
+    totalScore += cotScore;
+    factors.push({ label: 'COT Positioning', val: cotLabel, score: cotScore, color: cotColor });
+  }
+
+  // Normalize score to -10..+10 range (5 factors, each max ±2 = ±10)
+  var clampedScore = Math.max(-10, Math.min(10, totalScore));
+
+  // Determine label and color
+  var signalLabel, signalColor;
+  if (clampedScore >= 6)       { signalLabel = '▲▲ Strongly Bullish'; signalColor = '#00ff88'; }
+  else if (clampedScore >= 2)  { signalLabel = '▲ Bullish'; signalColor = '#88dd44'; }
+  else if (clampedScore >= -2) { signalLabel = '— Neutral'; signalColor = '#888888'; }
+  else if (clampedScore >= -6) { signalLabel = '▼ Bearish'; signalColor = '#ff8844'; }
+  else                         { signalLabel = '▼▼ Strongly Bearish'; signalColor = '#ff3333'; }
+
+  // Set label
+  var labelEl = document.getElementById('composite-label');
+  if (labelEl) { labelEl.textContent = signalLabel; labelEl.style.color = signalColor; }
+
+  var scoreEl = document.getElementById('composite-score-text');
+  if (scoreEl) scoreEl.textContent = 'Score: ' + (clampedScore >= 0 ? '+' : '') + clampedScore.toFixed(1) + ' / 10';
+
+  // Rotate needle: score -10 = -90deg, 0 = 0deg, +10 = +90deg
+  var needleDeg = clampedScore * 9; // 9 degrees per point
+  var needle = document.getElementById('composite-needle');
+  if (needle) {
+    setTimeout(function() {
+      needle.style.transform = 'translateX(-50%) rotate(' + needleDeg + 'deg)';
+      needle.style.background = signalColor;
+      needle.style.boxShadow = '0 0 8px ' + signalColor;
+      if (needle.querySelector && needle.querySelector('::after')) {}
+    }, 100);
+  }
+
+  // Render factor rows
+  var container = document.getElementById('composite-factors');
+  if (container) {
+    container.innerHTML = factors.map(function(f) {
+      var arrow = f.score > 0 ? '▲' : f.score < 0 ? '▼' : '—';
+      return '<div class="signal-factor-row">' +
+        '<div class="signal-factor-dot" style="background:' + f.color + '"></div>' +
+        '<span class="signal-factor-label">' + f.label + '</span>' +
+        '<span class="signal-factor-val" style="color:' + f.color + '">' + arrow + ' ' + f.val + '</span>' +
+        '</div>';
+    }).join('');
+  }
+}
+
+// --- HEADER ---
+function renderHeader() {
+  var d = DATA.price;
+  if (!d) return;
+
+  var priceEl = document.getElementById('header-price');
+  animateCounter(priceEl, d.price, 1500, '$');
+
+  // Update page title with current gold price
+  var sign = d.change >= 0 ? '▲' : '▼';
+  document.title = '🟡 Gold $' + fmtInt(d.price) + ' ' + sign + ' | Situation Room';
+
+  var changeEl = document.getElementById('header-change');
+  var sign = d.change >= 0 ? '+' : '';
+  changeEl.textContent = sign + '$' + fmt(d.change) + ' (' + sign + fmt(d.change_pct) + '%)';
+  changeEl.style.color = colorForChange(d.change);
+
+  var ytdEl = document.getElementById('header-ytd');
+  ytdEl.textContent = (d.ytd_change_pct >= 0 ? '+' : '') + fmt(d.ytd_change_pct) + '%';
+  ytdEl.style.color = colorForChange(d.ytd_change_pct);
+
+  var athEl = document.getElementById('header-ath');
+  athEl.textContent = '$' + fmt(d.ath);
+
+  var updatedEl = document.getElementById('header-updated');
+  updatedEl.textContent = d.last_updated ? relativeTime(d.last_updated) : 'just now';
+
+  // Price freshness badge
+  if (d.last_updated) {
+    var lu = new Date(d.last_updated);
+    var diffM = Math.round((Date.now() - lu) / 60000);
+    var ago = diffM < 2 ? 'just now' : diffM < 60 ? diffM + 'm ago' : Math.round(diffM/60) + 'h ago';
+    var plEl = document.getElementById('price-last-updated');
+    if (plEl) plEl.textContent = 'Updated ' + ago;
+  }
+}
+
+// --- PRICE SECTION ---
+function renderPriceSection() {
+  var d = DATA.price;
+  if (!d) {
+    document.getElementById('sec-price').innerHTML = '<div class="section-title">Price Command Center</div><div class="text-center py-12 text-[var(--text2)]">Price data unavailable</div>';
+    return;
+  }
+
+  renderPriceChart('1d');
+
+  document.querySelectorAll('#timeframe-pills .pill').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('#timeframe-pills .pill').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      renderPriceChart(btn.dataset.tf);
+    });
+  });
+
+  renderCurrencyGrid();
+
+  var pctToATH = 100 - (d.pct_below_ath || 0);
+  document.getElementById('ath-progress').style.width = pctToATH + '%';
+  document.getElementById('ath-pct-label').textContent = d.pct_below_ath > 0
+    ? fmt(d.pct_below_ath) + '% below ATH'
+    : 'AT ALL-TIME HIGH';
+  document.getElementById('ath-value').textContent = 'ATH: $' + fmt(d.ath);
+  if (d.pct_below_ath <= 0) {
+    document.getElementById('ath-pct-label').style.color = '#00ff88';
+  }
+
+  // Technical indicators: MA50, MA200, RSI
+  if (d.ma50 != null) {
+    document.getElementById('ma50-val').textContent = '$' + fmt(d.ma50);
+    var ma50diff = d.price - d.ma50;
+    var ma50pct = ((ma50diff / d.ma50) * 100).toFixed(1);
+    var ma50El = document.getElementById('ma50-signal');
+    if (d.ma50_signal === 'above') {
+      ma50El.textContent = '+' + ma50pct + '% above MA50 ↑';
+      ma50El.style.color = '#00ff88';
+    } else {
+      ma50El.textContent = ma50pct + '% below MA50 ↓';
+      ma50El.style.color = '#ff4444';
+    }
+  }
+  if (d.ma200 != null) {
+    document.getElementById('ma200-val').textContent = '$' + fmt(d.ma200);
+    var ma200diff = d.price - d.ma200;
+    var ma200pct = ((ma200diff / d.ma200) * 100).toFixed(1);
+    var ma200El = document.getElementById('ma200-signal');
+    if (d.ma200_signal === 'above') {
+      ma200El.textContent = '+' + ma200pct + '% above MA200 ↑';
+      ma200El.style.color = '#00ff88';
+    } else {
+      ma200El.textContent = ma200pct + '% below MA200 ↓';
+      ma200El.style.color = '#ff4444';
+    }
+    // Golden/Death cross signal
+    if (d.ma50 != null) {
+      var crossEl = document.createElement('div');
+      crossEl.className = 'text-[10px] mt-1 mono';
+      if (d.ma50 > d.ma200) {
+        crossEl.textContent = '✦ Golden Cross (Bullish)';
+        crossEl.style.color = '#ffd700';
+      } else {
+        crossEl.textContent = '✦ Death Cross (Bearish)';
+        crossEl.style.color = '#ff8800';
+      }
+      var ma200card = document.getElementById('ma200-signal');
+      if (ma200card && !ma200card.nextElementSibling) {
+        ma200card.parentNode.appendChild(crossEl);
+      }
+    }
+  }
+  if (d.rsi != null) {
+    var rsiEl = document.getElementById('rsi-val');
+    var rsiSig = document.getElementById('rsi-signal');
+    var rsiBar = document.getElementById('rsi-bar');
+    rsiEl.textContent = d.rsi.toFixed(1);
+    var rsiBarPct = Math.min(100, d.rsi);
+    if (rsiBar) rsiBar.style.width = rsiBarPct + '%';
+    if (d.rsi >= 70) {
+      rsiEl.style.color = '#ff4444';
+      rsiSig.textContent = 'Overbought — caution';
+      rsiSig.style.color = '#ff4444';
+      if (rsiBar) rsiBar.style.background = '#ff4444';
+    } else if (d.rsi <= 30) {
+      rsiEl.style.color = '#00ff88';
+      rsiSig.textContent = 'Oversold — potential buy';
+      rsiSig.style.color = '#00ff88';
+      if (rsiBar) rsiBar.style.background = '#00ff88';
+    } else if (d.rsi >= 55) {
+      rsiEl.style.color = '#ffd700';
+      rsiSig.textContent = 'Bullish momentum';
+      rsiSig.style.color = '#ffd700';
+      if (rsiBar) rsiBar.style.background = 'var(--gold)';
+    } else {
+      rsiEl.style.color = '#888';
+      rsiSig.textContent = 'Neutral zone';
+      rsiSig.style.color = '#888';
+      if (rsiBar) rsiBar.style.background = '#555';
+    }
+  }
+}
+
+function renderPriceChart(timeframe) {
+  var d = DATA.price;
+  if (!d || !d.charts) return;
+
+  var chartData = d.charts[timeframe] || [];
+  var parsed = parseChartData(chartData);
+  if (!parsed.values.length) return;
+
+  destroyChart('price-main');
+
+  // Build datasets
+  var datasets = [{
+    label: 'Gold Price',
+    data: parsed.values,
+    borderColor: '#ffd700',
+    borderWidth: 2,
+    pointRadius: 0,
+    pointHitRadius: 10,
+    fill: true,
+    backgroundColor: function(context) {
+      var chart = context.chart;
+      return goldGradient(chart.ctx, chart.chartArea);
+    },
+    tension: 0.3,
+    order: 1,
+  }];
+
+  // Overlay MA50 / MA200 on 1Y and longer timeframes
+  if ((timeframe === '1y' || timeframe === '5y' || timeframe === 'all') && d.ma50_series && d.ma50_series.length) {
+    var ma50p = parseChartData(d.ma50_series);
+    datasets.push({
+      label: 'MA50',
+      data: ma50p.values,
+      labels: ma50p.labels,
+      borderColor: 'rgba(0, 200, 255, 0.7)',
+      borderWidth: 1.5,
+      borderDash: [4, 3],
+      pointRadius: 0,
+      fill: false,
+      tension: 0.3,
+      order: 2,
+    });
+  }
+  if ((timeframe === '1y' || timeframe === '5y' || timeframe === 'all') && d.ma200_series && d.ma200_series.length) {
+    var ma200p = parseChartData(d.ma200_series);
+    datasets.push({
+      label: 'MA200',
+      data: ma200p.values,
+      labels: ma200p.labels,
+      borderColor: 'rgba(255, 100, 100, 0.7)',
+      borderWidth: 1.5,
+      borderDash: [6, 3],
+      pointRadius: 0,
+      fill: false,
+      tension: 0.3,
+      order: 3,
+    });
+  }
+
+  var ctx = document.getElementById('chart-price-main').getContext('2d');
+  charts['price-main'] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: parsed.labels,
+      datasets: datasets,
+    },
+    options: {
+      interaction: { intersect: false, mode: 'index' },
+      scales: {
+        x: {
+          display: true,
+          grid: { display: false },
+          ticks: {
+            maxTicksLimit: 8,
+            callback: function(val, idx) {
+              var label = this.getLabelForValue(val);
+              if (!label) return '';
+              try {
+                var date = new Date(label);
+                if (timeframe === '1d' || timeframe === '5d') {
+                  return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                }
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+              } catch(e) { return ''; }
+            }
+          }
+        },
+        y: {
+          position: 'right',
+          grid: { color: 'rgba(255,255,255,0.03)' },
+          ticks: { callback: function(v) { return '$' + fmt(v, 0); } }
+        }
+      },
+      plugins: {
+        legend: {
+          display: timeframe === '1y' || timeframe === '5y' || timeframe === 'all',
+          labels: {
+            boxWidth: 20,
+            padding: 10,
+            color: '#888',
+            font: { size: 10, family: 'monospace' },
+            filter: function(item) { return item.text !== 'Gold Price'; }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              var prefix = ctx.dataset.label ? ctx.dataset.label + ': $' : '$';
+              return prefix + fmt(ctx.parsed.y);
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderCurrencyGrid() {
+  var d = DATA.price;
+  if (!d || !d.currencies) return;
+
+  var grid = document.getElementById('currency-grid');
+  grid.innerHTML = '';
+
+  var ccySymbols = { USD: '$', EUR: '\u20AC', GBP: '\u00A3', JPY: '\u00A5', CNY: '\u00A5', AUD: 'A$', CHF: 'CHF ', INR: '\u20B9' };
+
+  Object.keys(d.currencies).forEach(function(ccy) {
+    var val = d.currencies[ccy];
+    var div = document.createElement('div');
+    div.className = 'bg-[#0a0a0a] rounded-lg p-3 border border-[var(--card-border)]';
+
+    var sparkData = (d.currency_sparklines && d.currency_sparklines[ccy]) ? d.currency_sparklines[ccy] : [];
+    var canvasId = 'spark-ccy-' + ccy;
+
+    div.innerHTML =
+      '<div class="flex items-center justify-between mb-1">' +
+        '<span class="text-[10px] text-[var(--text2)] mono">' + ccy + '</span>' +
+        '<canvas id="' + canvasId + '" class="sparkline-canvas" width="50" height="20"></canvas>' +
+      '</div>' +
+      '<div class="text-sm font-bold mono">' + (ccySymbols[ccy] || '') + (val != null ? fmtInt(val) : '--') + '</div>';
+    grid.appendChild(div);
+
+    requestAnimationFrame(function() {
+      var canvas = document.getElementById(canvasId);
+      if (canvas && sparkData.length) {
+        createSparkline(canvas, sparkData, '#ffd700', false, 50, 20);
+      }
+    });
+  });
+}
+
+// --- LBMA FIX ---
+function renderLBMA() {
+  var d = DATA.price;
+  if (!d || !d.lbma) return;
+  var lbma = d.lbma;
+  document.getElementById('lbma-am').textContent = lbma.am_fix != null ? '$' + fmt(lbma.am_fix) : '--';
+  document.getElementById('lbma-pm').textContent = lbma.pm_fix != null ? '$' + fmt(lbma.pm_fix) : '--';
+  if (lbma.am_fix != null && lbma.pm_fix != null) {
+    var basis = lbma.pm_fix - lbma.am_fix;
+    var el = document.getElementById('lbma-basis');
+    el.textContent = (basis >= 0 ? '+' : '') + '$' + fmt(basis);
+    el.style.color = basis >= 0 ? '#00ff88' : '#ff4444';
+  }
+  document.getElementById('lbma-source').textContent = lbma.source || '--';
+}
+
+// --- RATIOS (compact cards) ---
+function renderRatios() {
+  var d = DATA.ratios;
+  if (!d) return;
+
+  var RATIO_META = {
+    gold_silver: { label: 'Gold / Silver', unit: 'oz of silver per oz gold', avg: 82, cheapBelow: 70, expAbove: 90 },
+    gold_oil:    { label: 'Gold / Oil', unit: 'barrels of oil per oz gold', avg: 25, cheapBelow: 20, expAbove: 35 },
+    gold_spx:    { label: 'Gold / S&P 500', unit: 'S&P500 units per oz gold', avg: 0.9, cheapBelow: null, expAbove: null },
+    gold_btc:    { label: 'Gold / Bitcoin', unit: 'oz gold per BTC (inverted)', avg: null, cheapBelow: null, expAbove: null, invert: true },
+    gold_copper: { label: 'Gold / Copper', unit: 'lbs copper per oz gold', avg: 550, cheapBelow: null, expAbove: null },
+  };
+
+  var grid = document.getElementById('ratio-cards-grid');
+  grid.innerHTML = '';
+
+  Object.keys(RATIO_META).forEach(function(name) {
+    var meta = RATIO_META[name];
+    var val = d.ratios ? d.ratios[name] : null;
+    var range = d.ratio_ranges ? d.ratio_ranges[name] : null;
+    var chartData = d.ratio_charts ? d.ratio_charts[name] : null;
+
+    // For gold_btc, invert to show oz gold per BTC
+    var displayVal = val;
+    if (meta.invert && val != null && val !== 0) {
+      displayVal = 1 / val;
+    }
+
+    var pctile = range ? range.current_percentile : null;
+    var pctClass = 'mid';
+    if (pctile != null) {
+      if (pctile < 40) pctClass = 'cheap';
+      else if (pctile > 75) pctClass = 'expensive';
+    }
+
+    // Progress bar position
+    var progressPct = 50;
+    if (range && val != null && range.max !== range.min) {
+      progressPct = Math.max(0, Math.min(100, ((val - range.min) / (range.max - range.min)) * 100));
+    }
+
+    var canvasId = 'chart-ratio-' + name;
+
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML =
+      '<div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">' + meta.label + '</div>' +
+      '<div class="flex items-baseline gap-3">' +
+        '<span class="text-2xl font-bold mono text-[var(--gold)]">' + (displayVal != null ? fmt(displayVal, displayVal < 10 ? 2 : 1) : '--') + '</span>' +
+        '<span class="text-[10px] text-[var(--text2)] mono">' + meta.unit + '</span>' +
+      '</div>' +
+      (pctile != null ? '<span class="pct-pill ' + pctClass + ' mt-2">' + fmt(pctile, 0) + 'th percentile</span>' : '') +
+      '<div class="progress-track mt-3"><div class="progress-fill" style="width:' + progressPct.toFixed(1) + '%;background:' +
+        (pctClass === 'cheap' ? '#00ff88' : pctClass === 'expensive' ? '#ff4444' : '#ffd700') + ';"></div></div>' +
+      '<div class="flex justify-between text-[9px] text-[var(--text2)] mono mt-1">' +
+        '<span>' + (range ? fmt(range.min, 1) : '--') + '</span>' +
+        (meta.avg != null ? '<span>Avg: ' + meta.avg + '</span>' : '') +
+        '<span>' + (range ? fmt(range.max, 1) : '--') + '</span>' +
+      '</div>' +
+      '<div class="chart-wrap mt-3" style="height:60px;"><canvas id="' + canvasId + '"></canvas></div>';
+    grid.appendChild(card);
+
+    if (chartData && chartData.length) {
+      requestAnimationFrame(function() {
+        var parsed = parseChartData(chartData);
+        destroyChart('ratio-' + name);
+        var canvasEl = document.getElementById(canvasId);
+        if (canvasEl) {
+          charts['ratio-' + name] = new Chart(canvasEl.getContext('2d'), {
+            type: 'line',
+            data: {
+              labels: parsed.labels,
+              datasets: [{
+                data: parsed.values,
+                borderColor: '#ffd700',
+                borderWidth: 1.5,
+                pointRadius: 0,
+                fill: true,
+                backgroundColor: 'rgba(255,215,0,0.08)',
+                tension: 0.3,
+              }]
+            },
+            options: {
+              scales: { x: { display: false }, y: { display: false } },
+              plugins: { tooltip: { callbacks: { label: function(ctx) { return fmt(ctx.parsed.y, 2); } } } }
+            }
+          });
+        }
+      });
+    }
+  });
+}
+
+// --- CENTRAL BANKS ---
+function renderCentralBanks() {
+  var d = DATA.centralBanks;
+  if (!d) {
+    document.getElementById('cb-table-body').innerHTML = '<tr><td colspan="6" class="text-center py-4 text-[var(--text2)]">Data unavailable</td></tr>';
+    return;
+  }
+
+  document.getElementById('cb-pace').textContent = fmt(d.net_monthly_pace_tonnes, 1);
+  document.getElementById('cb-pace-arrow').innerHTML = '<span style="color:#00ff88">&#9650;</span>';
+  document.getElementById('cb-ytd-total').textContent = fmtInt(d.total_cb_buying_ytd);
+
+  // Pace vs average
+  if (d.pace_vs_avg != null) {
+    document.getElementById('cb-pace-vs-avg').textContent = d.pace_vs_avg + 'x';
+  }
+
+  // CB Annual Net Purchases bar chart
+  if (d.cb_annual) {
+    var annualLabels = ['2022', '2023', '2024', '2025', '2026 (ann.)'];
+    var annualData = [d.cb_annual['2022'], d.cb_annual['2023'], d.cb_annual['2024'], d.cb_annual['2025'], d.cb_annual['2026_annualized']];
+    var avgLine = d.cb_annual['10Y_average'];
+    destroyChart('cb-annual');
+    var ctxAnn = document.getElementById('chart-cb-annual');
+    if (ctxAnn) {
+      charts['cb-annual'] = new Chart(ctxAnn.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: annualLabels,
+          datasets: [{
+            label: 'Net Purchases (tonnes)',
+            data: annualData,
+            backgroundColor: annualData.map(function(v, i) { return i >= 0 ? 'rgba(255,215,0,0.7)' : 'rgba(136,136,136,0.4)'; }),
+            borderColor: '#ffd700',
+            borderWidth: 1,
+            borderRadius: 4,
+          }]
+        },
+        options: {
+          scales: {
+            x: { grid: { display: false } },
+            y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { callback: function(v) { return v + 't'; } } }
+          },
+          plugins: {
+            tooltip: { callbacks: { label: function(ctx) { return fmtInt(ctx.parsed.y) + ' tonnes'; } } }
+          }
+        },
+        plugins: [{
+          id: 'avgLine',
+          afterDraw: function(chart) {
+            var yScale = chart.scales.y;
+            var xScale = chart.scales.x;
+            var c = chart.ctx;
+            var y = yScale.getPixelForValue(avgLine);
+            c.save();
+            c.strokeStyle = '#ff4444';
+            c.lineWidth = 1.5;
+            c.setLineDash([6, 4]);
+            c.beginPath();
+            c.moveTo(xScale.left, y);
+            c.lineTo(xScale.right, y);
+            c.stroke();
+            c.fillStyle = '#ff4444';
+            c.font = '10px JetBrains Mono, monospace';
+            c.fillText('10Y avg: ' + avgLine + 't', xScale.right - 100, y - 6);
+            c.restore();
+          }
+        }]
+      });
+    }
+  }
+
+  var tbody = document.getElementById('cb-table-body');
+  tbody.innerHTML = '';
+
+  var maxReserves = 0;
+  d.reserves.forEach(function(r) { if (r.reserves_tonnes > maxReserves) maxReserves = r.reserves_tonnes; });
+
+  d.reserves.forEach(function(r) {
+    var tr = document.createElement('tr');
+
+    var changeColor = '#555';
+    var changeBg = 'transparent';
+    if (r.last_month_change > 10) { changeColor = '#00ff88'; changeBg = 'rgba(0,255,136,0.15)'; }
+    else if (r.last_month_change > 0) { changeColor = '#00ff88'; changeBg = 'rgba(0,255,136,0.08)'; }
+    else if (r.last_month_change < 0) { changeColor = '#ff4444'; changeBg = 'rgba(255,68,68,0.12)'; }
+
+    var statusHtml = '';
+    if (r.status === 'buying') statusHtml = '<span class="badge" style="background:rgba(0,255,136,0.15);color:#00ff88;">BUYING</span>';
+    else if (r.status === 'selling') statusHtml = '<span class="badge" style="background:rgba(255,68,68,0.15);color:#ff4444;">SELLING</span>';
+    else statusHtml = '<span class="badge" style="background:rgba(136,136,136,0.15);color:#888;">HOLD</span>';
+
+    var reserveIntensity = Math.max(0.03, r.reserves_tonnes / maxReserves * 0.15);
+    var barWidth = (r.reserves_tonnes / maxReserves * 60).toFixed(0);
+
+    tr.innerHTML =
+      '<td style="font-weight:600;">' + r.country + '</td>' +
+      '<td style="background:rgba(255,215,0,' + reserveIntensity.toFixed(3) + ');">' +
+        fmtInt(r.reserves_tonnes) +
+        '<div class="mini-bar" style="width:' + barWidth + 'px;background:#ffd700;margin-left:6px;"></div>' +
+      '</td>' +
+      '<td style="color:' + changeColor + ';background:' + changeBg + ';">' +
+        (r.last_month_change > 0 ? '+' : '') + r.last_month_change + 't' +
+      '</td>' +
+      '<td style="color:' + (r.change_ytd > 0 ? '#00ff88' : r.change_ytd < 0 ? '#ff4444' : '#888') + ';">' +
+        (r.change_ytd > 0 ? '+' : '') + r.change_ytd + 't' +
+      '</td>' +
+      '<td>' + fmt(r.pct_of_reserves, 1) + '%</td>' +
+      '<td>' + statusHtml + '</td>';
+    tbody.appendChild(tr);
+  });
+
+  // Bar chart
+  var top15 = d.reserves.slice(0, 15);
+  destroyChart('cb-bars');
+  var ctx = document.getElementById('chart-cb-bars').getContext('2d');
+  charts['cb-bars'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: top15.map(function(r) { return r.country; }),
+      datasets: [{
+        data: top15.map(function(r) { return r.reserves_tonnes; }),
+        backgroundColor: 'rgba(255,215,0,0.6)',
+        borderColor: '#ffd700',
+        borderWidth: 1,
+        borderRadius: 3,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.03)' },
+          ticks: { callback: function(v) { return fmtCompact(v) + 't'; } }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { font: { size: 10 } }
+        }
+      },
+      plugins: {
+        tooltip: { callbacks: { label: function(ctx) { return fmtInt(ctx.parsed.x) + ' tonnes'; } } }
+      }
+    }
+  });
+}
+
+// --- ETFs ---
+function renderETFs() {
+  var d = DATA.etfs;
+  if (!d) return;
+
+  document.getElementById('etf-total').textContent = fmtInt(d.total_holdings_tonnes_est);
+
+  // Overlay chart
+  var overlaySymbols = ['GLD', 'IAU', 'PHYS'];
+  var colors = ['#ffd700', '#4488ff', '#00ff88'];
+  var bgColors = ['rgba(255,215,0,0.06)', 'rgba(68,136,255,0.06)', 'rgba(0,255,136,0.06)'];
+  var datasets = [];
+  var refLabels = [];
+
+  overlaySymbols.forEach(function(sym, i) {
+    var etf = d.etfs ? d.etfs[sym] : null;
+    if (etf && etf.chart_1y && etf.chart_1y.length) {
+      var parsed = parseChartData(etf.chart_1y);
+      if (i === 0) refLabels = parsed.labels;
+      datasets.push({
+        label: sym,
+        data: parsed.values,
+        borderColor: colors[i],
+        borderWidth: 1.5,
+        pointRadius: 0,
+        fill: true,
+        backgroundColor: bgColors[i],
+        tension: 0.3,
+      });
+    }
+  });
+
+  if (refLabels.length && datasets.length) {
+    destroyChart('etf-overlay');
+    var ctx = document.getElementById('chart-etf-overlay').getContext('2d');
+    charts['etf-overlay'] = new Chart(ctx, {
+      type: 'line',
+      data: { labels: refLabels, datasets: datasets },
+      options: {
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: { display: true, labels: { boxWidth: 10, padding: 15, color: '#888' } },
+          tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': $' + fmt(ctx.parsed.y); } } }
+        },
+        scales: {
+          x: {
+            display: true,
+            grid: { display: false },
+            ticks: {
+              maxTicksLimit: 6,
+              callback: function(val) {
+                var label = this.getLabelForValue(val);
+                try { return new Date(label).toLocaleDateString('en-US', { month: 'short' }); } catch(e) { return ''; }
+              }
+            }
+          },
+          y: {
+            position: 'right',
+            grid: { color: 'rgba(255,255,255,0.03)' },
+            ticks: { callback: function(v) { return '$' + fmt(v, 0); } }
+          }
+        }
+      }
+    });
+  }
+
+  // ETF cards
+  var cardsContainer = document.getElementById('etf-cards');
+  cardsContainer.innerHTML = '';
+
+  Object.keys(d.etfs || {}).forEach(function(sym) {
+    var etf = d.etfs[sym];
+    if (etf.error) return;
+
+    var card = document.createElement('div');
+    card.className = 'bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]';
+
+    var changeColor = colorForChange(etf.change_pct || 0);
+    var dailyChange = etf.daily_change_est || 0;
+    var dailyColor = colorForChange(dailyChange);
+    var dailyArrow = dailyChange > 0 ? '\u25B2' : dailyChange < 0 ? '\u25BC' : '\u25CF';
+
+    var rangeHtml = '';
+    if (etf.chart_1y && etf.chart_1y.length > 10) {
+      var vals = etf.chart_1y.map(function(p) { return p.v; });
+      var min1y = Math.min.apply(null, vals);
+      var max1y = Math.max.apply(null, vals);
+      var pct = max1y > min1y ? ((etf.price - min1y) / (max1y - min1y)) * 100 : 50;
+      rangeHtml =
+        '<div class="range-bar mt-2">' +
+          '<div class="range-marker" style="left:' + pct.toFixed(1) + '%"></div>' +
+        '</div>' +
+        '<div class="flex justify-between text-[9px] text-[var(--text2)] mono mt-1">' +
+          '<span>$' + fmt(min1y, 0) + '</span>' +
+          '<span>1Y Range</span>' +
+          '<span>$' + fmt(max1y, 0) + '</span>' +
+        '</div>';
+    }
+
+    card.innerHTML =
+      '<div class="flex items-center justify-between mb-2">' +
+        '<span class="text-sm font-bold mono">' + sym + '</span>' +
+        '<span class="text-[10px] text-[var(--text2)]">' + (etf.name || '') + '</span>' +
+      '</div>' +
+      '<div class="text-xl font-bold mono">$' + fmt(etf.price) + '</div>' +
+      '<div class="text-xs mono mt-1" style="color:' + changeColor + '">' +
+        (etf.change_pct >= 0 ? '+' : '') + fmt(etf.change_pct) + '%' +
+      '</div>' +
+      (etf.tonnes_est ?
+        '<div class="flex items-center gap-2 mt-2">' +
+          '<span class="text-xs text-[var(--text2)] mono">' + fmtInt(etf.tonnes_est) + 't</span>' +
+          '<span class="text-xs mono" style="color:' + dailyColor + '">' + dailyArrow + ' ' + Math.abs(dailyChange) + 't/day</span>' +
+        '</div>' : '') +
+      rangeHtml;
+    cardsContainer.appendChild(card);
+  });
+}
+
+// --- COT ---
+function renderCOT() {
+  var d = DATA.cot;
+  if (!d) return;
+
+  document.getElementById('cot-net').textContent = fmtInt(d.gold_managed_money_net);
+  document.getElementById('cot-longs').textContent = fmtInt(d.gold_managed_money_long);
+  document.getElementById('cot-shorts').textContent = fmtInt(d.gold_managed_money_short);
+  document.getElementById('cot-oi').textContent = fmtInt(d.gold_open_interest);
+
+  // Contango / Backwardation
+  var ct = DATA.price ? DATA.price.contango : null;
+  if (ct) {
+    var stateEl = document.getElementById('contango-state');
+    stateEl.textContent = ct.curve_state;
+    stateEl.style.color = ct.curve_state === 'BACKWARDATION' ? '#ffd700' : '#00ff88';
+    document.getElementById('contango-front').textContent = '$' + fmt(ct.front);
+    document.getElementById('contango-back').textContent = ct.back != null ? '$' + fmt(ct.back) : '--';
+    var basisEl = document.getElementById('contango-basis');
+    if (ct.basis != null) {
+      basisEl.textContent = (ct.basis >= 0 ? '+' : '') + '$' + fmt(ct.basis);
+      basisEl.style.color = ct.curve_state === 'BACKWARDATION' ? '#ffd700' : '#00ff88';
+    }
+    var bpEl = document.getElementById('contango-basis-pct');
+    if (ct.basis_pct != null) bpEl.textContent = '(' + fmt(ct.basis_pct, 3) + '%)';
+  }
+
+  var pctVal = d.net_percentile;
+  if (pctVal != null) {
+    document.getElementById('cot-percentile-val').textContent = fmt(pctVal, 0) + '%';
+    var pctBar = document.getElementById('cot-percentile-bar');
+    if (pctBar) pctBar.style.width = pctVal + '%';
+
+    var label = document.getElementById('cot-percentile-label');
+    if (pctVal > 90) {
+      label.textContent = 'EXTREME LONG';
+      label.style.color = '#ff4444';
+    } else if (pctVal < 10) {
+      label.textContent = 'EXTREME SHORT';
+      label.style.color = '#ff4444';
+    } else if (pctVal > 70) {
+      label.textContent = 'Stretched Long';
+      label.style.color = '#ff8800';
+    } else if (pctVal < 30) {
+      label.textContent = 'Stretched Short';
+      label.style.color = '#ff8800';
+    } else {
+      label.textContent = 'Neutral';
+      label.style.color = '#888888';
+    }
+  }
+
+  if (d.history && d.history.length) {
+    destroyChart('cot-history');
+    var ctx = document.getElementById('chart-cot-history').getContext('2d');
+    var labels = d.history.map(function(p) { return p.t; });
+    var values = d.history.map(function(p) { return p.v; });
+
+    charts['cot-history'] = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          backgroundColor: values.map(function(v) { return v >= 0 ? 'rgba(0,255,136,0.6)' : 'rgba(255,68,68,0.6)'; }),
+          borderColor: values.map(function(v) { return v >= 0 ? '#00ff88' : '#ff4444'; }),
+          borderWidth: 1,
+          borderRadius: 2,
+        }]
+      },
+      options: {
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              maxTicksLimit: 8,
+              callback: function(val) {
+                var label = this.getLabelForValue(val);
+                try { return new Date(label).toLocaleDateString('en-US', { month: 'short' }); } catch(e) { return ''; }
+              }
+            }
+          },
+          y: {
+            grid: { color: 'rgba(255,255,255,0.03)' },
+            ticks: { callback: function(v) { return fmtCompact(v); } }
+          }
+        },
+        plugins: {
+          tooltip: { callbacks: { label: function(ctx) { return 'Net: ' + fmtInt(ctx.parsed.y) + ' contracts'; } } }
+        }
+      }
+    });
+  }
+}
+
+// --- NEWS ---
+function renderNews() {
+  var d = DATA.news;
+  var container = document.getElementById('news-list');
+
+  if (!d || !d.articles || !d.articles.length) {
+    container.innerHTML = '<div class="text-center py-8 text-[var(--text2)]">No news available</div>';
+    return;
+  }
+
+  // Sentiment tracker
+  if (d.sentiment_score != null) {
+    var score = d.sentiment_score;
+    var markerPct = Math.max(2, Math.min(98, (score + 100) / 2));
+    var markerEl = document.getElementById('sentiment-marker');
+    if (markerEl) markerEl.style.left = markerPct + '%';
+    var scoreEl = document.getElementById('sentiment-score');
+    if (scoreEl) {
+      scoreEl.textContent = (score >= 0 ? '+' : '') + score;
+      scoreEl.style.color = score > 20 ? '#00ff88' : score < -20 ? '#ff4444' : '#ffd700';
+    }
+    var pctEl = document.getElementById('sentiment-pct');
+    if (pctEl) pctEl.textContent = d.bull_pct != null ? d.bull_pct + '% of headlines bullish' : '';
+  }
+
+  // Bull/Bear/Neutral counts
+  var countsEl = document.getElementById('sentiment-counts');
+  if (countsEl && (d.bull_count != null || d.bear_count != null)) {
+    countsEl.style.cssText = 'display:flex!important';
+    var bc = document.getElementById('bull-count');
+    var brc = document.getElementById('bear-count');
+    var nc = document.getElementById('neutral-count');
+    if (bc) bc.textContent = d.bull_count || 0;
+    if (brc) brc.textContent = d.bear_count || 0;
+    if (nc) nc.textContent = d.neutral_count || 0;
+  }
+
+  var bullish = /record|surge|buying|inflows|rally|high|soar|gain|bull|\bup\b/i;
+  var bearish = /selling|drop|crash|outflows|fall|decline|bear|loss|\bdown\b|plunge/i;
+
+  container.innerHTML = '';
+
+  var visibleCount = 12;
+  var sourceColors = {
+    'Kitco': { bg: 'rgba(255,215,0,0.15)', fg: '#ffd700' },
+    'Kitco News': { bg: 'rgba(255,215,0,0.15)', fg: '#ffd700' },
+    'BullionVault': { bg: 'rgba(68,136,255,0.15)', fg: '#4488ff' },
+    'Mining.com': { bg: 'rgba(0,255,136,0.15)', fg: '#00ff88' },
+    'GoldPrice.org': { bg: 'rgba(255,136,0,0.15)', fg: '#ff8800' },
+    'Google News': { bg: 'rgba(100,149,237,0.15)', fg: '#6495ed' },
+    'Reuters Commodities': { bg: 'rgba(255,165,0,0.15)', fg: '#ffa500' },
+  };
+
+  function buildNewsItems(limit) {
+    container.innerHTML = '';
+    d.articles.slice(0, limit).forEach(function(article) {
+      var dotColor = '#555';
+      var sent = article.sentiment;
+      if (sent === 'positive' || (!sent && bullish.test(article.title))) dotColor = '#00ff88';
+      else if (sent === 'negative' || (!sent && bearish.test(article.title))) dotColor = '#ff4444';
+
+      var sc = sourceColors[article.source] || { bg: 'rgba(136,136,136,0.15)', fg: '#888' };
+      var sourceBadge = '<span class="badge" style="background:' + sc.bg + ';color:' + sc.fg + ';">' + article.source + '</span>';
+
+      // Sentiment label
+      var sentLabel = sent === 'positive' ? '<span style="color:#00ff88;font-size:9px;text-transform:uppercase;letter-spacing:.05em;">▲ Bullish</span>'
+                    : sent === 'negative' ? '<span style="color:#ff4444;font-size:9px;text-transform:uppercase;letter-spacing:.05em;">▼ Bearish</span>'
+                    : '';
+
+      var div = document.createElement('div');
+      div.className = 'flex gap-3 py-3 border-b border-[rgba(255,255,255,0.03)]';
+      div.innerHTML =
+        '<div class="news-dot flex-shrink-0" style="background:' + dotColor + ';margin-top:5px;"></div>' +
+        '<div class="flex-1 min-w-0">' +
+          '<a href="' + article.link + '" target="_blank" rel="noopener noreferrer"' +
+             ' class="text-sm text-[var(--text)] hover:text-[var(--gold)] transition-colors block" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">' +
+            article.title +
+          '</a>' +
+          '<div class="flex items-center gap-2 mt-1 flex-wrap">' +
+            sourceBadge +
+            sentLabel +
+            '<span class="text-[10px] text-[var(--text2)] mono">' + relativeTime(article.published) + '</span>' +
+          '</div>' +
+        '</div>';
+      container.appendChild(div);
+    });
+
+    // Show more / show less button
+    if (d.articles.length > visibleCount) {
+      var btn = document.createElement('button');
+      var showing = limit >= d.articles.length;
+      btn.className = 'w-full text-center text-xs text-[var(--text2)] hover:text-[var(--gold)] py-3 transition-colors';
+      btn.textContent = showing ? '▲ Show fewer' : '▼ Show ' + (d.articles.length - limit) + ' more articles';
+      btn.onclick = function() { buildNewsItems(showing ? visibleCount : d.articles.length); };
+      container.appendChild(btn);
+    }
+  }
+
+  buildNewsItems(visibleCount);
+}
+
+// --- MACRO ---
+function renderMacro() {
+  var d = DATA.macro;
+  if (!d) return;
+
+  var macroItems = [
+    { key: 'real_yield_10y', label: 'Real Yield 10Y', unit: '%', rangeMin: -2, rangeMax: 3, color: '#ff4444', tip: 'The return on 10-year US Treasury bonds after subtracting inflation. Gold typically rises when real yields fall below zero, because holding gold has no opportunity cost vs bonds.' },
+    { key: 'dxy', label: 'Dollar Index', unit: '', rangeMin: 90, rangeMax: 115, color: '#4488ff', tip: 'Measures USD strength vs 6 major currencies. Gold moves inversely to the dollar \u2014 a weaker dollar makes gold cheaper for foreign buyers, boosting demand.' },
+    { key: 'cpi_yoy', label: 'CPI YoY', unit: '%', rangeMin: 0, rangeMax: 10, color: '#ff4444', thermo: true, tip: 'Year-over-year change in consumer prices. Gold is traditionally an inflation hedge \u2014 higher inflation often drives demand for gold as a store of value.' },
+    { key: 'fed_funds', label: 'Fed Funds Rate', unit: '%', rangeMin: 0, rangeMax: 6, color: '#ff8800', tip: 'The interest rate the Federal Reserve charges banks overnight. Lower rates reduce the opportunity cost of holding gold (which pays no yield), making gold more attractive.' },
+    { key: 'm2', label: 'M2 Growth YoY', unit: '%', rangeMin: -5, rangeMax: 30, color: '#00ff88', tip: 'Annual growth rate of total money in circulation. Rapid M2 expansion (money printing) historically correlates with gold price increases as currency purchasing power dilutes.' },
+    { key: 'us_10y', label: 'US 10Y Yield', unit: '%', rangeMin: 0, rangeMax: 5, color: '#ffd700', tip: 'Nominal yield on 10-year US Treasuries. Rising nominal yields can pressure gold prices as bonds become more competitive with yield-free gold.' },
+  ];
+
+  var container = document.getElementById('macro-cards');
+  container.innerHTML = '';
+
+  var sources = d.data_sources || {};
+
+  macroItems.forEach(function(item) {
+    var raw = d[item.key];
+    if (raw == null || (typeof raw === 'object' && raw.error)) return;
+    // Support both nested {value, date} and flat number formats
+    var stat = (typeof raw === 'object' && raw !== null) ? raw : {value: raw, date: d[item.key + '_date'] || ''};
+
+    var val = stat.value;
+    if (val == null) return;
+    var pct = Math.max(0, Math.min(100, ((val - item.rangeMin) / (item.rangeMax - item.rangeMin)) * 100));
+
+    var chartArr = d[item.key + '_chart'] || [];
+    var canvasId = 'spark-macro-' + item.key;
+
+    var isEstimate = sources[item.key] === 'estimate';
+    var estBadge = isEstimate ? ' <span style="color:#888;font-size:10px;font-weight:normal">(est.)</span>' : '';
+    var valColor = isEstimate ? '#888' : item.color;
+
+    var div = document.createElement('div');
+    div.className = 'bg-[#0a0a0a] rounded-lg p-4 border border-[var(--card-border)]';
+
+    var tipHtml = item.tip ? '<span class="info-tooltip" data-tip="' + item.tip.replace(/"/g, '&quot;') + '">i</span>' : '';
+
+    if (item.thermo) {
+      div.innerHTML =
+        '<div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-2 flex items-center">' + item.label + tipHtml + '</div>' +
+        '<div class="flex items-end gap-3">' +
+          '<div class="thermo-track">' +
+            '<div class="thermo-fill" style="height:' + pct + '%;background:' + valColor + ';"></div>' +
+          '</div>' +
+          '<div>' +
+            '<div class="text-xl font-bold mono" style="color:' + valColor + '">' + fmt(val) + item.unit + estBadge + '</div>' +
+            '<div class="text-[9px] text-[var(--text2)] mono mt-1">' + (stat.date || '') + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="chart-wrap mt-2" style="height:40px;"><canvas id="' + canvasId + '"></canvas></div>';
+    } else {
+      div.innerHTML =
+        '<div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-2 flex items-center">' + item.label + tipHtml + '</div>' +
+        '<div class="text-xl font-bold mono" style="color:' + valColor + '">' + fmt(val) + item.unit + estBadge + '</div>' +
+        '<div class="text-[9px] text-[var(--text2)] mono mt-1">' + (stat.date || '') + '</div>' +
+        '<div class="range-bar mt-3">' +
+          '<div class="range-marker" style="left:' + pct + '%;background:' + valColor + ';"></div>' +
+        '</div>' +
+        '<div class="flex justify-between text-[8px] text-[var(--text2)] mono mt-1">' +
+          '<span>' + item.rangeMin + item.unit + '</span>' +
+          '<span>' + item.rangeMax + item.unit + '</span>' +
+        '</div>' +
+        '<div class="chart-wrap mt-2" style="height:40px;"><canvas id="' + canvasId + '"></canvas></div>';
+    }
+
+    container.appendChild(div);
+
+    requestAnimationFrame(function() {
+      var canvas = document.getElementById(canvasId);
+      if (canvas && chartArr.length) {
+        createSparkline(canvas, chartArr, item.color, true, canvas.parentElement.offsetWidth || 120, 40);
+      }
+    });
+  });
+
+  // Dual-axis: Gold vs Real Yields (inverted)
+  var goldChart = d.gold_1y_chart || (DATA.ratios ? DATA.ratios.gold_1y_chart : null) || [];
+  var yieldsChart = d.real_yield_10y_chart || [];
+  renderDualAxisChart('chart-macro-yields', 'macro-yields', goldChart, yieldsChart, 'Gold', 'Real Yield (inv.)', '#ffd700', '#ff4444', false, true);
+
+  // Dual-axis: Gold vs DXY (inverted)
+  var dxyChart = d.dxy_chart || (DATA.ratios ? DATA.ratios.dxy_chart : null) || [];
+  renderDualAxisChart('chart-macro-dxy', 'macro-dxy', goldChart, dxyChart, 'Gold', 'DXY (inv.)', '#ffd700', '#4488ff', false, true);
+}
+
+function renderDualAxisChart(canvasId, chartKey, data1, data2, label1, label2, color1, color2, invert1, invert2) {
+  var parsed1 = parseChartData(data1);
+  var parsed2 = parseChartData(data2);
+
+  var len = Math.min(parsed1.labels.length, parsed2.labels.length);
+  if (len < 5) return;
+
+  var l1 = parsed1.labels.slice(-len);
+  var v1 = parsed1.values.slice(-len);
+  var v2 = parsed2.values.slice(-len);
+
+  destroyChart(chartKey);
+  var canvasEl = document.getElementById(canvasId);
+  if (!canvasEl) return;
+  var ctx = canvasEl.getContext('2d');
+
+  charts[chartKey] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: l1,
+      datasets: [
+        {
+          label: label1,
+          data: invert1 ? v1.map(function(v) { return -v; }) : v1,
+          borderColor: color1,
+          borderWidth: 2,
+          pointRadius: 0,
+          yAxisID: 'y1',
+          tension: 0.3,
+        },
+        {
+          label: label2,
+          data: invert2 ? v2.map(function(v) { return -v; }) : v2,
+          borderColor: color2,
+          borderWidth: 1.5,
+          pointRadius: 0,
+          borderDash: [4, 2],
+          yAxisID: 'y2',
+          tension: 0.3,
+        }
+      ]
+    },
+    options: {
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: true, labels: { boxWidth: 10, padding: 10, color: '#888' } },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              var isInverted = (ctx.datasetIndex === 0 && invert1) || (ctx.datasetIndex === 1 && invert2);
+              var val = isInverted ? -ctx.parsed.y : ctx.parsed.y;
+              return ctx.dataset.label + ': ' + fmt(val);
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            maxTicksLimit: 6,
+            callback: function(val) {
+              var label = this.getLabelForValue(val);
+              try { return new Date(label).toLocaleDateString('en-US', { month: 'short' }); } catch(e) { return ''; }
+            }
+          }
+        },
+        y1: {
+          position: 'left',
+          grid: { color: 'rgba(255,255,255,0.03)' },
+          ticks: { color: color1, callback: function(v) { return invert1 ? fmt(-v, 0) : '$' + fmt(v, 0); } }
+        },
+        y2: {
+          position: 'right',
+          grid: { display: false },
+          ticks: { color: color2, callback: function(v) { return invert2 ? fmt(-v, 1) : fmt(v, 1); } }
+        }
+      }
+    }
+  });
+}
+
+// --- MINERS ---
+function renderMiners() {
+  var d = DATA.miners;
+  if (!d) return;
+
+  var minerKeys = Object.keys(d.miners || {}).filter(function(k) { return d.miners[k].aisc && !d.miners[k].error; });
+  if (minerKeys.length) {
+    destroyChart('miners-aisc');
+    var ctx = document.getElementById('chart-miners-aisc').getContext('2d');
+    var goldPrice = DATA.price ? DATA.price.price : 3000;
+
+    charts['miners-aisc'] = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: minerKeys.map(function(k) { return d.miners[k].name || k; }),
+        datasets: [{
+          label: 'AISC',
+          data: minerKeys.map(function(k) { return d.miners[k].aisc; }),
+          backgroundColor: 'rgba(255,215,0,0.6)',
+          borderColor: '#ffd700',
+          borderWidth: 1,
+          borderRadius: 4,
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.03)' },
+            ticks: { callback: function(v) { return '$' + fmtInt(v); } }
+          },
+          y: {
+            grid: { display: false },
+            ticks: { font: { size: 10 } }
+          }
+        },
+        plugins: {
+          tooltip: { callbacks: { label: function(ctx) { return 'AISC: $' + fmtInt(ctx.parsed.x); } } }
+        }
+      },
+      plugins: [{
+        id: 'goldPriceLine',
+        afterDraw: function(chart) {
+          var xScale = chart.scales.x;
+          var yScale = chart.scales.y;
+          var c = chart.ctx;
+          var x = xScale.getPixelForValue(goldPrice);
+          if (x >= xScale.left && x <= xScale.right) {
+            c.save();
+            c.strokeStyle = '#ffd700';
+            c.lineWidth = 2;
+            c.setLineDash([6, 4]);
+            c.beginPath();
+            c.moveTo(x, yScale.top);
+            c.lineTo(x, yScale.bottom);
+            c.stroke();
+            c.fillStyle = '#ffd700';
+            c.font = '10px JetBrains Mono, monospace';
+            c.fillText('Gold: $' + fmtInt(goldPrice), x + 4, yScale.top + 12);
+            c.restore();
+          }
+        }
+      }]
+    });
+  }
+
+  // GDX/Gold ratio chart
+  if (d.gdx_gold_ratio_chart && d.gdx_gold_ratio_chart.length) {
+    var parsed = parseChartData(d.gdx_gold_ratio_chart);
+    destroyChart('gdx-ratio');
+    var ctx2 = document.getElementById('chart-gdx-ratio').getContext('2d');
+    charts['gdx-ratio'] = new Chart(ctx2, {
+      type: 'line',
+      data: {
+        labels: parsed.labels,
+        datasets: [{
+          data: parsed.values,
+          borderColor: '#ffd700',
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: true,
+          backgroundColor: 'rgba(255,215,0,0.08)',
+          tension: 0.3,
+        }]
+      },
+      options: {
+        interaction: { intersect: false, mode: 'index' },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              maxTicksLimit: 6,
+              callback: function(val) {
+                try { return new Date(this.getLabelForValue(val)).toLocaleDateString('en-US', { month: 'short' }); } catch(e) { return ''; }
+              }
+            }
+          },
+          y: {
+            position: 'right',
+            grid: { color: 'rgba(255,255,255,0.03)' },
+            ticks: { callback: function(v) { return v.toFixed(4); } }
+          }
+        }
+      }
+    });
+  }
+
+  // Mining production stacked area chart
+  if (d.mining_production) {
+    var mp = d.mining_production;
+    var countryColors = {
+      'China': '#ffd700',
+      'Russia': '#ff4444',
+      'Australia': '#00ff88',
+      'Canada': '#4488ff',
+      'USA': '#ff8800',
+    };
+    var countryDatasets = [];
+    Object.keys(mp.top_producers).forEach(function(country) {
+      countryDatasets.push({
+        label: country,
+        data: mp.top_producers[country],
+        backgroundColor: countryColors[country] + '66',
+        borderColor: countryColors[country],
+        borderWidth: 1.5,
+        fill: true,
+        tension: 0.3,
+        pointRadius: 0,
+      });
+    });
+
+    destroyChart('mining-production');
+    var mpCtx = document.getElementById('chart-mining-production');
+    if (mpCtx) {
+      charts['mining-production'] = new Chart(mpCtx.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: mp.years.map(String),
+          datasets: countryDatasets,
+        },
+        options: {
+          interaction: { intersect: false, mode: 'index' },
+          scales: {
+            x: { grid: { display: false } },
+            y: {
+              stacked: true,
+              grid: { color: 'rgba(255,255,255,0.03)' },
+              ticks: { callback: function(v) { return v + 't'; } }
+            }
+          },
+          plugins: {
+            legend: { display: true, labels: { boxWidth: 10, padding: 10, color: '#888' } },
+            tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': ' + ctx.parsed.y + 't'; } } }
+          }
+        }
+      });
+    }
+
+    // Miner production bar chart with AISC labels
+    var minerProdData = [
+      { name: 'Barrick (B)', koz: 4100, aisc: 1050 },
+      { name: 'Newmont (NEM)', koz: 5500, aisc: 1400 },
+      { name: 'Agnico Eagle (AEM)', koz: 3500, aisc: 1150 },
+    ];
+
+    destroyChart('miner-prod-bars');
+    var mpbCtx = document.getElementById('chart-miner-production-bars');
+    if (mpbCtx) {
+      charts['miner-prod-bars'] = new Chart(mpbCtx.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: minerProdData.map(function(m) { return m.name; }),
+          datasets: [{
+            label: 'Production (koz/year)',
+            data: minerProdData.map(function(m) { return m.koz; }),
+            backgroundColor: ['rgba(255,215,0,0.6)', 'rgba(0,255,136,0.6)', 'rgba(68,136,255,0.6)'],
+            borderColor: ['#ffd700', '#00ff88', '#4488ff'],
+            borderWidth: 1,
+            borderRadius: 4,
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.03)' },
+              ticks: { callback: function(v) { return fmtCompact(v) + ' koz'; } }
+            },
+            y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  var m = minerProdData[ctx.dataIndex];
+                  return fmtInt(m.koz) + ' koz/yr | AISC: $' + fmtInt(m.aisc);
+                }
+              }
+            }
+          }
+        },
+        plugins: [{
+          id: 'aiscLabels',
+          afterDraw: function(chart) {
+            var c = chart.ctx;
+            chart.getDatasetMeta(0).data.forEach(function(bar, i) {
+              c.save();
+              c.fillStyle = '#888';
+              c.font = '9px JetBrains Mono, monospace';
+              c.textAlign = 'left';
+              c.fillText('AISC: $' + minerProdData[i].aisc, bar.x + 6, bar.y + 4);
+              c.restore();
+            });
+          }
+        }]
+      });
+    }
+  }
+
+  // Miners table
+  var tbody = document.getElementById('miners-table-body');
+  tbody.innerHTML = '';
+
+  Object.keys(d.miners || {}).forEach(function(sym) {
+    var m = d.miners[sym];
+    if (m.error || m.type === 'etf') return;
+
+    var tr = document.createElement('tr');
+    var changeColor = colorForChange(m.change_pct);
+    var marginColor = m.margin != null
+      ? 'rgba(0,255,136,' + Math.min(1, Math.max(0.2, m.margin / 2000)).toFixed(2) + ')'
+      : '#888';
+
+    var sparkId = 'spark-miner-' + sym;
+
+    tr.innerHTML =
+      '<td style="font-weight:600;">' + (m.name || sym) + ' <span class="text-[10px] text-[var(--text2)]">' + sym + '</span></td>' +
+      '<td>$' + fmt(m.price) + '</td>' +
+      '<td style="color:' + changeColor + '">' + (m.change_pct >= 0 ? '+' : '') + fmt(m.change_pct) + '%</td>' +
+      '<td>$' + (m.aisc != null ? fmtInt(m.aisc) : '--') + '</td>' +
+      '<td style="color:' + marginColor + ';font-weight:600;">$' + (m.margin != null ? fmtInt(m.margin) : '--') + '</td>' +
+      '<td>' + (m.production_koz != null ? fmtInt(m.production_koz) : '--') + '</td>' +
+      '<td><canvas id="' + sparkId + '" width="80" height="25"></canvas></td>';
+    tbody.appendChild(tr);
+
+    requestAnimationFrame(function() {
+      var canvas = document.getElementById(sparkId);
+      var sparkData = m.sparkline_6m || m.sparkline || [];
+      if (canvas && sparkData.length) {
+        createSparkline(canvas, sparkData, changeColor === '#00ff88' ? '#00ff88' : '#ffd700', false, 80, 25);
+      }
+    });
+  });
+}
+
+// --- COMEX VAULT ---
+function renderComexVault() {
+  // Hardcoded data (inline)
+  var vault = {
+    registered_tonnes: 442, eligible_tonnes: 8200, total_tonnes: 8642,
+    registered_change_30d: -85
+  };
+  var cot = DATA.cot;
+  var oi = cot ? cot.gold_open_interest : 534892;
+  // Cover ratio: registered oz / (OI contracts * 100 oz/contract)
+  var registeredOz = vault.registered_tonnes * 32150.7; // troy oz per tonne
+  var oiOz = oi * 100;
+  var coverRatio = (registeredOz / oiOz * 100).toFixed(1);
+  var el = document.getElementById('comex-cover-ratio');
+  if (el) el.textContent = coverRatio + '%';
+
+  // Stacked bar chart
+  destroyChart('comex-vault');
+  var ctx = document.getElementById('chart-comex-vault');
+  if (ctx) {
+    charts['comex-vault'] = new Chart(ctx.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['COMEX Gold Vault'],
+        datasets: [
+          { label: 'Registered', data: [vault.registered_tonnes], backgroundColor: 'rgba(255,215,0,0.8)', borderColor: '#ffd700', borderWidth: 1 },
+          { label: 'Eligible', data: [vault.eligible_tonnes], backgroundColor: 'rgba(136,136,136,0.4)', borderColor: '#888', borderWidth: 1 },
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        scales: {
+          x: { stacked: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { callback: function(v) { return fmtCompact(v) + 't'; } } },
+          y: { stacked: true, display: false }
+        },
+        plugins: {
+          legend: { display: true, labels: { boxWidth: 10, padding: 15, color: '#888' } },
+          tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': ' + fmtInt(ctx.parsed.x) + ' tonnes'; } } }
+        }
+      }
+    });
+  }
+}
+
+// --- GOLD LEASE RATE ---
+function renderLeaseRate() {
+  var leaseData = {
+    '1M': 0.28, '3M': 0.35, '6M': 0.42, '12M': 0.58
+  };
+  var alertThreshold = 1.5;
+  var hasAlert = Object.values(leaseData).some(function(v) { return v > alertThreshold; });
+  var alertEl = document.getElementById('lease-rate-alert');
+  if (alertEl) alertEl.style.display = hasAlert ? 'block' : 'none';
+
+  destroyChart('lease-rate');
+  var ctx = document.getElementById('chart-lease-rate');
+  if (ctx) {
+    var labels = Object.keys(leaseData);
+    var values = Object.values(leaseData);
+    charts['lease-rate'] = new Chart(ctx.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Lease Rate (% p.a.)',
+          data: values,
+          backgroundColor: values.map(function(v) { return v > alertThreshold ? 'rgba(255,68,68,0.7)' : v > 1.0 ? 'rgba(255,136,0,0.6)' : 'rgba(255,215,0,0.6)'; }),
+          borderColor: values.map(function(v) { return v > alertThreshold ? '#ff4444' : '#ffd700'; }),
+          borderWidth: 1,
+          borderRadius: 4,
+        }]
+      },
+      options: {
+        scales: {
+          x: { grid: { display: false } },
+          y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { callback: function(v) { return v + '%'; } }, suggestedMax: 2 }
+        },
+        plugins: {
+          tooltip: { callbacks: { label: function(ctx) { return ctx.parsed.y + '% per annum'; } } }
+        }
+      },
+      plugins: [{
+        id: 'alertLine',
+        afterDraw: function(chart) {
+          var yScale = chart.scales.y;
+          var xScale = chart.scales.x;
+          var c = chart.ctx;
+          var y = yScale.getPixelForValue(2.0);
+          if (y >= yScale.top) {
+            c.save();
+            c.strokeStyle = '#ff4444';
+            c.lineWidth = 1;
+            c.setLineDash([4, 4]);
+            c.beginPath(); c.moveTo(xScale.left, y); c.lineTo(xScale.right, y); c.stroke();
+            c.fillStyle = '#ff4444';
+            c.font = '9px JetBrains Mono, monospace';
+            c.fillText('Stress threshold (2%)', xScale.left + 4, y - 4);
+            c.restore();
+          }
+        }
+      }]
+    });
+  }
+}
+
+// --- CRISIS ASSETS ---
+function renderCrisisAssets() {
+  var d = DATA.crisisAssets;
+  if (!d || !d.assets) return;
+
+  var assetNames = Object.keys(d.assets);
+  if (!assetNames.length) return;
+
+  // Build date-aligned datasets (each asset may start on different dates due to BTC trading 7 days)
+  var dateMap = {}; // date string -> index in refLabels
+  var refLabels = [];
+
+  // Collect all unique dates, sorted
+  assetNames.forEach(function(name) {
+    var asset = d.assets[name];
+    if (!asset.chart || !asset.chart.length) return;
+    asset.chart.forEach(function(pt) { if (!dateMap[pt.t]) dateMap[pt.t] = true; });
+  });
+  refLabels = Object.keys(dateMap).sort();
+  refLabels.forEach(function(dt, i) { dateMap[dt] = i; });
+
+  var datasets = [];
+  assetNames.forEach(function(name) {
+    var asset = d.assets[name];
+    if (!asset.chart || !asset.chart.length) return;
+    // Build sparse array aligned to refLabels
+    var values = new Array(refLabels.length).fill(null);
+    asset.chart.forEach(function(pt) {
+      var idx = dateMap[pt.t];
+      if (idx !== undefined) values[idx] = pt.v;
+    });
+    datasets.push({
+      label: name + ' (' + (asset.ytd_pct >= 0 ? '+' : '') + fmt(asset.ytd_pct, 1) + '%)',
+      data: values,
+      borderColor: asset.color,
+      borderWidth: 2,
+      pointRadius: 0,
+      tension: 0.3,
+      fill: false,
+      spanGaps: true,
+    });
+  });
+
+  if (!datasets.length) return;
+
+  destroyChart('crisis-assets');
+  var ctx = document.getElementById('chart-crisis-assets');
+  if (ctx) {
+    charts['crisis-assets'] = new Chart(ctx.getContext('2d'), {
+      type: 'line',
+      data: { labels: refLabels, datasets: datasets },
+      options: {
+        interaction: { intersect: false, mode: 'index' },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              maxTicksLimit: 8,
+              callback: function(val) {
+                try { return new Date(this.getLabelForValue(val)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); } catch(e) { return ''; }
+              }
+            }
+          },
+          y: {
+            grid: { color: 'rgba(255,255,255,0.03)' },
+            title: { display: true, text: 'Jan 1 = 100', color: '#555', font: { size: 9 } },
+            ticks: { callback: function(v) { return v.toFixed(0); } }
+          }
+        },
+        plugins: {
+          legend: { display: true, labels: { boxWidth: 10, padding: 10, color: '#888' } },
+          tooltip: {
+            callbacks: {
+              title: function(items) {
+                try { return new Date(items[0].label + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); } catch(e) { return items[0].label; }
+              },
+              label: function(ctx) {
+                if (ctx.parsed.y == null) return null;
+                return '  ' + ctx.dataset.label.split(' (')[0] + ': ' + fmt(ctx.parsed.y, 1);
+              }
+            }
+          }
+        }
+      },
+      plugins: [{
+        id: 'baseline100',
+        afterDraw: function(chart) {
+          var yScale = chart.scales.y;
+          var xScale = chart.scales.x;
+          var c = chart.ctx;
+          var y = yScale.getPixelForValue(100);
+          c.save();
+          c.strokeStyle = 'rgba(255,255,255,0.2)';
+          c.lineWidth = 1;
+          c.setLineDash([4, 4]);
+          c.beginPath(); c.moveTo(xScale.left, y); c.lineTo(xScale.right, y); c.stroke();
+          c.restore();
+        }
+      }]
+    });
+  }
+
+  // Legend cards
+  var legendContainer = document.getElementById('crisis-asset-legend');
+  if (legendContainer) {
+    legendContainer.innerHTML = '';
+    assetNames.forEach(function(name) {
+      var asset = d.assets[name];
+      var div = document.createElement('div');
+      div.className = 'bg-[#0a0a0a] rounded-lg p-3 border border-[var(--card-border)] text-center';
+      div.innerHTML =
+        '<div class="text-[10px] text-[var(--text2)] mono mb-1">' + name + '</div>' +
+        '<div class="text-lg font-bold mono" style="color:' + asset.color + '">' +
+          (asset.ytd_pct >= 0 ? '+' : '') + fmt(asset.ytd_pct, 1) + '%</div>';
+      legendContainer.appendChild(div);
+    });
+  }
+}
+
+// --- HISTORICAL ---
+function renderHistorical() {
+  var d = DATA.historical;
+  if (!d) return;
+
+  if (d.timeline_chart && d.timeline_chart.length) {
+    var parsed = parseChartData(d.timeline_chart);
+    var events = d.events || [];
+
+    destroyChart('historical-timeline');
+    var ctx = document.getElementById('chart-historical-timeline').getContext('2d');
+
+    charts['historical-timeline'] = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: parsed.labels,
+        datasets: [{
+          data: parsed.values,
+          borderColor: '#ffd700',
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: true,
+          backgroundColor: function(context) {
+            var chart = context.chart;
+            return goldGradient(chart.ctx, chart.chartArea);
+          },
+          tension: 0.3,
+        }]
+      },
+      options: {
+        interaction: { intersect: false, mode: 'index' },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              maxTicksLimit: 10,
+              callback: function(val) {
+                try { return new Date(this.getLabelForValue(val)).getFullYear(); } catch(e) { return ''; }
+              }
+            }
+          },
+          y: {
+            position: 'right',
+            grid: { color: 'rgba(255,255,255,0.03)' },
+            ticks: { callback: function(v) { return '$' + fmtCompact(v); } }
+          }
+        },
+        plugins: {
+          tooltip: { callbacks: { label: function(ctx) { return '$' + fmt(ctx.parsed.y); } } }
+        }
+      },
+      plugins: [{
+        id: 'eventAnnotations',
+        afterDraw: function(chart) {
+          var xScale = chart.scales.x;
+          var yScale = chart.scales.y;
+          var c = chart.ctx;
+          var labels = parsed.labels;
+
+          events.forEach(function(evt, i) {
+            var evtYear = evt.year;
+            var closestIdx = -1;
+            var closestDiff = Infinity;
+            labels.forEach(function(label, idx) {
+              try {
+                var diff = Math.abs(new Date(label).getFullYear() - evtYear);
+                if (diff < closestDiff) { closestDiff = diff; closestIdx = idx; }
+              } catch(e) {}
+            });
+
+            if (closestIdx >= 0 && closestDiff <= 2) {
+              var x = xScale.getPixelForValue(closestIdx);
+              if (x >= xScale.left && x <= xScale.right) {
+                c.save();
+                c.strokeStyle = 'rgba(255,215,0,0.3)';
+                c.lineWidth = 1;
+                c.setLineDash([3, 3]);
+                c.beginPath();
+                c.moveTo(x, yScale.top);
+                c.lineTo(x, yScale.bottom);
+                c.stroke();
+                c.fillStyle = 'rgba(255,215,0,0.7)';
+                c.font = '9px JetBrains Mono, monospace';
+                c.textAlign = 'center';
+                c.fillText(evt.event, x, yScale.top + 10 + (i % 3) * 12);
+                c.restore();
+              }
+            }
+          });
+        }
+      }]
+    });
+  }
+
+  // Decade returns
+  if (d.decade_returns && d.decade_returns.length) {
+    destroyChart('decade-returns');
+    var ctx2 = document.getElementById('chart-decade-returns').getContext('2d');
+    charts['decade-returns'] = new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: d.decade_returns.map(function(dr) { return dr.decade; }),
+        datasets: [{
+          data: d.decade_returns.map(function(dr) { return dr.avg_annual_return; }),
+          backgroundColor: d.decade_returns.map(function(dr) { return dr.avg_annual_return >= 0 ? 'rgba(0,255,136,0.6)' : 'rgba(255,68,68,0.6)'; }),
+          borderColor: d.decade_returns.map(function(dr) { return dr.avg_annual_return >= 0 ? '#00ff88' : '#ff4444'; }),
+          borderWidth: 1,
+          borderRadius: 4,
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.03)' },
+            ticks: { callback: function(v) { return v + '%'; } }
+          },
+          y: {
+            grid: { display: false },
+            ticks: { font: { size: 10 } }
+          }
+        },
+        plugins: {
+          tooltip: { callbacks: { label: function(ctx) { return fmt(ctx.parsed.x, 1) + '% avg annual'; } } }
+        }
+      }
+    });
+  }
+
+  // Event cards
+  var evtContainer = document.getElementById('event-cards');
+  evtContainer.innerHTML = '';
+  (d.events || []).forEach(function(evt) {
+    var card = document.createElement('div');
+    card.className = 'bg-[#0a0a0a] rounded-lg px-3 py-2 border border-[var(--card-border)] flex items-center gap-3';
+    card.innerHTML =
+      '<div class="text-lg font-bold mono text-[var(--gold)]">' + evt.year + '</div>' +
+      '<div class="flex-1">' +
+        '<div class="text-xs text-[var(--text)]">' + evt.event + '</div>' +
+        '<div class="text-[10px] text-[var(--text2)] mono">$' + fmtInt(evt.price) + '</div>' +
+      '</div>';
+    evtContainer.appendChild(card);
+  });
+}
+
+// =====================================================================
+// AUTO-REFRESH (reload all JSON every 5 minutes)
+// =====================================================================
+
+setInterval(function() {
+  loadAllData();
+}, 300000);
+
+// =====================================================================
+// INIT
+// =====================================================================
+
+loadAllData();
+</script>
+</body>
+</html>
