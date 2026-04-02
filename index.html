@@ -1233,7 +1233,7 @@
   <!-- SECTION 0: COMPOSITE BULL/BEAR SIGNAL -->
   <!-- ============================================================ -->
   <section class="full-width card fade-in" id="sec-composite" style="animation-delay:0.05s">
-    <div class="section-title">Market Signal <span class="info-tooltip" data-tip="Composite bull/bear score computed from 5 factors: RSI momentum, real yield (10Y TIPS), DXY trend, ETF flows, and COT positioning. Score ranges from -10 (Strongly Bearish) to +10 (Strongly Bullish).">ℹ</span><span class="freshness-badge freshness-live">● Hourly</span></div>
+    <div class="section-title">Market Signal <span class="info-tooltip" data-tip="Composite bull/bear score computed from 6 factors: RSI momentum, real yield (10Y TIPS), DXY trend, ETF flows, COT positioning, and active market catalysts (tariffs, CB buying, etc.). Score ranges from -10 (Strongly Bearish) to +10 (Strongly Bullish).">ℹ</span><span class="freshness-badge freshness-live">● Hourly</span></div>
     <div class="signal-gauge-wrap">
       <!-- Arc gauge -->
       <div class="signal-gauge-arc">
@@ -1263,7 +1263,7 @@
         <div class="signal-label" id="composite-label" style="color: #555; font-size: 1rem; letter-spacing: 0.1em;">Awaiting data…</div>
         <div class="text-xs mono mt-1" id="composite-score-text" style="color:#444;">Score: loading</div>
         <div id="composite-how" class="text-[10px] mono mt-2" style="color:#555;line-height:1.5;">
-          Score = RSI momentum + Real yields + USD strength + ETF flows + COT positioning
+          Score = RSI momentum + Real yields + USD strength + ETF flows + COT positioning + Market catalysts
           <br>Range: −10 (Max Bearish) to +10 (Max Bullish)
         </div>
         <div id="composite-updated" class="text-[9px] mono mt-1" style="color:#444;"></div>
@@ -2494,7 +2494,46 @@ function renderCompositeSignal() {
     factors.push({ label: 'COT Positioning', val: cotLabel, score: cotScore, color: cotColor });
   }
 
-  // Normalize score to -10..+10 range (5 factors, each max ±2 = ±10)
+  // Factor 6: Market Catalyst Events from market_intel.json
+  var catalystScore = 0, catalystLabel = '', catalystColor = '#888';
+  var marketIntel = DATA.marketIntel;
+  if (marketIntel && marketIntel.alerts && marketIntel.alerts.length) {
+    var bullishTypes = { tariff_catalyst: 1.5, cb_buying: 1, etf_inflow: 0.5, backwardation: 1, lease_spike: 0.5 };
+    var bearishTypes = { cb_selling: -1, etf_outflow: -0.5, ma50_break: -0.5, ytd_correction: -0.5 };
+    var catSum = 0;
+    var criticalAlerts = [];
+    marketIntel.alerts.forEach(function(a) {
+      var w = bullishTypes[a.type] || bearishTypes[a.type] || 0;
+      // Critical alerts get 1.5x weight
+      if (a.significance === 'critical') w *= 1.5;
+      catSum += w;
+      if (a.significance === 'critical' || a.significance === 'high') criticalAlerts.push(a);
+    });
+    catSum = Math.max(-2, Math.min(2, catSum));
+    catalystScore = catSum;
+    if (catSum >= 1.5) {
+      catalystLabel = criticalAlerts.length ? criticalAlerts[0].headline.slice(0, 40) + '…' : 'Strong Bullish Catalysts';
+      catalystColor = '#00ff88';
+    } else if (catSum >= 0.5) {
+      catalystLabel = 'Bullish Catalysts Active';
+      catalystColor = '#88dd44';
+    } else if (catSum > -0.5) {
+      catalystLabel = 'Neutral';
+      catalystColor = '#888';
+    } else if (catSum > -1.5) {
+      catalystLabel = 'Bearish Catalysts Active';
+      catalystColor = '#ff8844';
+    } else {
+      catalystLabel = 'Strong Bearish Catalysts';
+      catalystColor = '#ff3333';
+    }
+    if (catalystLabel) {
+      totalScore += catalystScore;
+      factors.push({ label: 'Market Catalysts', val: catalystLabel, score: catalystScore, color: catalystColor });
+    }
+  }
+
+  // Normalize score to -12..+12 range (6 factors, each max ±2 = ±12, clamp to ±10)
   var clampedScore = Math.max(-10, Math.min(10, totalScore));
 
   // Determine label and color
@@ -2542,6 +2581,13 @@ function renderCompositeSignal() {
     if (negReal) lines.push('Negative real yields: strongest bull catalyst active.');
     if (dxyWeak && macro.dxy != null) lines.push('Dollar weak — foreign buyer demand enhanced.');
     if (cotCrowded) lines.push('COT: speculative longs crowded — correction risk.');
+    // Check for critical tariff/geopolitical catalysts
+    if (marketIntel && marketIntel.alerts) {
+      var hasCriticalTariff = marketIntel.alerts.some(function(a) { return a.significance === 'critical' && a.type === 'tariff_catalyst'; });
+      var hasCBBuying = marketIntel.alerts.some(function(a) { return a.type === 'cb_buying'; });
+      if (hasCriticalTariff) lines.push('⚡ Critical catalyst: Tariff/trade war escalation — historically strong gold tailwind.');
+      if (hasCBBuying) lines.push('Central bank buying activity detected — structural demand signal.');
+    }
 
     interpEl.innerHTML = lines.map(function(l) { return '<span style="display:block;margin-bottom:2px;">' + l + '</span>'; }).join('');
     interpEl.style.color = clampedScore >= 2 ? '#88dd44' : clampedScore <= -2 ? '#ff8844' : '#888';
