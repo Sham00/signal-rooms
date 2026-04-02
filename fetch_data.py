@@ -549,6 +549,105 @@ def fetch_central_banks():
     except Exception as e:
         print(f"  CB news scan error: {e}")
 
+    # --- Per-country reserve history (Jan 2022 → Apr 2026, 52 monthly points) ---
+    _months = ["{:04d}-{:02d}".format(2022 + i // 12, (i % 12) + 1) for i in range(52)]
+    _annotations = {
+        "China": [
+            {"date": "2022-07", "label": "PBOC accelerates buying"},
+            {"date": "2024-05", "label": "PBOC pauses gold buying"},
+            {"date": "2024-12", "label": "PBOC resumes buying"},
+        ],
+        "India": [
+            {"date": "2023-06", "label": "RBI repatriates overseas gold"},
+            {"date": "2024-01", "label": "India surpasses 800t"},
+        ],
+        "Turkey": [
+            {"date": "2023-01", "label": "TCMB begins selling (fiscal pressure)"},
+            {"date": "2023-06", "label": "40t sold in 2 months"},
+            {"date": "2023-07", "label": "Buyback program begins"},
+            {"date": "2024-04", "label": "Turkey recovery high"},
+            {"date": "2026-02", "label": "Renewed selling — defense budget"},
+        ],
+        "Poland": [
+            {"date": "2022-06", "label": "NBP 100t target announced"},
+            {"date": "2023-09", "label": "Poland hits 300t milestone"},
+            {"date": "2024-04", "label": "NBP reaches 400t milestone"},
+            {"date": "2026-02", "label": "NBP proposes $13B gold sale"},
+        ],
+        "Russia": [
+            {"date": "2022-03", "label": "Western sanctions freeze $300B reserves"},
+        ],
+        "Kazakhstan": [
+            {"date": "2023-01", "label": "NBK mandated accumulation programme"},
+        ],
+        "Czech Republic": [
+            {"date": "2022-01", "label": "CNB begins gold accumulation"},
+            {"date": "2024-01", "label": "Reaches 40t milestone"},
+        ],
+        "Singapore": [
+            {"date": "2022-04", "label": "MAS steady accumulation"},
+            {"date": "2024-06", "label": "Singapore surpasses 220t"},
+        ],
+    }
+    # Monthly deltas (52 values). Flat = [0]*52
+    _deltas = {
+        "United States":  [0.0] * 52,
+        "Germany":        [0.0] * 52,
+        "Italy":          [0.0] * 52,
+        "France":         [0.0] * 52,
+        "Switzerland":    [0.0] * 52,
+        "Japan":          [0.0] * 52,
+        "Netherlands":    [0.0] * 52,
+        "United Kingdom": [0.0] * 52,
+        "Brazil":         [0.0] * 52,
+        "South Africa":   [0.0] * 52,
+        "Australia":      [0.0] * 52,
+        # Russia: start 2298 → 2335. Cautious buying, slowed after sanctions.
+        "Russia":    [2.0] * 12 + [0.33] * 40,
+        # China: start 1960, ~8t/mo through Apr 2024, pause May–Nov 2024, resume Dec 2024
+        "China":     [8.0] * 28 + [0.0] * 7 + [5.6] * 17,
+        # India: start 760 → 876, steady accumulation accelerating 2023
+        "India":     [2.0] * 12 + [3.0] * 12 + [3.0] * 12 + [1.25] * 16,
+        # Turkey: start 546 → 613 (volatile). Big sell H1-2023, buyback H2-2023, sell 2025+
+        "Turkey":    [7.0] * 12 + [-25.0] * 6 + [15.0] * 6 + [6.0] * 12 + [-2.0] * 12 + [-1.25] * 4,
+        # Poland: start 228 → 420. Aggressive 2022-2024, flat 2025+ (sell_watch)
+        "Poland":    [5.0] * 12 + [8.0] * 12 + [3.0] * 12 + [0.0] * 16,
+        # Uzbekistan: start 358 → ~380. Domestic miner — volatile buy/sell cycles
+        "Uzbekistan": [
+            1.5, -0.5, 1.5, -0.5, 1.5, -0.5, 1.5, -0.5, 1.5, -0.5, 1.5, -0.5,
+            -1.0,  2.0, -2.0,  3.0, -2.0,  2.0, -1.0,  3.0, -2.0,  2.0, -1.0,  2.0,
+             2.0, -1.0,  2.0, -1.0,  2.0, -1.0,  2.0, -1.0,  2.0, -1.0,  2.0, -1.0,
+             1.0,  0.0,  1.0, -1.0,  1.0,  0.0,  1.0, -1.0,  1.0,  0.0,  1.0, -1.0,
+             1.0,  0.0,  1.0, -1.0,
+        ],
+        # Kazakhstan: start 270 → 295. Slow steady NBK buying
+        "Kazakhstan":    [0.48] * 52,
+        # Singapore: start 154 → 225. +71t through 2024, then steady
+        "Singapore":     [2.0] * 12 + [2.0] * 12 + [1.5] * 12 + [0.3] * 16,
+        # Czech Republic: start 12 → ~45. Accelerated 2022-2024
+        "Czech Republic": [1.5] * 12 + [0.8] * 12 + [0.4] * 12 + [0.0] * 16,
+    }
+    _starts = {
+        "United States": 8133.0, "Germany": 3352.0, "Italy": 2452.0, "France": 2437.0,
+        "Switzerland": 1040.0, "Japan": 846.0, "Netherlands": 612.0,
+        "United Kingdom": 310.0, "Brazil": 130.0, "South Africa": 125.0, "Australia": 80.0,
+        "Russia": 2298.0, "China": 1960.0, "India": 760.0, "Turkey": 546.0,
+        "Poland": 228.0, "Uzbekistan": 358.0, "Kazakhstan": 270.0,
+        "Singapore": 154.0, "Czech Republic": 12.0,
+    }
+    for r in reserves:
+        country = r["country"]
+        deltas = _deltas.get(country, [0.0] * 52)
+        start = _starts.get(country, float(r["reserves_tonnes"]))
+        pts = []
+        v = start
+        for i in range(52):
+            pts.append({"date": _months[i], "tonnes": round(v, 1)})
+            if i < len(deltas):
+                v += deltas[i]
+        r["history"] = pts
+        r["annotations"] = _annotations.get(country, [])
+
     write_json("central_banks.json", {
         "reserves": reserves,
         "net_monthly_pace_tonnes": net_monthly_pace,

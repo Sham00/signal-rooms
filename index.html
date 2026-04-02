@@ -156,6 +156,41 @@
     font-family: 'JetBrains Mono', monospace;
   }
   .heat-table tr:hover td { background: rgba(255,215,0,0.03); }
+  .heat-table tr.cb-row-clickable { cursor: pointer; }
+  .heat-table tr.cb-row-clickable:hover td { background: rgba(255,215,0,0.06); }
+  .heat-table tr.cb-row-active td { background: rgba(255,215,0,0.05); border-bottom-color: transparent; }
+
+  /* CB expand panel */
+  .cb-expand-row td { padding: 0 !important; background: rgba(255,215,0,0.02) !important; border-bottom: 2px solid rgba(255,215,0,0.15) !important; }
+  .cb-expand-panel {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.35s ease, opacity 0.25s ease;
+    opacity: 0;
+    padding: 0 16px;
+  }
+  .cb-expand-panel.open {
+    max-height: 520px;
+    opacity: 1;
+    padding: 16px;
+  }
+  .cb-expand-inner { display: grid; grid-template-columns: 1fr 260px; gap: 16px; }
+  @media (max-width: 767px) { .cb-expand-inner { grid-template-columns: 1fr; } }
+  .cb-history-chart-wrap { position: relative; height: 200px; }
+  .cb-trend-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 12px;
+    font-size: 10px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .cb-trend-accel  { background: rgba(0,255,136,0.15); color: #00ff88; }
+  .cb-trend-decel  { background: rgba(255,68,68,0.15); color: #ff4444; }
+  .cb-trend-steady { background: rgba(255,215,0,0.15); color: #ffd700; }
+  .cb-trend-flat   { background: rgba(136,136,136,0.15); color: #888; }
+  .cb-news-mini { margin-top: 10px; }
+  .cb-news-mini-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text2); font-family: 'JetBrains Mono', monospace; margin-bottom: 6px; }
+  .cb-news-mini-item { display: flex; align-items: flex-start; gap: 6px; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.03); text-decoration: none; }
+  .cb-news-mini-item:last-child { border-bottom: none; }
 
   /* Loading spinner */
   .spinner {
@@ -3099,13 +3134,23 @@ function renderCentralBanks() {
   }
 
   var tbody = document.getElementById('cb-table-body');
+  // Clean up any open history chart before wiping the DOM
+  if (window._cbExpandedCountry) {
+    destroyChart('cb-history-' + window._cbExpandedCountry);
+    window._cbExpandedCountry = null;
+  }
   tbody.innerHTML = '';
+  // Track which country row is expanded
+  if (typeof window._cbExpandedCountry === 'undefined') window._cbExpandedCountry = null;
 
   var maxReserves = 0;
   d.reserves.forEach(function(r) { if (r.reserves_tonnes > maxReserves) maxReserves = r.reserves_tonnes; });
 
   d.reserves.forEach(function(r) {
     var tr = document.createElement('tr');
+    var slug = r.country.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+    tr.className = 'cb-row-clickable';
+    tr.dataset.cbSlug = slug;
 
     var changeColor = '#555';
     var changeBg = 'transparent';
@@ -3123,7 +3168,7 @@ function renderCentralBanks() {
     var barWidth = (r.reserves_tonnes / maxReserves * 60).toFixed(0);
 
     tr.innerHTML =
-      '<td style="font-weight:600;">' + r.country + '</td>' +
+      '<td style="font-weight:600;">' + r.country + ' <span style="font-size:9px;color:#555;margin-left:4px;">▼</span></td>' +
       '<td style="background:rgba(255,215,0,' + reserveIntensity.toFixed(3) + ');">' +
         fmtInt(r.reserves_tonnes) +
         '<div class="mini-bar" style="width:' + barWidth + 'px;background:#ffd700;margin-left:6px;"></div>' +
@@ -3136,7 +3181,16 @@ function renderCentralBanks() {
       '</td>' +
       '<td>' + fmt(r.pct_of_reserves, 1) + '%</td>' +
       '<td>' + statusHtml + '</td>';
+
+    // Expand row (hidden by default)
+    var expandTr = document.createElement('tr');
+    expandTr.className = 'cb-expand-row';
+    expandTr.id = 'cb-expand-tr-' + slug;
+    expandTr.innerHTML = '<td colspan="6"><div class="cb-expand-panel" id="cb-expand-panel-' + slug + '"></div></td>';
+
+    tr.addEventListener('click', function() { cbToggleExpand(slug, r); });
     tbody.appendChild(tr);
+    tbody.appendChild(expandTr);
   });
 
   // Bar chart
@@ -3191,6 +3245,236 @@ function renderCentralBanks() {
       '</a>';
     }).join('');
   }
+}
+
+// ---------------------------------------------------------------------------
+// CB Reserve History — expand/collapse + mini chart
+// ---------------------------------------------------------------------------
+
+function cbToggleExpand(slug, reserve) {
+  var panel = document.getElementById('cb-expand-panel-' + slug);
+  if (!panel) return;
+  var isOpen = panel.classList.contains('open');
+
+  // Close any currently open panel
+  if (window._cbExpandedCountry && window._cbExpandedCountry !== slug) {
+    var prev = window._cbExpandedCountry;
+    var prevPanel = document.getElementById('cb-expand-panel-' + prev);
+    var prevTr = document.querySelector('[data-cb-slug="' + prev + '"]');
+    if (prevPanel) prevPanel.classList.remove('open');
+    if (prevTr) prevTr.classList.remove('cb-row-active');
+    destroyChart('cb-history-' + prev);
+    window._cbExpandedCountry = null;
+  }
+
+  var tr = document.querySelector('[data-cb-slug="' + slug + '"]');
+  if (isOpen) {
+    panel.classList.remove('open');
+    if (tr) tr.classList.remove('cb-row-active');
+    destroyChart('cb-history-' + slug);
+    window._cbExpandedCountry = null;
+  } else {
+    cbRenderExpand(panel, slug, reserve);
+    panel.classList.add('open');
+    if (tr) tr.classList.add('cb-row-active');
+    window._cbExpandedCountry = slug;
+  }
+}
+
+function cbCalcTrend(history) {
+  if (!history || history.length < 6) return { label: 'INSUFFICIENT DATA', cls: 'cb-trend-flat', icon: '—' };
+  var n = history.length;
+  var last3 = history.slice(n - 3);
+  var prev3 = history.slice(n - 6, n - 3);
+  var last3delta = last3[2].tonnes - last3[0].tonnes;
+  var prev3delta = prev3[2].tonnes - prev3[0].tonnes;
+  var abs = Math.abs;
+  if (abs(last3delta) < 0.5 && abs(prev3delta) < 0.5) return { label: 'FLAT', cls: 'cb-trend-flat', icon: '—', last3delta: last3delta, prev3delta: prev3delta };
+  if (abs(last3delta) < 1.0) return { label: 'STEADY', cls: 'cb-trend-steady', icon: '→', last3delta: last3delta, prev3delta: prev3delta };
+  if (last3delta > 0 && last3delta > prev3delta + 0.5) return { label: 'ACCELERATING ▲', cls: 'cb-trend-accel', icon: '▲', last3delta: last3delta, prev3delta: prev3delta };
+  if (last3delta > 0 && last3delta < prev3delta - 0.5) return { label: 'DECELERATING', cls: 'cb-trend-decel', icon: '↘', last3delta: last3delta, prev3delta: prev3delta };
+  if (last3delta > 0) return { label: 'BUYING', cls: 'cb-trend-accel', icon: '▲', last3delta: last3delta, prev3delta: prev3delta };
+  if (last3delta < 0 && last3delta < prev3delta - 0.5) return { label: 'SELLING ▼', cls: 'cb-trend-decel', icon: '▼', last3delta: last3delta, prev3delta: prev3delta };
+  return { label: 'STEADY', cls: 'cb-trend-steady', icon: '→', last3delta: last3delta, prev3delta: prev3delta };
+}
+
+function cbFilterNews(countryName) {
+  var d = DATA.news;
+  if (!d || !d.articles) return [];
+  var words = countryName.toLowerCase().split(/[\s,]+/).filter(function(w) { return w.length > 3; });
+  // Also add common aliases
+  var aliases = { 'united states': ['usa', 'u.s.', 'federal reserve', 'fed '], 'united kingdom': ['uk ', 'britain', 'boe '], 'czech republic': ['czech', 'cnb '] };
+  var searchTerms = words.concat(aliases[countryName.toLowerCase()] || []);
+  return d.articles.filter(function(a) {
+    var t = (a.title || '').toLowerCase();
+    return searchTerms.some(function(term) { return t.includes(term); });
+  }).slice(0, 3);
+}
+
+function cbRenderExpand(panel, slug, reserve) {
+  var history = reserve.history || [];
+  var annotations = reserve.annotations || [];
+  var trend = cbCalcTrend(history);
+  var news = cbFilterNews(reserve.country);
+
+  // Build inner HTML
+  var trendHtml = '<span class="cb-trend-badge ' + trend.cls + '">' + trend.label + '</span>';
+  var trendDetail = '';
+  if (trend.last3delta !== undefined) {
+    trendDetail = '<span style="font-size:10px;color:#555;margin-left:8px;font-family:monospace;">' +
+      'Last 3mo: ' + (trend.last3delta > 0 ? '+' : '') + round1(trend.last3delta) + 't' +
+      ' · Prior 3mo: ' + (trend.prev3delta > 0 ? '+' : '') + round1(trend.prev3delta) + 't' +
+    '</span>';
+  }
+
+  var newsHtml = '';
+  if (news.length) {
+    newsHtml = '<div class="cb-news-mini">' +
+      '<div class="cb-news-mini-label">News Scanner — ' + escHtml(reserve.country) + '</div>' +
+      news.map(function(a) {
+        var dotColor = a.sentiment === 'positive' ? '#00ff88' : a.sentiment === 'negative' ? '#ff4444' : '#ffd700';
+        var pub = '';
+        try { pub = a.published ? new Date(a.published).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''; } catch(e) {}
+        return '<a href="' + (a.link || '#') + '" target="_blank" rel="noopener" class="cb-news-mini-item">' +
+          '<span style="color:' + dotColor + ';font-size:10px;margin-top:2px;flex-shrink:0;">●</span>' +
+          '<div style="min-width:0;">' +
+            '<div style="font-size:11px;font-family:\'JetBrains Mono\',monospace;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(a.title) + '</div>' +
+            '<div style="font-size:9px;color:#555;font-family:monospace;">' + escHtml(a.source) + (pub ? ' · ' + pub : '') + '</div>' +
+          '</div>' +
+        '</a>';
+      }).join('') +
+    '</div>';
+  } else {
+    newsHtml = '<div class="cb-news-mini">' +
+      '<div class="cb-news-mini-label">News Scanner — ' + escHtml(reserve.country) + '</div>' +
+      '<div style="font-size:10px;color:#555;font-family:monospace;padding:4px 0;">No recent headlines matched.</div>' +
+    '</div>';
+  }
+
+  panel.innerHTML =
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">' +
+      '<span style="font-size:12px;font-weight:700;font-family:\'JetBrains Mono\',monospace;color:#ffd700;">' + escHtml(reserve.country) + '</span>' +
+      trendHtml + trendDetail +
+    '</div>' +
+    '<div class="cb-expand-inner">' +
+      '<div>' +
+        '<div style="font-size:9px;color:#555;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Gold Reserves (tonnes) — Jan 2022 → Apr 2026</div>' +
+        '<div class="cb-history-chart-wrap"><canvas id="chart-cb-history-' + slug + '"></canvas></div>' +
+        newsHtml +
+      '</div>' +
+      '<div>' +
+        '<div style="font-size:9px;color:#555;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Key Events</div>' +
+        (annotations.length ? annotations.map(function(a) {
+          return '<div style="display:flex;gap:6px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.03);">' +
+            '<span style="font-size:9px;color:#ffd700;font-family:monospace;white-space:nowrap;flex-shrink:0;">' + a.date + '</span>' +
+            '<span style="font-size:10px;color:#aaa;font-family:monospace;">' + escHtml(a.label) + '</span>' +
+          '</div>';
+        }).join('') : '<div style="font-size:10px;color:#555;font-family:monospace;">No key events recorded.</div>') +
+      '</div>' +
+    '</div>';
+
+  // Render Chart.js after a tick (so the panel has rendered)
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      cbDrawHistoryChart(slug, history, annotations);
+    });
+  });
+}
+
+function cbDrawHistoryChart(slug, history, annotations) {
+  var canvasId = 'chart-cb-history-' + slug;
+  var canvas = document.getElementById(canvasId);
+  if (!canvas || !history || history.length < 2) return;
+  destroyChart('cb-history-' + slug);
+
+  var labels = history.map(function(p) { return p.date; });
+  var values = history.map(function(p) { return p.tonnes; });
+
+  // Build annotation plugin dataset markers
+  var annotationPluginConfig = {};
+  if (annotations && annotations.length && typeof window.ChartjsPluginAnnotation !== 'undefined') {
+    var lines = {};
+    annotations.forEach(function(a, i) {
+      var idx = labels.indexOf(a.date);
+      if (idx < 0) return;
+      lines['line' + i] = {
+        type: 'line',
+        xMin: idx, xMax: idx,
+        borderColor: 'rgba(255,215,0,0.4)',
+        borderWidth: 1,
+        borderDash: [4, 3],
+        label: { display: true, content: a.label, font: { size: 8 }, color: '#ffd700', position: 'start', yAdjust: -6 }
+      };
+    });
+    annotationPluginConfig = { annotation: { annotations: lines } };
+  }
+
+  charts['cb-history-' + slug] = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: values,
+        borderColor: '#ffd700',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        pointHoverRadius: 3,
+        tension: 0.3,
+        fill: true,
+        backgroundColor: function(ctx) {
+          var chartArea = ctx.chart.chartArea;
+          if (!chartArea) return 'rgba(255,215,0,0.05)';
+          var gradient = ctx.chart.ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+          gradient.addColorStop(0, 'rgba(255,215,0,0.15)');
+          gradient.addColorStop(1, 'rgba(255,215,0,0)');
+          return gradient;
+        },
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 400 },
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            maxTicksLimit: 8,
+            font: { size: 9, family: 'JetBrains Mono, monospace' },
+            color: '#555',
+            maxRotation: 0,
+          }
+        },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.03)' },
+          ticks: {
+            font: { size: 9, family: 'JetBrains Mono, monospace' },
+            color: '#555',
+            callback: function(v) { return fmtInt(v) + 't'; }
+          }
+        }
+      },
+      plugins: Object.assign({
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#111',
+          borderColor: '#333',
+          borderWidth: 1,
+          titleFont: { family: 'JetBrains Mono, monospace', size: 10 },
+          bodyFont: { family: 'JetBrains Mono, monospace', size: 11 },
+          callbacks: {
+            label: function(ctx) { return fmtInt(ctx.parsed.y) + ' tonnes'; }
+          }
+        }
+      }, annotationPluginConfig)
+    }
+  });
+}
+
+function round1(v) { return Math.round(v * 10) / 10; }
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // --- ETFs ---
