@@ -215,6 +215,8 @@
   .freshness-weekly { background: rgba(255,215,0,0.12); color: #ffd700; border: 1px solid rgba(255,215,0,0.25); }
   .freshness-quarterly { background: rgba(136,136,136,0.12); color: #888; border: 1px solid rgba(136,136,136,0.25); }
   .freshness-estimate { background: rgba(136,136,136,0.12); color: #777; border: 1px solid rgba(136,136,136,0.25); }
+  .freshness-stale { background: rgba(255,68,68,0.12); color: #ff6644; border: 1px solid rgba(255,68,68,0.3); animation: stalePulse 2s ease-in-out infinite; }
+  @keyframes stalePulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
 
   /* Progress bar */
   .progress-track {
@@ -620,6 +622,14 @@
             <div id="rsi-bar" class="progress-fill" style="width:0%; background: var(--gold);"></div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- RSI History Chart -->
+    <div class="mt-6">
+      <div class="text-xs text-[var(--text2)] uppercase tracking-widest mb-2 mono">RSI (14) — 1 Year History <span class="info-tooltip" data-tip="RSI oscillator over the past year. Zones: above 70 = overbought (red), below 30 = oversold (green). Current RSI below 30 historically signals strong buying opportunities in gold bull markets.">ℹ</span></div>
+      <div class="chart-wrap" style="height: 140px;">
+        <canvas id="chart-rsi-history"></canvas>
       </div>
     </div>
   </section>
@@ -1401,6 +1411,7 @@ function renderAll() {
   renderCrisisAssets();
   renderHistorical();
   renderCompositeSignal();
+  updateFreshnessBadges();
 }
 
 // --- COMPOSITE BULL/BEAR SIGNAL ---
@@ -1590,6 +1601,31 @@ function renderHeader() {
   }
 }
 
+// --- DYNAMIC FRESHNESS BADGES ---
+// After all data loads, update freshness badges based on actual last_updated timestamps.
+// Sections with hourly data are marked stale if > 3h old.
+function updateFreshnessBadges() {
+  // Collect all last_updated timestamps from loaded data
+  var timestamps = [DATA.price, DATA.ratios, DATA.macro, DATA.etfs, DATA.news, DATA.cot, DATA.crisisAssets, DATA.miners].map(function(d) {
+    return (d && d.last_updated) ? new Date(d.last_updated) : null;
+  }).filter(Boolean);
+  if (!timestamps.length) return;
+
+  // Use the most recent timestamp as a proxy for "data freshness"
+  var latestMs = Math.max.apply(null, timestamps.map(function(t) { return t.getTime(); }));
+  var ageMinutes = (Date.now() - latestMs) / 60000;
+
+  // Mark "live" (hourly) badges as stale if data > 3 hours old
+  if (ageMinutes > 180) {
+    var staleH = Math.floor(ageMinutes / 60);
+    document.querySelectorAll('.freshness-live').forEach(function(el) {
+      el.classList.remove('freshness-live');
+      el.classList.add('freshness-stale');
+      el.textContent = '⚠ ' + staleH + 'h old';
+    });
+  }
+}
+
 // --- PRICE SECTION ---
 function renderPriceSection() {
   var d = DATA.price;
@@ -1609,6 +1645,7 @@ function renderPriceSection() {
   });
 
   renderCurrencyGrid();
+  renderRSIChart();
 
   var pctToATH = 100 - (d.pct_below_ath || 0);
   document.getElementById('ath-progress').style.width = pctToATH + '%';
@@ -1808,6 +1845,122 @@ function renderPriceChart(timeframe) {
         }
       }
     }
+  });
+}
+
+function renderRSIChart() {
+  var d = DATA.price;
+  if (!d || !d.rsi_series || !d.rsi_series.length) return;
+
+  var parsed = parseChartData(d.rsi_series);
+  if (!parsed.values.length) return;
+
+  destroyChart('rsi-history');
+  var ctx = document.getElementById('chart-rsi-history');
+  if (!ctx) return;
+
+  // Color each bar: green if < 30, red if > 70, gold otherwise
+  var colors = parsed.values.map(function(v) {
+    if (v == null) return 'rgba(255,215,0,0.3)';
+    if (v < 30) return 'rgba(0,255,136,0.7)';
+    if (v > 70) return 'rgba(255,68,68,0.7)';
+    return 'rgba(255,215,0,0.35)';
+  });
+
+  charts['rsi-history'] = new Chart(ctx.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: parsed.labels,
+      datasets: [{
+        label: 'RSI(14)',
+        data: parsed.values,
+        borderColor: function(context) {
+          var v = context.raw;
+          if (v == null) return '#ffd700';
+          if (v < 30) return '#00ff88';
+          if (v > 70) return '#ff4444';
+          return '#ffd700';
+        },
+        borderWidth: 1.5,
+        pointRadius: 0,
+        fill: false,
+        tension: 0.3,
+        segment: {
+          borderColor: function(ctx) {
+            var v = ctx.p1.parsed.y;
+            if (v < 30) return '#00ff88';
+            if (v > 70) return '#ff4444';
+            return '#ffd700';
+          }
+        }
+      }]
+    },
+    options: {
+      interaction: { intersect: false, mode: 'index' },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            maxTicksLimit: 8,
+            callback: function(val) {
+              var label = this.getLabelForValue(val);
+              if (!label) return '';
+              try { return new Date(label).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); } catch(e) { return ''; }
+            }
+          }
+        },
+        y: {
+          min: 0,
+          max: 100,
+          position: 'right',
+          grid: { color: 'rgba(255,255,255,0.03)' },
+          ticks: { callback: function(v) { return v; }, stepSize: 20 }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              var v = ctx.parsed.y;
+              var zone = v > 70 ? ' ⚠ Overbought' : v < 30 ? ' 🟢 Oversold' : '';
+              return 'RSI: ' + (v != null ? v.toFixed(1) : '--') + zone;
+            }
+          }
+        }
+      }
+    },
+    plugins: [{
+      id: 'rsiZones',
+      afterDraw: function(chart) {
+        var yScale = chart.scales.y;
+        var xScale = chart.scales.x;
+        var c = chart.ctx;
+        c.save();
+        // Overbought line at 70
+        var y70 = yScale.getPixelForValue(70);
+        c.strokeStyle = 'rgba(255,68,68,0.5)';
+        c.lineWidth = 1;
+        c.setLineDash([4, 3]);
+        c.beginPath(); c.moveTo(xScale.left, y70); c.lineTo(xScale.right, y70); c.stroke();
+        c.fillStyle = 'rgba(255,68,68,0.5)';
+        c.font = '9px monospace';
+        c.fillText('70 OB', xScale.left + 4, y70 - 3);
+        // Oversold line at 30
+        var y30 = yScale.getPixelForValue(30);
+        c.strokeStyle = 'rgba(0,255,136,0.5)';
+        c.beginPath(); c.moveTo(xScale.left, y30); c.lineTo(xScale.right, y30); c.stroke();
+        c.fillStyle = 'rgba(0,255,136,0.5)';
+        c.fillText('30 OS', xScale.left + 4, y30 - 3);
+        // Mid line at 50
+        var y50 = yScale.getPixelForValue(50);
+        c.strokeStyle = 'rgba(255,255,255,0.1)';
+        c.setLineDash([2, 4]);
+        c.beginPath(); c.moveTo(xScale.left, y50); c.lineTo(xScale.right, y50); c.stroke();
+        c.setLineDash([]);
+        c.restore();
+      }
+    }]
   });
 }
 

@@ -79,7 +79,7 @@
     },
     {
       "source": "Google News",
-      "title": "Current price of gold as of April 1, 2026 - fortune.com",
+      "title": "Current price of gold as of April 1, 2026 - Fortune",
       "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE1ERjFGUEVrVHhoRk1GRFFlMlZSNjZvRXljVUxBd3BISTFvR2dhbHRINDBYQmdWbGVHVWJ2QlhCcGFKY3ByOTBLeF9SaGRBS193TE1KNDVWeElRcjEzWnM5Y1JXUlBmTFdobE56NzhB?oc=5",
       "published": "Wed, 01 Apr 2026 13:07:08 GMT",
       "sentiment": "neutral"
@@ -142,7 +142,7 @@
     },
     {
       "source": "Google News",
-      "title": "Current price of gold as of March 31, 2026 - fortune.com",
+      "title": "Current price of gold as of March 31, 2026 - Fortune",
       "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE5RUExYXzBZbUtmVHI4dGRRbll6Mm1rb0xtVWtzUVRWdlBGNVFNZG9zOWxSZ0VDZWNXblFYcC0zU3Vya1JQOFF5N3VBZE4yRFgxNmplZWt3Yzh1cTRtempPS2hDWTJGT2wyY05Tc1VB?oc=5",
       "published": "Tue, 31 Mar 2026 13:06:00 GMT",
       "sentiment": "neutral"
@@ -181,5 +181,5 @@
   "bear_count": 2,
   "neutral_count": 21,
   "bull_pct": 25.8,
-  "last_updated": "2026-04-02T05:12:31Z"
+  "last_updated": "2026-04-02T05:58:12Z"
 }
