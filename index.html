@@ -378,6 +378,89 @@
     transform: translateX(-50%);
     transition: left 1.5s ease;
   }
+
+  /* Composite Signal Gauge */
+  .signal-gauge-wrap {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .signal-gauge-arc {
+    position: relative;
+    width: 220px;
+    height: 115px;
+    flex-shrink: 0;
+  }
+  .signal-gauge-arc svg {
+    width: 100%;
+    height: 100%;
+  }
+  .signal-needle {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 3px;
+    height: 80px;
+    background: white;
+    transform-origin: bottom center;
+    transform: translateX(-50%) rotate(0deg);
+    border-radius: 2px 2px 0 0;
+    transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 6px rgba(255,255,255,0.6);
+  }
+  .signal-needle::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: white;
+  }
+  .signal-label {
+    font-size: 1.5rem;
+    font-weight: 800;
+    font-family: monospace;
+    letter-spacing: 0.05em;
+    transition: color 1s ease;
+  }
+  .signal-score-bar {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+  }
+  .signal-factor {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .signal-factor-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.7rem;
+    font-family: monospace;
+  }
+  .signal-factor-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .signal-factor-label {
+    color: var(--text2);
+    flex: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .signal-factor-val {
+    font-weight: bold;
+    text-align: right;
+    min-width: 60px;
+  }
 </style>
 </head>
 <body>
@@ -416,6 +499,46 @@
 
 <!-- MAIN DASHBOARD -->
 <main class="dashboard-grid" id="dashboard">
+
+  <!-- ============================================================ -->
+  <!-- SECTION 0: COMPOSITE BULL/BEAR SIGNAL -->
+  <!-- ============================================================ -->
+  <section class="full-width card fade-in" id="sec-composite" style="animation-delay:0.05s">
+    <div class="section-title">Market Signal <span class="info-tooltip" data-tip="Composite bull/bear score computed from 5 factors: RSI momentum, real yield (10Y TIPS), DXY trend, ETF flows, and COT positioning. Score ranges from -10 (Strongly Bearish) to +10 (Strongly Bullish).">ℹ</span><span class="freshness-badge freshness-live">● Hourly</span></div>
+    <div class="signal-gauge-wrap">
+      <!-- Arc gauge -->
+      <div class="signal-gauge-arc">
+        <svg viewBox="0 0 220 115" xmlns="http://www.w3.org/2000/svg">
+          <!-- Background arc segments (5 zones) -->
+          <!-- Strongly Bearish: -90° to -54° -->
+          <path d="M 20 110 A 90 90 0 0 1 45.4 47.7" stroke="#ff3333" stroke-width="18" fill="none" stroke-linecap="round"/>
+          <!-- Bearish: -54° to -18° -->
+          <path d="M 45.4 47.7 A 90 90 0 0 1 88.7 21.4" stroke="#ff8844" stroke-width="18" fill="none" stroke-linecap="round"/>
+          <!-- Neutral: -18° to +18° -->
+          <path d="M 88.7 21.4 A 90 90 0 0 1 131.3 21.4" stroke="#888888" stroke-width="18" fill="none" stroke-linecap="round"/>
+          <!-- Bullish: +18° to +54° -->
+          <path d="M 131.3 21.4 A 90 90 0 0 1 174.6 47.7" stroke="#88dd44" stroke-width="18" fill="none" stroke-linecap="round"/>
+          <!-- Strongly Bullish: +54° to +90° -->
+          <path d="M 174.6 47.7 A 90 90 0 0 1 200 110" stroke="#00ff88" stroke-width="18" fill="none" stroke-linecap="round"/>
+          <!-- Labels -->
+          <text x="14" y="108" fill="#ff3333" font-size="7" font-family="monospace" text-anchor="middle">Strong</text>
+          <text x="14" y="116" fill="#ff3333" font-size="7" font-family="monospace" text-anchor="middle">Bear</text>
+          <text x="206" y="108" fill="#00ff88" font-size="7" font-family="monospace" text-anchor="middle">Strong</text>
+          <text x="206" y="116" fill="#00ff88" font-size="7" font-family="monospace" text-anchor="middle">Bull</text>
+          <text x="110" y="18" fill="#888" font-size="7" font-family="monospace" text-anchor="middle">Neutral</text>
+        </svg>
+        <div class="signal-needle" id="composite-needle"></div>
+      </div>
+      <!-- Label + factors -->
+      <div style="flex:1; min-width: 200px;">
+        <div class="signal-label" id="composite-label" style="color: #888;">— —</div>
+        <div class="text-xs mono text-[var(--text2)] mt-1" id="composite-score-text">Score: —</div>
+        <div class="signal-factor mt-4" id="composite-factors">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- ============================================================ -->
   <!-- SECTION 1: PRICE COMMAND CENTER -->
@@ -1257,6 +1380,130 @@ function renderAll() {
   renderMiners();
   renderCrisisAssets();
   renderHistorical();
+  renderCompositeSignal();
+}
+
+// --- COMPOSITE BULL/BEAR SIGNAL ---
+function renderCompositeSignal() {
+  var price = DATA.price;
+  var macro = DATA.macro;
+  var cot = DATA.cot;
+  var etfs = DATA.etfs;
+  if (!price || !macro) return;
+
+  var factors = [];
+  var totalScore = 0;
+
+  // Factor 1: RSI momentum (-2 to +2)
+  var rsi = price.rsi;
+  var rsiScore = 0, rsiLabel = '', rsiColor = '#888';
+  if (rsi != null) {
+    if (rsi > 70)       { rsiScore = -1.5; rsiLabel = 'Overbought (' + rsi.toFixed(1) + ')'; rsiColor = '#ff8844'; }
+    else if (rsi > 60)  { rsiScore = 1;    rsiLabel = 'Bullish (' + rsi.toFixed(1) + ')'; rsiColor = '#88dd44'; }
+    else if (rsi > 45)  { rsiScore = 0.5;  rsiLabel = 'Neutral+ (' + rsi.toFixed(1) + ')'; rsiColor = '#aaa'; }
+    else if (rsi > 35)  { rsiScore = -0.5; rsiLabel = 'Neutral− (' + rsi.toFixed(1) + ')'; rsiColor = '#aaa'; }
+    else if (rsi > 30)  { rsiScore = 1.5;  rsiLabel = 'Oversold/Bounce (' + rsi.toFixed(1) + ')'; rsiColor = '#88dd44'; }
+    else               { rsiScore = 2;    rsiLabel = 'Deeply Oversold (' + rsi.toFixed(1) + ')'; rsiColor = '#00ff88'; }
+    totalScore += rsiScore;
+    factors.push({ label: 'RSI Momentum', val: rsiLabel, score: rsiScore, color: rsiColor });
+  }
+
+  // Factor 2: Real yield — lower/negative = bullish for gold (-2 to +2)
+  var ry = macro.real_yield_10y;
+  var ryScore = 0, ryLabel = '', ryColor = '#888';
+  if (ry != null) {
+    if (ry < 0)         { ryScore = 2;     ryLabel = 'Negative (' + ry.toFixed(2) + '%)'; ryColor = '#00ff88'; }
+    else if (ry < 0.5)  { ryScore = 1.5;   ryLabel = 'Very Low (' + ry.toFixed(2) + '%)'; ryColor = '#88dd44'; }
+    else if (ry < 1.5)  { ryScore = 0.5;   ryLabel = 'Low (' + ry.toFixed(2) + '%)'; ryColor = '#aaa'; }
+    else if (ry < 2.5)  { ryScore = -0.5;  ryLabel = 'Moderate (' + ry.toFixed(2) + '%)'; ryColor = '#ff8844'; }
+    else               { ryScore = -2;    ryLabel = 'High (' + ry.toFixed(2) + '%)'; ryColor = '#ff3333'; }
+    totalScore += ryScore;
+    factors.push({ label: 'Real Yield (10Y)', val: ryLabel, score: ryScore, color: ryColor });
+  }
+
+  // Factor 3: DXY — falling dollar = bullish for gold (-2 to +2)
+  var dxy = macro.dxy;
+  var dxyScore = 0, dxyLabel = '', dxyColor = '#888';
+  if (dxy != null) {
+    // DXY < 98 = strong bull for gold, > 106 = bearish
+    if (dxy < 96)       { dxyScore = 2;    dxyLabel = 'Weak USD (' + dxy.toFixed(2) + ')'; dxyColor = '#00ff88'; }
+    else if (dxy < 100) { dxyScore = 1;    dxyLabel = 'Soft USD (' + dxy.toFixed(2) + ')'; dxyColor = '#88dd44'; }
+    else if (dxy < 104) { dxyScore = 0;    dxyLabel = 'Neutral (' + dxy.toFixed(2) + ')'; dxyColor = '#888'; }
+    else if (dxy < 108) { dxyScore = -1;   dxyLabel = 'Strong USD (' + dxy.toFixed(2) + ')'; dxyColor = '#ff8844'; }
+    else               { dxyScore = -2;   dxyLabel = 'Very Strong USD (' + dxy.toFixed(2) + ')'; dxyColor = '#ff3333'; }
+    totalScore += dxyScore;
+    factors.push({ label: 'DXY (USD Index)', val: dxyLabel, score: dxyScore, color: dxyColor });
+  }
+
+  // Factor 4: ETF flows — positive = bullish (-2 to +2)
+  var etfScore = 0, etfLabel = '', etfColor = '#888';
+  if (etfs && etfs.etfs) {
+    var totalFlow = 0;
+    Object.values(etfs.etfs).forEach(function(e) { totalFlow += (e.daily_change_est || 0); });
+    if (totalFlow > 3)        { etfScore = 2;    etfLabel = 'Strong Inflows (+' + totalFlow.toFixed(1) + 't)'; etfColor = '#00ff88'; }
+    else if (totalFlow > 0.5) { etfScore = 1;    etfLabel = 'Inflows (+' + totalFlow.toFixed(1) + 't)'; etfColor = '#88dd44'; }
+    else if (totalFlow > -0.5){ etfScore = 0;    etfLabel = 'Flat (' + totalFlow.toFixed(1) + 't)'; etfColor = '#888'; }
+    else if (totalFlow > -3)  { etfScore = -1;   etfLabel = 'Outflows (' + totalFlow.toFixed(1) + 't)'; etfColor = '#ff8844'; }
+    else                      { etfScore = -2;   etfLabel = 'Heavy Outflows (' + totalFlow.toFixed(1) + 't)'; etfColor = '#ff3333'; }
+    totalScore += etfScore;
+    factors.push({ label: 'ETF Flows (Daily)', val: etfLabel, score: etfScore, color: etfColor });
+  }
+
+  // Factor 5: COT positioning — high net percentile = crowded long (caution) vs low = room to run
+  var cotScore = 0, cotLabel = '', cotColor = '#888';
+  if (cot && cot.net_percentile != null) {
+    var pct = cot.net_percentile;
+    if (pct > 85)       { cotScore = -1.5; cotLabel = 'Crowded Long (' + pct.toFixed(0) + 'th %ile)'; cotColor = '#ff8844'; }
+    else if (pct > 65)  { cotScore = 0.5;  cotLabel = 'Bullish (' + pct.toFixed(0) + 'th %ile)'; cotColor = '#88dd44'; }
+    else if (pct > 40)  { cotScore = 0;    cotLabel = 'Neutral (' + pct.toFixed(0) + 'th %ile)'; cotColor = '#888'; }
+    else if (pct > 20)  { cotScore = -0.5; cotLabel = 'Bearish (' + pct.toFixed(0) + 'th %ile)'; cotColor = '#ff8844'; }
+    else               { cotScore = 1.5;  cotLabel = 'Extreme Short (' + pct.toFixed(0) + 'th %ile)'; cotColor = '#00ff88'; }
+    totalScore += cotScore;
+    factors.push({ label: 'COT Positioning', val: cotLabel, score: cotScore, color: cotColor });
+  }
+
+  // Normalize score to -10..+10 range (5 factors, each max ±2 = ±10)
+  var clampedScore = Math.max(-10, Math.min(10, totalScore));
+
+  // Determine label and color
+  var signalLabel, signalColor;
+  if (clampedScore >= 6)       { signalLabel = '▲▲ Strongly Bullish'; signalColor = '#00ff88'; }
+  else if (clampedScore >= 2)  { signalLabel = '▲ Bullish'; signalColor = '#88dd44'; }
+  else if (clampedScore >= -2) { signalLabel = '— Neutral'; signalColor = '#888888'; }
+  else if (clampedScore >= -6) { signalLabel = '▼ Bearish'; signalColor = '#ff8844'; }
+  else                         { signalLabel = '▼▼ Strongly Bearish'; signalColor = '#ff3333'; }
+
+  // Set label
+  var labelEl = document.getElementById('composite-label');
+  if (labelEl) { labelEl.textContent = signalLabel; labelEl.style.color = signalColor; }
+
+  var scoreEl = document.getElementById('composite-score-text');
+  if (scoreEl) scoreEl.textContent = 'Score: ' + (clampedScore >= 0 ? '+' : '') + clampedScore.toFixed(1) + ' / 10';
+
+  // Rotate needle: score -10 = -90deg, 0 = 0deg, +10 = +90deg
+  var needleDeg = clampedScore * 9; // 9 degrees per point
+  var needle = document.getElementById('composite-needle');
+  if (needle) {
+    setTimeout(function() {
+      needle.style.transform = 'translateX(-50%) rotate(' + needleDeg + 'deg)';
+      needle.style.background = signalColor;
+      needle.style.boxShadow = '0 0 8px ' + signalColor;
+      if (needle.querySelector && needle.querySelector('::after')) {}
+    }, 100);
+  }
+
+  // Render factor rows
+  var container = document.getElementById('composite-factors');
+  if (container) {
+    container.innerHTML = factors.map(function(f) {
+      var arrow = f.score > 0 ? '▲' : f.score < 0 ? '▼' : '—';
+      return '<div class="signal-factor-row">' +
+        '<div class="signal-factor-dot" style="background:' + f.color + '"></div>' +
+        '<span class="signal-factor-label">' + f.label + '</span>' +
+        '<span class="signal-factor-val" style="color:' + f.color + '">' + arrow + ' ' + f.val + '</span>' +
+        '</div>';
+    }).join('');
+  }
 }
 
 // --- HEADER ---
