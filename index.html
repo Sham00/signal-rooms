@@ -1410,24 +1410,61 @@ function renderPriceChart(timeframe) {
 
   destroyChart('price-main');
 
+  // Build datasets
+  var datasets = [{
+    label: 'Gold Price',
+    data: parsed.values,
+    borderColor: '#ffd700',
+    borderWidth: 2,
+    pointRadius: 0,
+    pointHitRadius: 10,
+    fill: true,
+    backgroundColor: function(context) {
+      var chart = context.chart;
+      return goldGradient(chart.ctx, chart.chartArea);
+    },
+    tension: 0.3,
+    order: 1,
+  }];
+
+  // Overlay MA50 / MA200 on 1Y and longer timeframes
+  if ((timeframe === '1y' || timeframe === '5y' || timeframe === 'all') && d.ma50_series && d.ma50_series.length) {
+    var ma50p = parseChartData(d.ma50_series);
+    datasets.push({
+      label: 'MA50',
+      data: ma50p.values,
+      labels: ma50p.labels,
+      borderColor: 'rgba(0, 200, 255, 0.7)',
+      borderWidth: 1.5,
+      borderDash: [4, 3],
+      pointRadius: 0,
+      fill: false,
+      tension: 0.3,
+      order: 2,
+    });
+  }
+  if ((timeframe === '1y' || timeframe === '5y' || timeframe === 'all') && d.ma200_series && d.ma200_series.length) {
+    var ma200p = parseChartData(d.ma200_series);
+    datasets.push({
+      label: 'MA200',
+      data: ma200p.values,
+      labels: ma200p.labels,
+      borderColor: 'rgba(255, 100, 100, 0.7)',
+      borderWidth: 1.5,
+      borderDash: [6, 3],
+      pointRadius: 0,
+      fill: false,
+      tension: 0.3,
+      order: 3,
+    });
+  }
+
   var ctx = document.getElementById('chart-price-main').getContext('2d');
   charts['price-main'] = new Chart(ctx, {
     type: 'line',
     data: {
       labels: parsed.labels,
-      datasets: [{
-        data: parsed.values,
-        borderColor: '#ffd700',
-        borderWidth: 2,
-        pointRadius: 0,
-        pointHitRadius: 10,
-        fill: true,
-        backgroundColor: function(context) {
-          var chart = context.chart;
-          return goldGradient(chart.ctx, chart.chartArea);
-        },
-        tension: 0.3,
-      }]
+      datasets: datasets,
     },
     options: {
       interaction: { intersect: false, mode: 'index' },
@@ -1457,8 +1494,23 @@ function renderPriceChart(timeframe) {
         }
       },
       plugins: {
+        legend: {
+          display: timeframe === '1y' || timeframe === '5y' || timeframe === 'all',
+          labels: {
+            boxWidth: 20,
+            padding: 10,
+            color: '#888',
+            font: { size: 10, family: 'monospace' },
+            filter: function(item) { return item.text !== 'Gold Price'; }
+          }
+        },
         tooltip: {
-          callbacks: { label: function(ctx) { return '$' + fmt(ctx.parsed.y); } }
+          callbacks: {
+            label: function(ctx) {
+              var prefix = ctx.dataset.label ? ctx.dataset.label + ': $' : '$';
+              return prefix + fmt(ctx.parsed.y);
+            }
+          }
         }
       }
     }
@@ -1998,38 +2050,63 @@ function renderNews() {
 
   container.innerHTML = '';
 
-  d.articles.forEach(function(article) {
-    var dotColor = '#555';
-    // Use sentiment from data if available, otherwise detect from title
-    var sent = article.sentiment;
-    if (sent === 'positive' || (!sent && bullish.test(article.title))) dotColor = '#00ff88';
-    else if (sent === 'negative' || (!sent && bearish.test(article.title))) dotColor = '#ff4444';
+  var visibleCount = 12;
+  var sourceColors = {
+    'Kitco': { bg: 'rgba(255,215,0,0.15)', fg: '#ffd700' },
+    'Kitco News': { bg: 'rgba(255,215,0,0.15)', fg: '#ffd700' },
+    'BullionVault': { bg: 'rgba(68,136,255,0.15)', fg: '#4488ff' },
+    'Mining.com': { bg: 'rgba(0,255,136,0.15)', fg: '#00ff88' },
+    'GoldPrice.org': { bg: 'rgba(255,136,0,0.15)', fg: '#ff8800' },
+    'Google News': { bg: 'rgba(100,149,237,0.15)', fg: '#6495ed' },
+    'Reuters Commodities': { bg: 'rgba(255,165,0,0.15)', fg: '#ffa500' },
+  };
 
-    var sourceColors = {
-      'Kitco': { bg: 'rgba(255,215,0,0.15)', fg: '#ffd700' },
-      'BullionVault': { bg: 'rgba(68,136,255,0.15)', fg: '#4488ff' },
-      'Mining.com': { bg: 'rgba(0,255,136,0.15)', fg: '#00ff88' },
-      'GoldPrice.org': { bg: 'rgba(255,136,0,0.15)', fg: '#ff8800' },
-    };
-    var sc = sourceColors[article.source] || { bg: 'rgba(136,136,136,0.15)', fg: '#888' };
-    var sourceBadge = '<span class="badge" style="background:' + sc.bg + ';color:' + sc.fg + ';">' + article.source + '</span>';
+  function buildNewsItems(limit) {
+    container.innerHTML = '';
+    d.articles.slice(0, limit).forEach(function(article) {
+      var dotColor = '#555';
+      var sent = article.sentiment;
+      if (sent === 'positive' || (!sent && bullish.test(article.title))) dotColor = '#00ff88';
+      else if (sent === 'negative' || (!sent && bearish.test(article.title))) dotColor = '#ff4444';
 
-    var div = document.createElement('div');
-    div.className = 'flex gap-3 py-3 border-b border-[rgba(255,255,255,0.03)]';
-    div.innerHTML =
-      '<div class="news-dot" style="background:' + dotColor + '"></div>' +
-      '<div class="flex-1 min-w-0">' +
-        '<a href="' + article.link + '" target="_blank" rel="noopener noreferrer"' +
-           ' class="text-sm text-[var(--text)] hover:text-[var(--gold)] transition-colors block truncate">' +
-          article.title +
-        '</a>' +
-        '<div class="flex items-center gap-2 mt-1">' +
-          sourceBadge +
-          '<span class="text-[10px] text-[var(--text2)] mono">' + relativeTime(article.published) + '</span>' +
-        '</div>' +
-      '</div>';
-    container.appendChild(div);
-  });
+      var sc = sourceColors[article.source] || { bg: 'rgba(136,136,136,0.15)', fg: '#888' };
+      var sourceBadge = '<span class="badge" style="background:' + sc.bg + ';color:' + sc.fg + ';">' + article.source + '</span>';
+
+      // Sentiment label
+      var sentLabel = sent === 'positive' ? '<span style="color:#00ff88;font-size:9px;text-transform:uppercase;letter-spacing:.05em;">▲ Bullish</span>'
+                    : sent === 'negative' ? '<span style="color:#ff4444;font-size:9px;text-transform:uppercase;letter-spacing:.05em;">▼ Bearish</span>'
+                    : '';
+
+      var div = document.createElement('div');
+      div.className = 'flex gap-3 py-3 border-b border-[rgba(255,255,255,0.03)]';
+      div.innerHTML =
+        '<div class="news-dot flex-shrink-0" style="background:' + dotColor + ';margin-top:5px;"></div>' +
+        '<div class="flex-1 min-w-0">' +
+          '<a href="' + article.link + '" target="_blank" rel="noopener noreferrer"' +
+             ' class="text-sm text-[var(--text)] hover:text-[var(--gold)] transition-colors block" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">' +
+            article.title +
+          '</a>' +
+          '<div class="flex items-center gap-2 mt-1 flex-wrap">' +
+            sourceBadge +
+            sentLabel +
+            '<span class="text-[10px] text-[var(--text2)] mono">' + relativeTime(article.published) + '</span>' +
+          '</div>' +
+        '</div>';
+      container.appendChild(div);
+    });
+
+    // Show more / show less button
+    if (d.articles.length > visibleCount) {
+      var btn = document.createElement('button');
+      var showing = limit >= d.articles.length;
+      btn.className = 'w-full text-center text-xs text-[var(--text2)] hover:text-[var(--gold)] py-3 transition-colors';
+      btn.textContent = showing ? '▲ Show fewer' : '▼ Show ' + (d.articles.length - limit) + ' more articles';
+      btn.onclick = function() { buildNewsItems(showing ? visibleCount : d.articles.length); };
+      container.appendChild(btn);
+    }
+  }
+
+  buildNewsItems(visibleCount);
 }
 
 // --- MACRO ---

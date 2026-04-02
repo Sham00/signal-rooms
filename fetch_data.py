@@ -13,9 +13,17 @@ import io
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import math
 import feedparser
 import requests
 import yfinance as yf
+
+def import_isnan(v):
+    """Safe NaN check for pandas floats."""
+    try:
+        return math.isnan(float(v))
+    except Exception:
+        return True
 
 DATA_DIR = Path(__file__).parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
@@ -119,19 +127,36 @@ def fetch_price():
         ath = current
     pct_below_ath = ((ath - current) / ath) * 100 if ath else 0
 
-    # MA50, MA200, RSI(14) from daily history
+    # MA50, MA200, RSI(14) from daily history + rolling series for 1Y chart overlay
     ma50 = None
     ma200 = None
     rsi = None
     ma50_signal = None  # 'above' | 'below'
     ma200_signal = None
+    ma50_series = []   # rolling MA50 for 1Y chart overlay [{t, v}]
+    ma200_series = []  # rolling MA200 for 1Y chart overlay [{t, v}]
+    rsi_series_data = []  # rolling RSI for chart
     try:
         closes = ath_hist["Close"]
+        dates = ath_hist.index
         if len(closes) >= 200:
             ma50 = round(float(closes.iloc[-50:].mean()), 2)
             ma200 = round(float(closes.iloc[-200:].mean()), 2)
             ma50_signal = "above" if current > ma50 else "below"
             ma200_signal = "above" if current > ma200 else "below"
+
+            # Build rolling MA series for last 1Y of data
+            ma50_roll = closes.rolling(50).mean()
+            ma200_roll = closes.rolling(200).mean()
+            # Only last ~365 data points
+            cutoff = len(closes) - 365 if len(closes) > 365 else 0
+            for i in range(cutoff, len(closes)):
+                ds = str(dates[i].date())
+                if not import_isnan(ma50_roll.iloc[i]):
+                    ma50_series.append({"t": ds, "v": round(float(ma50_roll.iloc[i]), 2)})
+                if not import_isnan(ma200_roll.iloc[i]):
+                    ma200_series.append({"t": ds, "v": round(float(ma200_roll.iloc[i]), 2)})
+
         elif len(closes) >= 50:
             ma50 = round(float(closes.iloc[-50:].mean()), 2)
             ma50_signal = "above" if current > ma50 else "below"
@@ -141,8 +166,14 @@ def fetch_price():
             gain = delta.clip(lower=0).rolling(14).mean()
             loss = (-delta.clip(upper=0)).rolling(14).mean()
             rs = gain / loss.replace(0, float('nan'))
-            rsi_series = 100 - (100 / (1 + rs))
-            rsi = round(float(rsi_series.iloc[-1]), 1)
+            rsi_roll = 100 - (100 / (1 + rs))
+            rsi = round(float(rsi_roll.iloc[-1]), 1)
+            # RSI series for last 1Y
+            cutoff = len(closes) - 365 if len(closes) > 365 else 0
+            for i in range(cutoff, len(closes)):
+                ds = str(dates[i].date())
+                if not import_isnan(rsi_roll.iloc[i]):
+                    rsi_series_data.append({"t": ds, "v": round(float(rsi_roll.iloc[i]), 1)})
     except Exception as e:
         print(f"  MA/RSI calc failed: {e}")
 
@@ -246,6 +277,9 @@ def fetch_price():
         "ma50_signal": ma50_signal,
         "ma200_signal": ma200_signal,
         "rsi": rsi,
+        "ma50_series": ma50_series,
+        "ma200_series": ma200_series,
+        "rsi_series": rsi_series_data,
     })
 
 
@@ -719,8 +753,20 @@ def fetch_news():
     print("Fetching news data...")
     headers = {"User-Agent": "Mozilla/5.0 (compatible; GoldBot/1.0)"}
 
-    positive_kw = ["record", "surge", "rally", "buying", "inflows", "rise", "gains", "higher", "bullish", "demand", "bid", "rush", "strong", "safe haven"]
-    negative_kw = ["drop", "fall", "selling", "outflows", "lower", "crash", "bearish", "decline", "weak", "pressure", "retreat", "dump"]
+    positive_kw = [
+        "record", "surge", "rally", "buying", "inflows", "rise", "gains", "higher", "bullish",
+        "demand", "bid", "rush", "strong", "safe haven", "jump", "jumps", "soar", "soars",
+        "climb", "climbs", "hit high", "new high", "all-time", "ath", "breakout", "break out",
+        "upside", "upward", "bull", "boost", "accelerate", "fear", "refuge", "haven",
+        "target", "resistance", "support holds", "bounce", "rebound", "recovery",
+        "tariff", "uncertainty", "war", "crisis", "sanction", "inflation hedge",
+    ]
+    negative_kw = [
+        "drop", "fall", "selling", "outflows", "lower", "crash", "bearish", "decline",
+        "weak", "pressure", "retreat", "dump", "slump", "tumble", "plunge", "loss",
+        "correction", "pullback", "downside", "downward", "sell-off", "selloff",
+        "miss", "below", "bottom", "drag", "headwind", "rate hike", "tightening",
+    ]
 
     def sentiment(title):
         t = title.lower()
