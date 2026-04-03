@@ -44,7 +44,7 @@
     },
     {
       "source": "Google News Gold Investment",
-      "title": "Gold ETFs Are Booming. But Do You Actually Own Gold? - goldsilver.com",
+      "title": "Gold ETFs Are Booming. But Do You Actually Own Gold? - GoldSilver",
       "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxOYzhBQXZlSkxHNHdGeW9FSzN6dlk0bFVYZldXVTRFTi1oUlM3dFA5MFlWbnEtRmlLYVNaX2NwY1dPT3ZEMlhSR1YwZG05TTJmT1IzNXA3T3FGd2xkeTRzSGpzRUZvdVdYSEk4NGdqaWFLNFFZcVcyUUNLMlNnWEhXWVZzMTE5T2lES01LZnF5UUwxajE2eGcwcE42c18?oc=5",
       "published": "Wed, 01 Apr 2026 18:56:42 GMT",
       "sentiment": "neutral"
@@ -58,9 +58,9 @@
     },
     {
       "source": "Google News",
-      "title": "Current price of gold as of April 1, 2026 - fortune.com",
+      "title": "Current price of gold as of April 1, 2026 - Fortune",
       "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE1ERjFGUEVrVHhoRk1GRFFlMlZSNjZvRXljVUxBd3BISTFvR2dhbHRINDBYQmdWbGVHVWJ2QlhCcGFKY3ByOTBLeF9SaGRBS193TE1KNDVWeElRcjEzWnM5Y1JXUlBmTFdobE56NzhB?oc=5",
-      "published": "Wed, 01 Apr 2026 13:07:08 GMT",
+      "published": "Wed, 01 Apr 2026 13:04:00 GMT",
       "sentiment": "neutral"
     },
     {
@@ -170,22 +170,22 @@
     },
     {
       "source": "Google News Gold Investment",
-      "title": "How to Read the Gold-Silver Ratio \u2014 And What to Do About It - goldsilver.com",
+      "title": "How to Read the Gold-Silver Ratio \u2014 And What to Do About It - GoldSilver",
       "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxPSFVEcDEyTlljQjA1ZWhfVVFab3otTEJfVFVDeG9JV2Jua2RURVN1Qjd4NnZYb0ZEYnNNLU1nN1ptRmJqa3hiM3lXRzNTWkZWMnpqSFZjdFJzU3Y5b0VkLTdWZ00xSHFrUi1mRXNaZ2Y1Uy1zak1FT1RSMDk3bUdHQ3hSTmVvdnV1WmFjUG5RNTU1aXVqTGg4b1lNTTNFcmdWM3phcXZ3?oc=5",
       "published": "Thu, 02 Apr 2026 20:22:53 GMT",
       "sentiment": "neutral"
     }
   ],
-  "sentiment_score": 42.5,
-  "bull_count": 46,
-  "bear_count": 12,
-  "neutral_count": 22,
-  "bull_pct": 57.5,
+  "sentiment_score": 38.0,
+  "bull_count": 43,
+  "bear_count": 13,
+  "neutral_count": 23,
+  "bull_pct": 54.4,
   "data_quality": {
     "source": "RSS feeds: Yahoo Finance Gold, Google News, Reuters Gold, FXStreet, Mining.com, Reuters, Investing.com",
     "freshness": "hourly",
     "reliability": "live",
     "notes": "Sentiment scoring is keyword-based heuristic. Not a substitute for full NLP sentiment analysis."
   },
-  "last_updated": "2026-04-03T10:53:02Z"
+  "last_updated": "2026-04-03T11:43:15Z"
 }

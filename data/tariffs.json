@@ -20,7 +20,7 @@
     },
     {
       "source": "Google News",
-      "title": "Stocks slip and gold gains as global trade faces new Trump tariff threat - ft.com",
+      "title": "Stocks slip and gold gains as global trade faces new Trump tariff threat - Financial Times",
       "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNeDRoYk11TEl2Um5iUEJUZEcyeXdXUG90MWVudk1nSlFHQnZrcGZNa05jRjBRR3ZQNWpUM2xvSHBCM3pSRzZ6dkNLZm80Nk5McTlkejZ3ckdNZDdDNFRXc3NKaFVoT0ZvZ1I5RjdrUUE4czhRazNXVU9nOU1zYzF3eXY4TUM?oc=5",
       "published": "Mon, 23 Feb 2026 08:00:00 GMT"
     },
@@ -32,8 +32,8 @@
     }
   ],
   "dxy_signal": "BEARISH",
-  "dxy_30d_change_pct": 2.35,
-  "dxy_now": 100.0,
+  "dxy_30d_change_pct": 2.34,
+  "dxy_now": 99.99,
   "dxy_1y": [
     {
       "t": "2025-04-03",
@@ -1045,7 +1045,7 @@
     },
     {
       "t": "2026-04-03",
-      "v": 100.0
+      "v": 99.99
     }
   ],
   "gold_1y": [
@@ -2143,5 +2143,5 @@
     "status": "ACTIVE",
     "description": "10% baseline tariff on all imports + higher country-specific reciprocal rates announced Apr 2, 2026. Gold surged as flight-to-safety demand spiked and the dollar weakened."
   },
-  "last_updated": "2026-04-03T10:53:18Z"
+  "last_updated": "2026-04-03T11:43:32Z"
 }
