@@ -163,29 +163,29 @@
     },
     {
       "source": "Google News Gold Investment",
-      "title": "How to invest in gold in 7 steps - Yahoo Finance",
-      "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxNckw2djRlQzJKbWhlUWlZOWNKU3d6Y0hUc1ZyUzB1VEFyVmxybzhSdzRZRGlYNDFXNWg1S2dJbmZPenVZTVc2M3ZMU2dudmZrNmdLWG9vN0hDb25ueGltbjlGd1hYQjVWSjg3YTg5SEJjVEJianFEMFdiR2NwakhoVzZ5X3dPLUNQSzc2T1dPZHdBZ0ExVno1ZEZOaGUwZw?oc=5",
-      "published": "Tue, 31 Mar 2026 13:00:00 GMT",
-      "sentiment": "neutral"
-    },
-    {
-      "source": "Google News Gold Investment",
       "title": "Gold Erases 2026 Gains as Central Bank Selling Hits Headlines - BullionVault",
       "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxPeFQ4Y0dHNWx4WHNVdnE3Wk5GZzFVUjc3YjByWWtYczhyalVhaHlYd1I5bGhEcDE5TzljTkJCOTh6VGVRQ2Z1alhwMjM3Z183WkxldC1CejJ3aS10ZHRFdW9kcUdNSzRJWkExQjMtanFCaEVHcmFqUnZkMHphcUhvYjdrQmhwTXE1T0RILS1IN3hKRFU4?oc=5",
       "published": "Tue, 24 Mar 2026 07:00:00 GMT",
       "sentiment": "positive"
+    },
+    {
+      "source": "Reuters Gold",
+      "title": "Gold extends decline on expectations of higher interest rates - Reuters",
+      "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxQclJLSmh6VlVNb3hZUktRUDYzUU50clVpSXpMdTlrajhrU0ZCRjZWQnFQSW9ndGFsUC1ULXVwWUJuWnNwLVpMZl9WckVYN09od0hvRmdFWnhKRzZZWkJvUmZqVjg4Ul9ScTdwbWF1c0ZuVWJiRWltZTNEWHlXdmxISmhIVmF4NEZKRWlaYnNFTEFLM2VFcW9fVXZFTE01UQ?oc=5",
+      "published": "Tue, 24 Mar 2026 07:00:00 GMT",
+      "sentiment": "positive"
     }
   ],
-  "sentiment_score": 46.0,
+  "sentiment_score": 43.8,
   "bull_count": 51,
-  "bear_count": 11,
-  "neutral_count": 25,
-  "bull_pct": 58.6,
+  "bear_count": 12,
+  "neutral_count": 26,
+  "bull_pct": 57.3,
   "data_quality": {
     "source": "RSS feeds: Yahoo Finance Gold, Google News, Reuters Gold, FXStreet, Mining.com, Reuters, Investing.com",
     "freshness": "hourly",
     "reliability": "live",
     "notes": "Sentiment scoring is keyword-based heuristic. Not a substitute for full NLP sentiment analysis."
   },
-  "last_updated": "2026-04-03T04:43:17Z"
+  "last_updated": "2026-04-03T05:12:47Z"
 }

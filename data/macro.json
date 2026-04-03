@@ -5059,7 +5059,7 @@
       "v": 4.33
     }
   ],
-  "dxy": 100.03,
+  "dxy": 100.05,
   "dxy_date": "2026-04-03",
   "dxy_chart": [
     {
@@ -6072,7 +6072,7 @@
     },
     {
       "t": "2026-04-03",
-      "v": 100.03
+      "v": 100.05
     }
   ],
   "data_sources": {
@@ -7094,12 +7094,12 @@
     }
   ],
   "next_fomc_date": "2026-05-06",
-  "days_to_fomc": 34,
+  "days_to_fomc": 33,
   "data_quality": {
     "source": "yfinance (TNX, RINF, TIP, DX-Y.NYB, ^VIX, ^GSPC, BTC-USD, CL=F) + FRED-proxy estimates",
     "freshness": "daily",
     "reliability": "live",
     "notes": "Real yield 10Y from TIP/TNX calculation. Some inflation estimates lag 1 month (BLS release schedule)."
   },
-  "last_updated": "2026-04-03T04:43:00Z"
+  "last_updated": "2026-04-03T05:12:32Z"
 }
