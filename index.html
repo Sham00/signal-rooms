@@ -2293,6 +2293,33 @@
         <canvas id="chart-seasonality"></canvas>
       </div>
     </div>
+
+    <!-- Daily Returns Heatmap -->
+    <div class="mt-6">
+      <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Daily Returns Heatmap — Last 12 Months <span class="info-tooltip" data-tip="Each cell = one trading day. Color intensity shows the magnitude of gold's daily price change. Green = up day, Red = down day. Hover for exact return.">ℹ</span></div>
+      <div class="text-[9px] text-[var(--text2)] mono mb-3">Each cell is one trading day. Darker = larger move.</div>
+      <div id="daily-heatmap" style="overflow-x:auto;">
+        <div class="text-[10px] text-[var(--text2)] mono" style="padding:8px 0;color:#444;">Loading heatmap…</div>
+      </div>
+      <div class="flex items-center gap-3 mt-2" style="font-size:9px;font-family:'JetBrains Mono',monospace;color:#666;">
+        <span>Legend:</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;">
+          <span style="width:10px;height:10px;border-radius:2px;background:rgba(255,68,68,0.9);display:inline-block;"></span> &gt;1% down
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:4px;">
+          <span style="width:10px;height:10px;border-radius:2px;background:rgba(255,68,68,0.4);display:inline-block;"></span> flat–1% down
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:4px;">
+          <span style="width:10px;height:10px;border-radius:2px;background:rgba(136,136,136,0.3);display:inline-block;"></span> ~0%
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:4px;">
+          <span style="width:10px;height:10px;border-radius:2px;background:rgba(0,255,136,0.4);display:inline-block;"></span> flat–1% up
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:4px;">
+          <span style="width:10px;height:10px;border-radius:2px;background:rgba(0,255,136,0.9);display:inline-block;"></span> &gt;1% up
+        </span>
+      </div>
+    </div>
   </section>
 
 </main>
@@ -6339,6 +6366,9 @@ function renderHistorical() {
     }
   } catch(e) { console.warn('Real gold chart error:', e); }
 
+  // Daily Returns Heatmap
+  renderDailyHeatmap();
+
   // Event cards
   var evtContainer = document.getElementById('event-cards');
   evtContainer.innerHTML = '';
@@ -6353,6 +6383,129 @@ function renderHistorical() {
       '</div>';
     evtContainer.appendChild(card);
   });
+}
+
+// =====================================================================
+// DAILY RETURNS HEATMAP
+// =====================================================================
+function renderDailyHeatmap() {
+  var container = document.getElementById('daily-heatmap');
+  if (!container) return;
+
+  // Get 1Y chart data from price.json
+  var priceData = DATA.price;
+  if (!priceData || !priceData.charts || !priceData.charts['1y'] || !priceData.charts['1y'].length) {
+    container.innerHTML = '<div class="text-[10px] mono" style="color:#444;padding:8px 0;">No chart data available.</div>';
+    return;
+  }
+
+  var chart = priceData.charts['1y'];
+
+  // Compute daily returns
+  var days = [];
+  for (var i = 1; i < chart.length; i++) {
+    var prev = chart[i - 1].v;
+    var curr = chart[i].v;
+    if (prev && curr) {
+      var ret = ((curr - prev) / prev) * 100;
+      days.push({ t: chart[i].t, v: round2(ret), price: curr });
+    }
+  }
+
+  function round2(n) { return Math.round(n * 100) / 100; }
+
+  // Group by month
+  var monthMap = {};
+  var monthOrder = [];
+  days.forEach(function(d) {
+    var dt = new Date(d.t + 'T12:00:00');
+    var key = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0');
+    if (!monthMap[key]) {
+      monthMap[key] = [];
+      monthOrder.push(key);
+    }
+    monthMap[key].push({ ...d, dow: dt.getDay(), dom: dt.getDate() });
+  });
+
+  // Color based on return magnitude
+  function heatColor(ret) {
+    if (ret > 2.0)  return 'rgba(0,255,136,0.95)';
+    if (ret > 1.0)  return 'rgba(0,255,136,0.70)';
+    if (ret > 0.3)  return 'rgba(0,255,136,0.45)';
+    if (ret > -0.3) return 'rgba(136,136,136,0.30)';
+    if (ret > -1.0) return 'rgba(255,68,68,0.45)';
+    if (ret > -2.0) return 'rgba(255,68,68,0.70)';
+    return 'rgba(255,68,68,0.95)';
+  }
+
+  var MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var DOW_LABELS = ['S','M','T','W','T','F','S'];
+
+  var html = '<div style="display:flex;flex-wrap:wrap;gap:16px;">';
+
+  monthOrder.forEach(function(key) {
+    var parts = key.split('-');
+    var year = parseInt(parts[0]);
+    var month = parseInt(parts[1]) - 1;
+    var monthDays = monthMap[key];
+
+    // Build a date→return lookup
+    var lookup = {};
+    monthDays.forEach(function(d) { lookup[d.dom] = d; });
+
+    // First day of month weekday offset
+    var firstDow = new Date(year, month, 1).getDay();
+    var daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    html += '<div style="min-width:120px;">';
+    html += '<div style="font-size:10px;font-family:JetBrains Mono,monospace;color:#ffd700;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em;">' + MONTH_NAMES[month] + ' ' + year + '</div>';
+    // DOW header
+    html += '<div style="display:grid;grid-template-columns:repeat(7,14px);gap:2px;margin-bottom:2px;">';
+    DOW_LABELS.forEach(function(l) {
+      html += '<div style="font-size:8px;font-family:JetBrains Mono,monospace;color:#444;text-align:center;">' + l + '</div>';
+    });
+    html += '</div>';
+    // Calendar grid
+    html += '<div style="display:grid;grid-template-columns:repeat(7,14px);gap:2px;">';
+    // Empty cells before first day
+    for (var e = 0; e < firstDow; e++) {
+      html += '<div style="width:14px;height:14px;"></div>';
+    }
+    for (var dom = 1; dom <= daysInMonth; dom++) {
+      var d = lookup[dom];
+      if (d) {
+        var bg = heatColor(d.v);
+        var sign = d.v >= 0 ? '+' : '';
+        var title = MONTH_NAMES[month] + ' ' + dom + ': ' + sign + d.v.toFixed(2) + '% ($' + Math.round(d.price).toLocaleString() + ')';
+        html += '<div title="' + title + '" style="width:14px;height:14px;border-radius:2px;background:' + bg + ';cursor:default;"></div>';
+      } else {
+        // Weekend or no data
+        html += '<div style="width:14px;height:14px;border-radius:2px;background:rgba(255,255,255,0.03);"></div>';
+      }
+    }
+    html += '</div>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+
+  // Stats row
+  var upDays = days.filter(function(d) { return d.v > 0; }).length;
+  var downDays = days.filter(function(d) { return d.v < 0; }).length;
+  var avgUp = upDays > 0 ? days.filter(function(d) { return d.v > 0; }).reduce(function(s, d) { return s + d.v; }, 0) / upDays : 0;
+  var avgDown = downDays > 0 ? days.filter(function(d) { return d.v < 0; }).reduce(function(s, d) { return s + d.v; }, 0) / downDays : 0;
+  var bigUp = days.filter(function(d) { return d.v > 1; }).length;
+  var bigDown = days.filter(function(d) { return d.v < -1; }).length;
+
+  html += '<div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:10px;font-size:9px;font-family:JetBrains Mono,monospace;color:#666;">';
+  html += '<span>📅 ' + days.length + ' trading days</span>';
+  html += '<span style="color:#00ff88;">▲ ' + upDays + ' up (' + Math.round(upDays / days.length * 100) + '%) avg +' + avgUp.toFixed(2) + '%</span>';
+  html += '<span style="color:#ff4444;">▼ ' + downDays + ' down avg ' + avgDown.toFixed(2) + '%</span>';
+  html += '<span style="color:#00ff88;">⚡ ' + bigUp + ' days &gt;+1%</span>';
+  html += '<span style="color:#ff4444;">⚡ ' + bigDown + ' days &lt;-1%</span>';
+  html += '</div>';
+
+  container.innerHTML = html;
 }
 
 // =====================================================================
