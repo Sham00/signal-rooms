@@ -1407,7 +1407,7 @@
   <!-- SECTION 0: COMPOSITE BULL/BEAR SIGNAL -->
   <!-- ============================================================ -->
   <section class="full-width card fade-in" id="sec-composite" style="animation-delay:0.05s">
-    <div class="section-title">Market Signal <span class="info-tooltip" data-tip="Composite bull/bear score computed from 7 factors: RSI momentum, real yield (10Y TIPS), DXY trend, ETF flows, COT positioning, active market catalysts (tariffs, CB buying, etc.), and ratio extremes (gold/silver, gold/SPX, gold/copper percentiles). Score ranges from -10 (Strongly Bearish) to +10 (Strongly Bullish).">ℹ</span><span class="freshness-badge freshness-live">● Hourly</span></div>
+    <div class="section-title">Market Signal <span class="info-tooltip" data-tip="Composite bull/bear score computed from 8 factors: RSI momentum, real yield (10Y TIPS), DXY trend, ETF flows, COT positioning, active market catalysts (tariffs, CB buying, etc.), ratio extremes (gold/silver, gold/SPX, gold/copper percentiles), and news headline sentiment. Score ranges from -10 (Strongly Bearish) to +10 (Strongly Bullish).">ℹ</span><span class="freshness-badge freshness-live">● Hourly</span></div>
     <div class="signal-gauge-wrap">
       <!-- Arc gauge -->
       <div class="signal-gauge-arc">
@@ -2972,7 +2972,21 @@ function renderCompositeSignal() {
     }
   }
 
-  // Normalize score to -14..+14 range (7 factors, each max ±2 = ±14, clamp to ±10)
+  // Factor 8: News Headline Sentiment (-2 to +2)
+  var newsData = DATA.news;
+  if (newsData && newsData.sentiment_score != null) {
+    var newsSc = newsData.sentiment_score; // -100 to +100
+    var newsScore = 0, newsLabel = '', newsColor = '#888';
+    if (newsSc >= 60)        { newsScore = 2;    newsLabel = 'Very Bullish (' + newsSc.toFixed(0) + ')'; newsColor = '#00ff88'; }
+    else if (newsSc >= 30)   { newsScore = 1;    newsLabel = 'Bullish (' + newsSc.toFixed(0) + ')'; newsColor = '#88dd44'; }
+    else if (newsSc >= -10)  { newsScore = 0;    newsLabel = 'Neutral (' + newsSc.toFixed(0) + ')'; newsColor = '#888'; }
+    else if (newsSc >= -40)  { newsScore = -1;   newsLabel = 'Bearish (' + newsSc.toFixed(0) + ')'; newsColor = '#ff8844'; }
+    else                     { newsScore = -2;   newsLabel = 'Very Bearish (' + newsSc.toFixed(0) + ')'; newsColor = '#ff3333'; }
+    totalScore += newsScore;
+    factors.push({ label: 'News Sentiment', val: newsLabel, score: newsScore, color: newsColor });
+  }
+
+  // Normalize score to -16..+16 range (8 factors, each max ±2 = ±16, clamp to ±10)
   var clampedScore = Math.max(-10, Math.min(10, totalScore));
 
   // Determine label and color
@@ -3005,6 +3019,8 @@ function renderCompositeSignal() {
     var negReal = (macro.real_yield_10y != null && macro.real_yield_10y < 0);
     var cotCrowded = (cot && cot.net_percentile != null && cot.net_percentile > 85);
     var dxyWeak = (macro.dxy != null && macro.dxy < 99);
+    var newsVeryBull = (newsData && newsData.sentiment_score != null && newsData.sentiment_score >= 60);
+    var newsVeryBear = (newsData && newsData.sentiment_score != null && newsData.sentiment_score <= -40);
 
     var lines = [];
     if (clampedScore >= 6) {
@@ -3038,6 +3054,8 @@ function renderCompositeSignal() {
       if (hasCBBuying) lines.push('Central bank buying activity detected — structural demand signal.');
       if (hasMacroCatalyst) lines.push('🏦 Upcoming FOMC — rate uncertainty supports gold positioning.');
     }
+    if (newsVeryBull) lines.push('📰 News sentiment very bullish — broad positive media coverage supporting gold.');
+    if (newsVeryBear) lines.push('📰 News sentiment very bearish — negative media pressure, watch for capitulation.');
 
     interpEl.innerHTML = lines.map(function(l) { return '<span style="display:block;margin-bottom:2px;">' + l + '</span>'; }).join('');
     interpEl.style.color = clampedScore >= 2 ? '#88dd44' : clampedScore <= -2 ? '#ff8844' : '#888';
