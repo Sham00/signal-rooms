@@ -3106,11 +3106,16 @@ def fetch_bank_targets():
     median = (values[n // 2 - 1] + values[n // 2]) / 2 if n % 2 == 0 else values[n // 2]
     avg = sum(values) / n
 
+    highest_target = max(values)
+    most_bullish_bank = next((t["institution"] for t in targets if t["target"] == highest_target), None)
+
     write_json("bank_targets.json", {
         "targets": targets,
         "consensus_median": round(median),
         "consensus_avg": round(avg),
         "count": len(targets),
+        "highest_target": highest_target,
+        "most_bullish_bank": most_bullish_bank,
         "last_verified": "2026-04-03",
         "last_updated": now_str,
         "data_quality": "static",
