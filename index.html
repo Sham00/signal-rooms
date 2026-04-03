@@ -2662,7 +2662,7 @@ function renderMarketAlerts() {
     tariff_catalyst: '#ffd700', rsi_oversold: '#4488ff', rsi_overbought: '#ff8844',
     rsi_approaching_oversold: '#4488ff', ath_pullback: '#ffd700',
     ma50_break: '#ff8844', ytd_correction: '#ff8844', macro_catalyst: '#4488ff',
-    fomc_window: '#4488ff', correlation_breakdown: '#ff8844',
+    fomc_window: '#4488ff', correlation_breakdown: '#ff6666', bearish_macro: '#ff8844',
   };
   var typeLabels = {
     cb_buying: 'CB BUYING', cb_selling: 'CB SELLING', etf_inflow: 'ETF INFLOW',
@@ -2670,7 +2670,7 @@ function renderMarketAlerts() {
     tariff_catalyst: '⚡ TARIFF', rsi_oversold: '📉 RSI', rsi_overbought: '📈 RSI',
     rsi_approaching_oversold: '📉 RSI', ath_pullback: '🟡 ATH',
     ma50_break: '⚠️ MA50', ytd_correction: '📊 YTD', macro_catalyst: '🏦 MACRO',
-    fomc_window: '🏦 FOMC', correlation_breakdown: '📊 CORR',
+    fomc_window: '🏦 FOMC', correlation_breakdown: '📊 CORR BREAK', bearish_macro: '📉 BEARISH',
   };
   list.innerHTML = d.alerts.slice(0, 8).map(function(a) {
     var color = typeColors[a.type] || '#ffaa00';
@@ -2912,7 +2912,7 @@ function renderCompositeSignal() {
   var marketIntel = DATA.marketIntel;
   if (marketIntel && marketIntel.alerts && marketIntel.alerts.length) {
     var bullishTypes = { tariff_catalyst: 1.5, cb_buying: 1, etf_inflow: 0.5, backwardation: 1, lease_spike: 0.5, rsi_approaching_oversold: 0.5, rsi_oversold: 1.0, ath_pullback: 0.5 };
-    var bearishTypes = { cb_selling: -1, etf_outflow: -0.5, ma50_break: -0.5, ytd_correction: -0.5, rsi_overbought: -0.5 };
+    var bearishTypes = { cb_selling: -1, etf_outflow: -0.5, ma50_break: -0.5, ytd_correction: -0.5, rsi_overbought: -0.5, correlation_breakdown: -1.0, bearish_macro: -0.5 };
     var catSum = 0;
     var criticalAlerts = [];
     marketIntel.alerts.forEach(function(a) {

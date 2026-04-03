@@ -2909,6 +2909,9 @@ def fetch_market_intelligence():
         ]
         tariff_kw = ["tariff", "trade war", "liberation day", "reciprocal tariff", "import duty", "trade policy", "precious metals", "safe-haven", "safe haven"]
         gold_kw = ["gold", "xau", "bullion", "precious metal", "safe haven", "precious metals"]
+        # Keywords indicating a BEARISH gold headline (gold falling, headwinds)
+        bearish_gold_kw = ["slides", "falls", "drops", "tumbles", "retreats", "loses", "weakness", "headwinds",
+                           "rate fears", "strong dollar", "rate hike", "hawkish", "overshadow", "pressure"]
         seen_tariff = set()
         for tariff_url in tariff_feeds:
             tariff_feed = _fp.parse(tariff_url, request_headers=headers_mi)
@@ -2922,11 +2925,18 @@ def fetch_market_intelligence():
                 if title in seen_tariff:
                     continue
                 seen_tariff.add(title)
+                # Classify as bearish_macro if headline suggests gold is falling
+                if any(k in tl for k in bearish_gold_kw):
+                    alert_type = "bearish_macro"
+                    significance = "medium"
+                else:
+                    alert_type = "tariff_catalyst"
+                    significance = "high"
                 alerts.append({
-                    "type": "tariff_catalyst",
+                    "type": alert_type,
                     "headline": title,
                     "detail": "",
-                    "significance": "high",
+                    "significance": significance,
                     "ts": entry.get("published", now_str),
                     "link": entry.get("link", ""),
                 })
@@ -3097,7 +3107,7 @@ def fetch_market_intelligence():
     # Gold falling with stocks (unusual correlation breakdown — Liberation Day aftermath)
     if days_since_ld <= 21:
         pinned_alerts.append({
-            "type": "tariff_catalyst",
+            "type": "correlation_breakdown",
             "headline": "📉 GOLD-STOCKS CORRELATION BREAKDOWN: Gold fell with equities on Apr 2-3 — unusual risk-off liquidation vs traditional safe-haven behavior",
             "detail": "Gold typically rises when stocks fall. Post-Liberation Day, forced liquidation to cover margin calls temporarily pushed gold lower. Historically resolves bullishly as safe-haven demand resumes.",
             "significance": "high",
