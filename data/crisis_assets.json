@@ -261,9 +261,9 @@
       ]
     },
     "Bitcoin": {
-      "price": 66743.9,
+      "price": 66502.98,
       "start_price": 88731.98,
-      "ytd_pct": -24.78,
+      "ytd_pct": -25.05,
       "color": "#ff8800",
       "chart": [
         {
@@ -632,7 +632,7 @@
         },
         {
           "t": "2026-04-03",
-          "v": 75.22
+          "v": 74.95
         }
       ]
     },
@@ -1683,5 +1683,5 @@
     "reliability": "live",
     "notes": "All assets rebased to 100 at Jan 1 of current year for YTD comparison."
   },
-  "last_updated": "2026-04-03T01:24:22Z"
+  "last_updated": "2026-04-03T01:42:42Z"
 }
