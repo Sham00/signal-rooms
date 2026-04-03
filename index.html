@@ -2229,7 +2229,15 @@
   <!-- CRISIS ASSET COMPARISON (YTD) -->
   <!-- ============================================================ -->
   <section class="full-width card fade-in" id="sec-crisis" style="animation-delay:0.67s">
-    <div class="section-title">Crisis Asset Performance (YTD) <span class="info-tooltip" data-tip="All assets rebased to 100 at Jan 1 2026. Shows which safe-haven/risk assets are leading or lagging year-to-date. Includes S&amp;P 500 to show gold/stocks divergence during Liberation Day tariff crisis.">i</span><span class="freshness-badge freshness-live">● Hourly</span></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
+      <div class="section-title" style="margin-bottom:0;">Crisis Asset Performance <span class="info-tooltip" data-tip="All assets rebased to 100 at the selected start date. Shows which safe-haven/risk assets are leading or lagging. Includes S&amp;P 500 to show gold/stocks divergence during Liberation Day tariff crisis.">i</span><span class="freshness-badge freshness-live">● Hourly</span></div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span style="font-size:10px;color:#888;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.08em;">Rebase from:</span>
+        <button id="crisis-btn-ytd" onclick="setCrisisView('ytd')" style="padding:4px 10px;border-radius:6px;border:1px solid var(--gold);background:var(--gold);color:#000;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;transition:all .2s;">Jan 1</button>
+        <button id="crisis-btn-libday" onclick="setCrisisView('libday')" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,68,68,0.5);background:none;color:#ff8844;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;transition:all .2s;">⚡ Apr 2</button>
+      </div>
+    </div>
+    <div id="crisis-view-label" style="font-size:10px;color:#888;font-family:'JetBrains Mono',monospace;margin-bottom:8px;">Rebased to 100 at Jan 1, 2026 (YTD)</div>
     <div class="chart-wrap" style="height: 320px;">
       <canvas id="chart-crisis-assets"></canvas>
     </div>
@@ -5839,134 +5847,10 @@ function renderLeaseRate() {
 function renderCrisisAssets() {
   var d = DATA.crisisAssets;
   if (!d || !d.assets) return;
+  // Render chart using current view mode
+  renderCrisisAssetsWithMode(_crisisViewMode);
 
-  var assetNames = Object.keys(d.assets);
-  if (!assetNames.length) return;
-
-  // Build date-aligned datasets (each asset may start on different dates due to BTC trading 7 days)
-  var dateMap = {}; // date string -> index in refLabels
-  var refLabels = [];
-
-  // Collect all unique dates, sorted
-  assetNames.forEach(function(name) {
-    var asset = d.assets[name];
-    if (!asset.chart || !asset.chart.length) return;
-    asset.chart.forEach(function(pt) { if (!dateMap[pt.t]) dateMap[pt.t] = true; });
-  });
-  refLabels = Object.keys(dateMap).sort();
-  refLabels.forEach(function(dt, i) { dateMap[dt] = i; });
-
-  var datasets = [];
-  assetNames.forEach(function(name) {
-    var asset = d.assets[name];
-    if (!asset.chart || !asset.chart.length) return;
-    // Build sparse array aligned to refLabels
-    var values = new Array(refLabels.length).fill(null);
-    asset.chart.forEach(function(pt) {
-      var idx = dateMap[pt.t];
-      if (idx !== undefined) values[idx] = pt.v;
-    });
-    datasets.push({
-      label: name + ' (' + (asset.ytd_pct >= 0 ? '+' : '') + fmt(asset.ytd_pct, 1) + '%)',
-      data: values,
-      borderColor: asset.color,
-      borderWidth: 2,
-      pointRadius: 0,
-      tension: 0.3,
-      fill: false,
-      spanGaps: true,
-    });
-  });
-
-  if (!datasets.length) return;
-
-  destroyChart('crisis-assets');
-  var ctx = document.getElementById('chart-crisis-assets');
-  if (ctx) {
-    charts['crisis-assets'] = new Chart(ctx.getContext('2d'), {
-      type: 'line',
-      data: { labels: refLabels, datasets: datasets },
-      options: {
-        interaction: { intersect: false, mode: 'index' },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: {
-              maxTicksLimit: 8,
-              callback: function(val) {
-                try { return new Date(this.getLabelForValue(val)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); } catch(e) { return ''; }
-              }
-            }
-          },
-          y: {
-            grid: { color: 'rgba(255,255,255,0.03)' },
-            title: { display: true, text: 'Jan 1 2026 = 100', color: '#666', font: { size: 10 } },
-            ticks: { callback: function(v) { return v.toFixed(0); } }
-          }
-        },
-        plugins: {
-          legend: { display: true, labels: { boxWidth: 10, padding: 10, color: '#888' } },
-          tooltip: {
-            callbacks: {
-              title: function(items) {
-                try { return new Date(items[0].label + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); } catch(e) { return items[0].label; }
-              },
-              label: function(ctx) {
-                if (ctx.parsed.y == null) return null;
-                return '  ' + ctx.dataset.label.split(' (')[0] + ': ' + fmt(ctx.parsed.y, 1);
-              }
-            }
-          }
-        }
-      },
-      plugins: [{
-        id: 'baseline100',
-        afterDraw: function(chart) {
-          var yScale = chart.scales.y;
-          var xScale = chart.scales.x;
-          var c = chart.ctx;
-          var y = yScale.getPixelForValue(100);
-          c.save();
-          c.strokeStyle = 'rgba(255,255,255,0.25)';
-          c.lineWidth = 1;
-          c.setLineDash([4, 4]);
-          c.beginPath(); c.moveTo(xScale.left, y); c.lineTo(xScale.right, y); c.stroke();
-          c.setLineDash([]);
-          c.fillStyle = 'rgba(255,255,255,0.3)';
-          c.font = '9px JetBrains Mono, monospace';
-          c.fillText('Jan 1 baseline', xScale.left + 4, y - 3);
-          c.restore();
-        }
-      }]
-    });
-  }
-
-  // Legend cards
-  var legendContainer = document.getElementById('crisis-asset-legend');
-  if (legendContainer) {
-    legendContainer.innerHTML = '';
-    assetNames.forEach(function(name) {
-      var asset = d.assets[name];
-      var div = document.createElement('div');
-      div.className = 'bg-[#0a0a0a] rounded-lg p-3 border border-[var(--card-border)] text-center';
-      var priceStr = '';
-      if (asset.price != null) {
-        var p = asset.price;
-        if (name === 'VIX') priceStr = fmt(p, 2);
-        else if (p >= 1000) priceStr = '$' + p.toLocaleString('en-US', {maximumFractionDigits: 0});
-        else if (p >= 100) priceStr = '$' + fmt(p, 2);
-        else priceStr = '$' + fmt(p, 4);
-      }
-      div.innerHTML =
-        '<div class="text-[10px] text-[var(--text2)] mono mb-1">' + name + '</div>' +
-        (priceStr ? '<div class="text-[11px] mono text-[var(--text2)] mb-1">' + priceStr + '</div>' : '') +
-        '<div class="text-lg font-bold mono" style="color:' + asset.color + '">' +
-          (asset.ytd_pct >= 0 ? '+' : '') + fmt(asset.ytd_pct, 1) + '% YTD</div>';
-      legendContainer.appendChild(div);
-    });
-  }
-
-  // Dynamic context blurb
+    // Dynamic context blurb
   var blurbEl = document.getElementById('crisis-context-blurb');
   if (blurbEl) {
     var goldAsset = d.assets['Gold'];
@@ -5996,6 +5880,198 @@ function renderCrisisAssets() {
     else if (dxyAsset && dxyAsset.ytd_pct > 3) lines.push('💵 DXY up ' + fmt(dxyAsset.ytd_pct, 1) + '% YTD — gold rising despite dollar strength signals exceptionally strong underlying demand.');
     if (lines.length === 0) lines.push('Monitoring crisis asset divergences. All assets tracking close to baseline.');
     blurbEl.innerHTML = lines.join('<br>');
+  }
+}
+
+// --- CRISIS VIEW TOGGLE ---
+var _crisisViewMode = 'ytd'; // 'ytd' or 'libday'
+function setCrisisView(mode) {
+  _crisisViewMode = mode;
+  var btnYtd = document.getElementById('crisis-btn-ytd');
+  var btnLib = document.getElementById('crisis-btn-libday');
+  var label = document.getElementById('crisis-view-label');
+  if (btnYtd && btnLib) {
+    if (mode === 'ytd') {
+      btnYtd.style.background = 'var(--gold)'; btnYtd.style.color = '#000'; btnYtd.style.borderColor = 'var(--gold)';
+      btnLib.style.background = 'none'; btnLib.style.color = '#ff8844'; btnLib.style.borderColor = 'rgba(255,68,68,0.5)';
+      if (label) label.textContent = 'Rebased to 100 at Jan 1, 2026 (YTD)';
+    } else {
+      btnLib.style.background = '#ff4444'; btnLib.style.color = '#fff'; btnLib.style.borderColor = '#ff4444';
+      btnYtd.style.background = 'none'; btnYtd.style.color = 'var(--gold)'; btnYtd.style.borderColor = 'rgba(255,215,0,0.5)';
+      if (label) label.textContent = '⚡ Rebased to 100 at Apr 2, 2026 (Liberation Day)';
+    }
+  }
+  renderCrisisAssetsWithMode(mode);
+}
+
+function renderCrisisAssetsWithMode(mode) {
+  var d = DATA.crisisAssets;
+  if (!d || !d.assets) return;
+  var assetNames = Object.keys(d.assets);
+  if (!assetNames.length) return;
+
+  var LIB_DAY = '2026-04-02';
+
+  // Build date-aligned datasets
+  var dateMap = {};
+  var refLabels = [];
+  assetNames.forEach(function(name) {
+    var asset = d.assets[name];
+    if (!asset.chart || !asset.chart.length) return;
+    asset.chart.forEach(function(pt) {
+      if (mode === 'libday' && pt.t < LIB_DAY) return;
+      if (!dateMap[pt.t]) dateMap[pt.t] = true;
+    });
+  });
+  refLabels = Object.keys(dateMap).sort();
+  refLabels.forEach(function(dt, i) { dateMap[dt] = i; });
+
+  var datasets = [];
+  assetNames.forEach(function(name) {
+    var asset = d.assets[name];
+    if (!asset.chart || !asset.chart.length) return;
+
+    // Find base value for rebasing
+    var baseVal = null;
+    if (mode === 'libday') {
+      // Find the Liberation Day value (or nearest before)
+      var sorted = asset.chart.slice().sort(function(a, b) { return a.t < b.t ? -1 : 1; });
+      var libPt = sorted.find(function(pt) { return pt.t === LIB_DAY; });
+      if (!libPt) libPt = sorted.slice().reverse().find(function(pt) { return pt.t <= LIB_DAY; });
+      if (libPt) baseVal = libPt.v; // v is already rebased to Jan1=100
+    }
+
+    var values = new Array(refLabels.length).fill(null);
+    asset.chart.forEach(function(pt) {
+      if (mode === 'libday' && pt.t < LIB_DAY) return;
+      var idx = dateMap[pt.t];
+      if (idx !== undefined) {
+        if (mode === 'libday' && baseVal) {
+          values[idx] = (pt.v / baseVal) * 100;
+        } else {
+          values[idx] = pt.v;
+        }
+      }
+    });
+
+    // Compute current pct change for label
+    var lastVal = null;
+    for (var i = values.length - 1; i >= 0; i--) { if (values[i] != null) { lastVal = values[i]; break; } }
+    var pctChange = lastVal != null ? lastVal - 100 : 0;
+
+    datasets.push({
+      label: name + ' (' + (pctChange >= 0 ? '+' : '') + pctChange.toFixed(1) + '%)',
+      data: values,
+      borderColor: asset.color,
+      borderWidth: 2,
+      pointRadius: 0,
+      tension: 0.3,
+      fill: false,
+      spanGaps: true,
+    });
+  });
+
+  if (!datasets.length) return;
+
+  destroyChart('crisis-assets');
+  var ctx = document.getElementById('chart-crisis-assets');
+  if (!ctx) return;
+  var baselineLabel = mode === 'libday' ? 'Apr 2 baseline (Liberation Day)' : 'Jan 1 baseline';
+  var yTitle = mode === 'libday' ? 'Apr 2, 2026 = 100' : 'Jan 1 2026 = 100';
+  charts['crisis-assets'] = new Chart(ctx.getContext('2d'), {
+    type: 'line',
+    data: { labels: refLabels, datasets: datasets },
+    options: {
+      interaction: { intersect: false, mode: 'index' },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            maxTicksLimit: 8,
+            callback: function(val) {
+              try { return new Date(this.getLabelForValue(val)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); } catch(e) { return ''; }
+            }
+          }
+        },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.03)' },
+          title: { display: true, text: yTitle, color: '#666', font: { size: 10 } },
+          ticks: { callback: function(v) { return v.toFixed(0); } }
+        }
+      },
+      plugins: {
+        legend: { display: true, labels: { boxWidth: 10, padding: 10, color: '#888' } },
+        tooltip: {
+          callbacks: {
+            title: function(items) {
+              try { return new Date(items[0].label + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); } catch(e) { return items[0].label; }
+            },
+            label: function(ctx) {
+              if (ctx.parsed.y == null) return null;
+              var pct = ctx.parsed.y - 100;
+              return '  ' + ctx.dataset.label.split(' (')[0] + ': ' + ctx.parsed.y.toFixed(1) + ' (' + (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%)';
+            }
+          }
+        }
+      }
+    },
+    plugins: [{
+      id: 'baseline100',
+      afterDraw: function(chart) {
+        var yScale = chart.scales.y;
+        var xScale = chart.scales.x;
+        var c = chart.ctx;
+        var y = yScale.getPixelForValue(100);
+        c.save();
+        c.strokeStyle = 'rgba(255,255,255,0.25)';
+        c.lineWidth = 1;
+        c.setLineDash([4, 4]);
+        c.beginPath(); c.moveTo(xScale.left, y); c.lineTo(xScale.right, y); c.stroke();
+        c.setLineDash([]);
+        c.fillStyle = 'rgba(255,255,255,0.3)';
+        c.font = '9px JetBrains Mono, monospace';
+        c.fillText(baselineLabel, xScale.left + 4, y - 3);
+        c.restore();
+      }
+    }]
+  });
+
+  // Update legend cards with new pct values
+  var legendContainer = document.getElementById('crisis-asset-legend');
+  if (legendContainer) {
+    legendContainer.innerHTML = '';
+    assetNames.forEach(function(name) {
+      var asset = d.assets[name];
+      var div = document.createElement('div');
+      div.className = 'bg-[#0a0a0a] rounded-lg p-3 border border-[var(--card-border)] text-center';
+      var priceStr = '';
+      if (asset.price != null) {
+        var p = asset.price;
+        if (name === 'VIX') priceStr = fmt(p, 2);
+        else if (p >= 1000) priceStr = '$' + p.toLocaleString('en-US', {maximumFractionDigits: 0});
+        else if (p >= 100) priceStr = '$' + fmt(p, 2);
+        else priceStr = '$' + fmt(p, 4);
+      }
+      // Compute pct for this view
+      var pctLabel = '';
+      if (mode === 'libday') {
+        var sorted = asset.chart.slice().sort(function(a, b) { return a.t < b.t ? -1 : 1; });
+        var libPt = sorted.find(function(pt) { return pt.t === LIB_DAY; });
+        if (!libPt) libPt = sorted.slice().reverse().find(function(pt) { return pt.t <= LIB_DAY; });
+        var lastPt = sorted[sorted.length - 1];
+        if (libPt && lastPt) {
+          var chg = ((lastPt.v - libPt.v) / libPt.v) * 100;
+          pctLabel = (chg >= 0 ? '+' : '') + chg.toFixed(1) + '% since Apr 2';
+        }
+      } else {
+        pctLabel = (asset.ytd_pct >= 0 ? '+' : '') + fmt(asset.ytd_pct, 1) + '% YTD';
+      }
+      div.innerHTML =
+        '<div class="text-[10px] text-[var(--text2)] mono mb-1">' + name + '</div>' +
+        (priceStr ? '<div class="text-[11px] mono text-[var(--text2)] mb-1">' + priceStr + '</div>' : '') +
+        '<div class="text-lg font-bold mono" style="color:' + asset.color + '">' + pctLabel + '</div>';
+      legendContainer.appendChild(div);
+    });
   }
 }
 
