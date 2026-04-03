@@ -251,6 +251,52 @@
   .freshness-weekly { background: rgba(255,215,0,0.12); color: #ffd700; border: 1px solid rgba(255,215,0,0.25); }
   .freshness-quarterly { background: rgba(136,136,136,0.12); color: #888; border: 1px solid rgba(136,136,136,0.25); }
   .freshness-estimate { background: rgba(255,170,0,0.12); color: #ffaa00; border: 1px solid rgba(255,170,0,0.3); }
+
+  /* Market Status Bar */
+  .market-status-bar {
+    margin-bottom: 16px;
+    padding: 10px 16px;
+    background: rgba(255,215,0,0.04);
+    border: 1px solid rgba(255,215,0,0.1);
+    border-radius: 10px;
+  }
+  .market-status-inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
+  }
+  .market-session {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text2);
+  }
+  .market-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gray);
+    flex-shrink: 0;
+  }
+  .market-dot.open {
+    background: var(--green);
+    box-shadow: 0 0 6px rgba(0,255,136,0.5);
+    animation: pulse-dot 2s infinite;
+  }
+  .market-dot.pre-market {
+    background: #ffaa00;
+    box-shadow: 0 0 4px rgba(255,170,0,0.4);
+  }
+  .market-dot.closed { background: var(--gray); }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .market-name { font-weight: 600; color: var(--text); text-transform: uppercase; letter-spacing: 0.05em; }
+  .market-hours { font-size: 10px; color: var(--text2); }
   .freshness-stale { background: rgba(255,68,68,0.12); color: #ff6644; border: 1px solid rgba(255,68,68,0.3); animation: stalePulse 2s ease-in-out infinite; }
   @keyframes stalePulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
 
@@ -1492,6 +1538,32 @@
   <!-- ============================================================ -->
   <section class="full-width card fade-in" id="sec-price" style="animation-delay:0.1s">
     <div class="section-title">Price Command Center <span class="info-tooltip" data-tip="The current market price for one troy ounce of physical gold, based on COMEX front-month futures. This is the global benchmark price.">ℹ</span><span class="freshness-badge freshness-live">● Hourly</span></div>
+
+    <!-- Market Status Indicator -->
+    <div id="market-status-bar" class="market-status-bar">
+      <div class="market-status-inner">
+        <div class="market-session" id="ms-comex">
+          <span class="market-dot" id="ms-comex-dot"></span>
+          <span class="market-name">COMEX</span>
+          <span class="market-hours" id="ms-comex-hours">--</span>
+        </div>
+        <div class="market-session" id="ms-lbma">
+          <span class="market-dot" id="ms-lbma-dot"></span>
+          <span class="market-name">LBMA</span>
+          <span class="market-hours" id="ms-lbma-hours">--</span>
+        </div>
+        <div class="market-session" id="ms-shanghai">
+          <span class="market-dot" id="ms-shanghai-dot"></span>
+          <span class="market-name">Shanghai</span>
+          <span class="market-hours" id="ms-shanghai-hours">--</span>
+        </div>
+        <div class="market-session" id="ms-globex">
+          <span class="market-dot" id="ms-globex-dot"></span>
+          <span class="market-name">Globex</span>
+          <span class="market-hours" id="ms-globex-hours">--</span>
+        </div>
+      </div>
+    </div>
 
     <!-- Main chart -->
     <div class="chart-wrap chart-main-price" style="height: 40vh; min-height: 300px;">
@@ -6925,6 +6997,105 @@ function renderDailyHeatmap() {
 }
 
 // =====================================================================
+// =====================================================================
+// MARKET STATUS INDICATOR
+// =====================================================================
+(function updateMarketStatus() {
+  var now = new Date();
+  // Helper: get current time in a timezone as { h, m, dow }
+  function tzTime(tz) {
+    var s = now.toLocaleString('en-US', { timeZone: tz, hour12: false, hour: '2-digit', minute: '2-digit', weekday: 'short' });
+    // Parse "Mon, 14:30" format
+    var parts = s.split(', ');
+    var day = parts[0];
+    var tm = (parts[1] || '').split(':');
+    var dow = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(day);
+    return { h: parseInt(tm[0]) || 0, m: parseInt(tm[1]) || 0, dow: dow };
+  }
+  function inRange(t, openH, openM, closeH, closeM) {
+    var mins = t.h * 60 + t.m;
+    return mins >= openH * 60 + openM && mins < closeH * 60 + closeM;
+  }
+  function isWeekday(t) { return t.dow >= 1 && t.dow <= 5; }
+
+  var sessions = [
+    {
+      id: 'comex',
+      label: 'COMEX Floor',
+      tz: 'America/New_York',
+      check: function(t) {
+        if (!isWeekday(t)) return { status: 'closed', note: 'Weekend' };
+        if (inRange(t, 8, 20, 13, 30)) return { status: 'open', note: '8:20a–1:30p ET' };
+        if (inRange(t, 7, 50, 8, 20)) return { status: 'pre-market', note: 'Pre-open' };
+        var mins = t.h * 60 + t.m;
+        if (mins < 8 * 60 + 20) return { status: 'closed', note: 'Opens ' + formatCountdown(8, 20, t) };
+        return { status: 'closed', note: 'Closed' };
+      }
+    },
+    {
+      id: 'lbma',
+      label: 'LBMA',
+      tz: 'Europe/London',
+      check: function(t) {
+        if (!isWeekday(t)) return { status: 'closed', note: 'Weekend' };
+        if (inRange(t, 10, 30, 15, 0)) return { status: 'open', note: '10:30a–3:00p GMT' };
+        var mins = t.h * 60 + t.m;
+        if (mins < 10 * 60 + 30) return { status: 'closed', note: 'Opens ' + formatCountdown(10, 30, t) };
+        return { status: 'closed', note: 'Closed' };
+      }
+    },
+    {
+      id: 'shanghai',
+      label: 'Shanghai (SGE)',
+      tz: 'Asia/Shanghai',
+      check: function(t) {
+        if (!isWeekday(t)) return { status: 'closed', note: 'Weekend' };
+        // SGE: morning 9:00-11:30, afternoon 13:30-15:30, night 21:00-2:30 next day
+        if (inRange(t, 9, 0, 11, 30) || inRange(t, 13, 30, 15, 30) || t.h >= 21) return { status: 'open', note: 'Open' };
+        if (inRange(t, 0, 0, 2, 30)) return { status: 'open', note: 'Night session' };
+        return { status: 'closed', note: 'Closed' };
+      }
+    },
+    {
+      id: 'globex',
+      label: 'CME Globex',
+      tz: 'America/New_York',
+      check: function(t) {
+        // Globex: Sun 6pm – Fri 5pm ET (nearly 24h, closed Sat + Fri 5pm-Sun 6pm)
+        if (t.dow === 6) return { status: 'closed', note: 'Weekend' }; // Saturday
+        if (t.dow === 0 && t.h < 18) return { status: 'closed', note: 'Opens Sun 6pm ET' };
+        if (t.dow === 5 && t.h >= 17) return { status: 'closed', note: 'Weekend' };
+        // 45-min daily halt 5:00-5:45pm ET
+        if (inRange(t, 17, 0, 17, 45)) return { status: 'pre-market', note: 'Daily halt' };
+        return { status: 'open', note: '24h (Sun-Fri)' };
+      }
+    }
+  ];
+
+  function formatCountdown(targetH, targetM, t) {
+    var diff = (targetH * 60 + targetM) - (t.h * 60 + t.m);
+    if (diff <= 0) return '';
+    var hh = Math.floor(diff / 60), mm = diff % 60;
+    return hh > 0 ? 'in ' + hh + 'h' + (mm > 0 ? mm + 'm' : '') : 'in ' + mm + 'm';
+  }
+
+  sessions.forEach(function(sess) {
+    var t = tzTime(sess.tz);
+    var result = sess.check(t);
+    var dot = document.getElementById('ms-' + sess.id + '-dot');
+    var hours = document.getElementById('ms-' + sess.id + '-hours');
+    if (dot) {
+      dot.className = 'market-dot ' + result.status;
+    }
+    if (hours) {
+      hours.textContent = result.note;
+    }
+  });
+
+  // Update every 60 seconds
+  setTimeout(updateMarketStatus, 60000);
+})();
+
 // AUTO-REFRESH (reload all JSON every 5 minutes)
 // =====================================================================
 
