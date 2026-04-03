@@ -2047,6 +2047,17 @@ def fetch_miners():
     except Exception:
         gold_price = 3000
 
+    # Pre-compute gold YTD return once (reused for vs_gold_ytd per miner)
+    gold_ytd_pct = None
+    try:
+        _gold_ytd_hist = get_ticker("GC=F").history(start="2026-01-01", interval="1d")
+        if not _gold_ytd_hist.empty:
+            _g_start = float(_gold_ytd_hist["Close"].iloc[0])
+            _g_now = float(_gold_ytd_hist["Close"].iloc[-1])
+            gold_ytd_pct = (_g_now - _g_start) / _g_start * 100 if _g_start else None
+    except Exception:
+        pass
+
     miners = {}
     for sym, meta in symbols.items():
         try:
@@ -2077,13 +2088,37 @@ def fetch_miners():
             except Exception:
                 pass
 
-            # Market cap from info
+            # Market cap, P/E, and other info from yfinance
             market_cap = None
+            pe_ratio = None
+            forward_pe = None
+            ev_ebitda = None
+            dividend_yield = None
             try:
                 info = ticker.info
                 mc = info.get("marketCap")
                 if mc:
                     market_cap = mc
+                pe_raw = info.get("trailingPE")
+                if pe_raw and pe_raw > 0:
+                    pe_ratio = round(float(pe_raw), 1)
+                fpe_raw = info.get("forwardPE")
+                if fpe_raw and fpe_raw > 0:
+                    forward_pe = round(float(fpe_raw), 1)
+                ev_ebitda_raw = info.get("enterpriseToEbitda")
+                if ev_ebitda_raw and ev_ebitda_raw > 0:
+                    ev_ebitda = round(float(ev_ebitda_raw), 1)
+                dy_raw = info.get("dividendYield")
+                if dy_raw and dy_raw > 0:
+                    dividend_yield = round(float(dy_raw) * 100, 2)
+            except Exception:
+                pass
+
+            # vs_gold YTD: miner YTD relative to gold YTD (alpha vs gold)
+            vs_gold_ytd = None
+            try:
+                if ytd_pct is not None and gold_ytd_pct is not None:
+                    vs_gold_ytd = round(ytd_pct - gold_ytd_pct, 2)
             except Exception:
                 pass
 
@@ -2096,6 +2131,11 @@ def fetch_miners():
                 "ytd_pct": ytd_pct,
                 "week4_pct": week4_pct,
                 "market_cap": market_cap,
+                "pe_ratio": pe_ratio,
+                "forward_pe": forward_pe,
+                "ev_ebitda": ev_ebitda,
+                "dividend_yield": dividend_yield,
+                "vs_gold_ytd": vs_gold_ytd,
             }
 
             if sym in aisc_data:

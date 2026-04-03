@@ -50,8 +50,8 @@
     }
   ],
   "dxy_signal": "BEARISH",
-  "dxy_30d_change_pct": 2.51,
-  "dxy_now": 100.15,
+  "dxy_30d_change_pct": 2.54,
+  "dxy_now": 100.18,
   "dxy_1y": [
     {
       "t": "2025-04-03",
@@ -1063,7 +1063,7 @@
     },
     {
       "t": "2026-04-03",
-      "v": 100.15
+      "v": 100.18
     }
   ],
   "gold_1y": [
@@ -2161,5 +2161,5 @@
     "status": "ACTIVE",
     "description": "10% baseline tariff on all imports + higher country-specific reciprocal rates announced Apr 2, 2026. Gold surged as flight-to-safety demand spiked and the dollar weakened."
   },
-  "last_updated": "2026-04-03T15:46:41Z"
+  "last_updated": "2026-04-03T16:37:44Z"
 }
