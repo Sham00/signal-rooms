@@ -2967,7 +2967,40 @@ function renderPriceChart(timeframe) {
           }
         }
       }
-    }
+    },
+    plugins: [{
+      id: 'liberationDayLine',
+      afterDraw: function(chart) {
+        // Draw vertical line at Liberation Day (Apr 2, 2026) for 1m/3m/1y timeframes
+        if (timeframe !== '1m' && timeframe !== '3m' && timeframe !== '1y') return;
+        var ldDate = '2026-04-02';
+        var labels = chart.data.labels;
+        if (!labels || !labels.length) return;
+        var ldIdx = -1;
+        for (var i = 0; i < labels.length; i++) {
+          if (labels[i] && labels[i].substring(0, 10) === ldDate) { ldIdx = i; break; }
+        }
+        if (ldIdx < 0) return;
+        var xScale = chart.scales.x;
+        var yScale = chart.scales.y;
+        var c = chart.ctx;
+        var x = xScale.getPixelForValue(ldIdx);
+        c.save();
+        c.strokeStyle = 'rgba(255,100,0,0.65)';
+        c.lineWidth = 1.5;
+        c.setLineDash([5, 4]);
+        c.beginPath();
+        c.moveTo(x, yScale.top);
+        c.lineTo(x, yScale.bottom);
+        c.stroke();
+        c.setLineDash([]);
+        c.fillStyle = 'rgba(255,100,0,0.85)';
+        c.font = 'bold 9px JetBrains Mono, monospace';
+        c.textAlign = 'center';
+        c.fillText('⚡ Liberation Day', x, yScale.top + 11);
+        c.restore();
+      }
+    }]
   });
 }
 

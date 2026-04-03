@@ -5059,8 +5059,8 @@
       "v": 4.33
     }
   ],
-  "dxy": 100.02,
-  "dxy_date": "2026-04-02",
+  "dxy": 99.99,
+  "dxy_date": "2026-04-03",
   "dxy_chart": [
     {
       "t": "2025-04-02",
@@ -6072,7 +6072,7 @@
     },
     {
       "t": "2026-04-02",
-      "v": 100.02
+      "v": 99.99
     }
   ],
   "data_sources": {
@@ -7105,5 +7105,5 @@
     "reliability": "live",
     "notes": "Real yield 10Y from TIP/TNX calculation. Some inflation estimates lag 1 month (BLS release schedule)."
   },
-  "last_updated": "2026-04-02T23:51:35Z"
+  "last_updated": "2026-04-03T00:23:26Z"
 }

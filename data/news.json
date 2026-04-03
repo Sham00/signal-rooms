@@ -127,6 +127,13 @@
       "sentiment": "positive"
     },
     {
+      "source": "Google News",
+      "title": "Gold price drops after Trump makes stunning claim about Iran - thestreet.com",
+      "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxONjZXWXNwazQycTVfbWptSnozRW16c2UySDNLaWttVUVkTW9EeWNJYkh2ZzNBM1VmQmNwai03d1o4d3kyWEx2Uk1CdWp2UTFMTXZDcGpabnBkTVhCV3JtSjdFUXBQZ29UZFZSc19pYndwZmplM2pSblhyeDRRbXBRTUtMeXZsYzlYOWdhNmVHZUhxOW80VC1xQXNDXzY?oc=5",
+      "published": "Thu, 02 Apr 2026 16:47:00 GMT",
+      "sentiment": "negative"
+    },
+    {
       "source": "Mining.com",
       "title": "United States Antimony restarts mining in Montana",
       "link": "https://www.mining.com/united-states-antimony-restarts-mining-in-montana/",
@@ -167,25 +174,18 @@
       "link": "https://www.mining.com/wheaton-lands-4-3b-bhp-silver-stream-enters-australia/",
       "published": "Thu, 02 Apr 2026 12:33:24 +0000",
       "sentiment": "neutral"
-    },
-    {
-      "source": "Google News",
-      "title": "Gold Price Forecasts: JP Morgan vs. ANZ on 2026 Market Outlook - News and Statistics - IndexBox",
-      "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxOSXB1U3hHN3lZSENVUTlhb2t4clpkM3lyNzhsQm9ZQWZiVTFxUHZ3TFlwaDNwNEppdlRZNENqb0xtcVlkREFxQmhZdnFaMW55NndrNEliQXRtZWtxdS16LU5XNEUxM05JaVlkTXdQcmlTOXBRcF95a29IY0NqUlVfWUJKby1ScE9KWnRodkFWVk9FeHZHdFZVZ3doS05uTFE?oc=5",
-      "published": "Thu, 02 Apr 2026 12:31:00 GMT",
-      "sentiment": "positive"
     }
   ],
-  "sentiment_score": 54.8,
-  "bull_count": 18,
-  "bear_count": 1,
+  "sentiment_score": 48.4,
+  "bull_count": 17,
+  "bear_count": 2,
   "neutral_count": 12,
-  "bull_pct": 58.1,
+  "bull_pct": 54.8,
   "data_quality": {
     "source": "RSS feeds: Kitco, BullionVault, GoldPrice.org, Google News, Mining.com, Reuters, Investing.com",
     "freshness": "hourly",
     "reliability": "live",
     "notes": "Sentiment scoring is keyword-based heuristic. Not a substitute for full NLP sentiment analysis."
   },
-  "last_updated": "2026-04-02T23:51:53Z"
+  "last_updated": "2026-04-03T00:23:42Z"
 }
