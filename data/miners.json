@@ -7,6 +7,7 @@
       "change": -2.49,
       "change_pct": -2.56,
       "ytd_pct": 10.33,
+      "week4_pct": -10.66,
       "market_cap": null,
       "sparkline": [
         {
@@ -518,6 +519,7 @@
       "change": -4.14,
       "change_pct": -3.28,
       "ytd_pct": 7.94,
+      "week4_pct": -14.25,
       "market_cap": null,
       "sparkline": [
         {
@@ -1029,10 +1031,11 @@
       "change": -0.7,
       "change_pct": -1.66,
       "ytd_pct": 19.1,
+      "week4_pct": -26.32,
       "market_cap": 1161232128,
       "aisc": 1050,
       "production_koz": 4100,
-      "margin": 3652.7,
+      "margin": 3601.5,
       "sparkline": [
         {
           "t": "2025-10-03",
@@ -1543,10 +1546,11 @@
       "change": -0.8,
       "change_pct": -0.7,
       "ytd_pct": 12.9,
+      "week4_pct": -4.46,
       "market_cap": 124072050688,
       "aisc": 1400,
       "production_koz": 5500,
-      "margin": 3302.7,
+      "margin": 3251.5,
       "sparkline": [
         {
           "t": "2025-10-03",
@@ -2057,10 +2061,11 @@
       "change": -4.37,
       "change_pct": -2.05,
       "ytd_pct": 22.57,
+      "week4_pct": -10.39,
       "market_cap": 105077456896,
       "aisc": 1150,
       "production_koz": 3500,
-      "margin": 3552.7,
+      "margin": 3501.5,
       "sparkline": [
         {
           "t": "2025-10-03",
@@ -2571,10 +2576,11 @@
       "change": 0.49,
       "change_pct": 1.08,
       "ytd_pct": 19.88,
+      "week4_pct": -11.38,
       "market_cap": 19379326976,
       "aisc": 1050,
       "production_koz": 550,
-      "margin": 3652.7,
+      "margin": 3601.5,
       "sparkline": [
         {
           "t": "2025-10-03",
@@ -3085,10 +3091,11 @@
       "change": -3.44,
       "change_pct": -2.47,
       "ytd_pct": 15.19,
+      "week4_pct": -11.81,
       "market_cap": 61736222720,
       "aisc": 450,
       "production_koz": 800,
-      "margin": 4252.7,
+      "margin": 4201.5,
       "sparkline": [
         {
           "t": "2025-10-03",
@@ -3599,10 +3606,11 @@
       "change": 2.14,
       "change_pct": 0.84,
       "ytd_pct": 23.77,
+      "week4_pct": -1.45,
       "market_cap": 49735315456,
       "aisc": 400,
       "production_koz": 720,
-      "margin": 4302.7,
+      "margin": 4251.5,
       "sparkline": [
         {
           "t": "2025-10-03",
@@ -4107,7 +4115,7 @@
       ]
     }
   },
-  "gdx_gold_ratio": 0.020114,
+  "gdx_gold_ratio": 0.020335,
   "gdx_gold_ratio_chart": [
     {
       "t": "2025-04-03",
@@ -5111,7 +5119,7 @@
     },
     {
       "t": "2026-04-02",
-      "v": 0.020114
+      "v": 0.020335
     }
   ],
   "mining_production": {
@@ -5215,5 +5223,5 @@
     "reliability": "live (prices) / estimate (AISC, production)",
     "notes": "AISC and production data sourced from company annual reports / consensus estimates. Updated manually quarterly."
   },
-  "last_updated": "2026-04-03T03:53:35Z"
+  "last_updated": "2026-04-03T04:43:13Z"
 }

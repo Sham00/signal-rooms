@@ -2024,14 +2024,20 @@ def fetch_miners():
             change = price - prev
             change_pct = (change / prev) * 100 if prev else 0
 
-            # YTD return
+            # YTD return + 4-week return
             ytd_pct = None
+            week4_pct = None
             try:
                 ytd_hist = ticker.history(start="2026-01-01", interval="1d")
                 if not ytd_hist.empty:
                     start_price = ytd_hist["Close"].iloc[0]
                     if start_price:
                         ytd_pct = round((price - start_price) / start_price * 100, 2)
+                    # 4-week (22 trading days) return
+                    if len(ytd_hist) >= 22:
+                        price_22d_ago = float(ytd_hist["Close"].iloc[-22])
+                        if price_22d_ago:
+                            week4_pct = round((price - price_22d_ago) / price_22d_ago * 100, 2)
             except Exception:
                 pass
 
@@ -2052,6 +2058,7 @@ def fetch_miners():
                 "change": round(change, 2),
                 "change_pct": round(change_pct, 2),
                 "ytd_pct": ytd_pct,
+                "week4_pct": week4_pct,
                 "market_cap": market_cap,
             }
 

@@ -730,11 +730,12 @@
     #cb-table th:nth-child(4), #cb-table td:nth-child(4),
     #cb-table th:nth-child(5), #cb-table td:nth-child(5) { display: none; }
 
-    /* 4. Miners Table: hide YTD%, Mkt Cap, Production koz, 6M Chart on mobile */
+    /* 4. Miners Table: hide YTD%, 4-Week%, Mkt Cap, Production koz, 6M Chart on mobile */
     #miners-table th:nth-child(4), #miners-table td:nth-child(4),
     #miners-table th:nth-child(5), #miners-table td:nth-child(5),
-    #miners-table th:nth-child(8), #miners-table td:nth-child(8),
-    #miners-table th:nth-child(9), #miners-table td:nth-child(9) { display: none; }
+    #miners-table th:nth-child(6), #miners-table td:nth-child(6),
+    #miners-table th:nth-child(9), #miners-table td:nth-child(9),
+    #miners-table th:nth-child(10), #miners-table td:nth-child(10) { display: none; }
 
     /* 10. Gold Flow SVG map: hidden by default on mobile */
     #gold-flow-svg-wrap { display: none; }
@@ -1240,7 +1241,7 @@
   <!-- SECTION 0: COMPOSITE BULL/BEAR SIGNAL -->
   <!-- ============================================================ -->
   <section class="full-width card fade-in" id="sec-composite" style="animation-delay:0.05s">
-    <div class="section-title">Market Signal <span class="info-tooltip" data-tip="Composite bull/bear score computed from 6 factors: RSI momentum, real yield (10Y TIPS), DXY trend, ETF flows, COT positioning, and active market catalysts (tariffs, CB buying, etc.). Score ranges from -10 (Strongly Bearish) to +10 (Strongly Bullish).">ℹ</span><span class="freshness-badge freshness-live">● Hourly</span></div>
+    <div class="section-title">Market Signal <span class="info-tooltip" data-tip="Composite bull/bear score computed from 7 factors: RSI momentum, real yield (10Y TIPS), DXY trend, ETF flows, COT positioning, active market catalysts (tariffs, CB buying, etc.), and ratio extremes (gold/silver, gold/SPX, gold/copper percentiles). Score ranges from -10 (Strongly Bearish) to +10 (Strongly Bullish).">ℹ</span><span class="freshness-badge freshness-live">● Hourly</span></div>
     <div class="signal-gauge-wrap">
       <!-- Arc gauge -->
       <div class="signal-gauge-arc">
@@ -1270,7 +1271,7 @@
         <div class="signal-label" id="composite-label" style="color: #555; font-size: 1rem; letter-spacing: 0.1em;">Awaiting data…</div>
         <div class="text-xs mono mt-1" id="composite-score-text" style="color:#444;">Score: loading</div>
         <div id="composite-how" class="text-[10px] mono mt-2" style="color:#555;line-height:1.5;">
-          Score = RSI momentum + Real yields + USD strength + ETF flows + COT positioning + Market catalysts
+          Score = RSI momentum + Real yields + USD strength + ETF flows + COT positioning + Market catalysts + Ratio extremes
           <br>Range: −10 (Max Bearish) to +10 (Max Bullish)
         </div>
         <div id="composite-updated" class="text-[9px] mono mt-1" style="color:#444;"></div>
@@ -2035,6 +2036,7 @@
             <th>Price</th>
             <th>Change %</th>
             <th>YTD %</th>
+            <th>4-Week %</th>
             <th>Mkt Cap</th>
             <th>AISC</th>
             <th>Margin</th>
@@ -2043,7 +2045,7 @@
           </tr>
         </thead>
         <tbody id="miners-table-body">
-          <tr><td colspan="9" class="text-center py-8"><div class="spinner mx-auto"></div></td></tr>
+          <tr><td colspan="10" class="text-center py-8"><div class="spinner mx-auto"></div></td></tr>
         </tbody>
       </table>
     </div>
@@ -2347,7 +2349,7 @@ function showSkeletonCharts() {
   var cbBody = document.getElementById('cb-table-body');
   if (cbBody) cbBody.innerHTML = '<tr><td colspan="6" class="text-center py-6"><div class="spinner mx-auto"></div><div class="text-[10px] text-[var(--text2)] mono mt-2 text-center">Loading data…</div></td></tr>';
   var minersBody = document.getElementById('miners-table-body');
-  if (minersBody) minersBody.innerHTML = '<tr><td colspan="9" class="text-center py-6"><div class="spinner mx-auto"></div><div class="text-[10px] text-[var(--text2)] mono mt-2 text-center">Loading data…</div></td></tr>';
+  if (minersBody) minersBody.innerHTML = '<tr><td colspan="10" class="text-center py-6"><div class="spinner mx-auto"></div><div class="text-[10px] text-[var(--text2)] mono mt-2 text-center">Loading data…</div></td></tr>';
   var newsList = document.getElementById('news-list');
   if (newsList) newsList.innerHTML = '<div class="empty-state"><div class="spinner"></div><div class="empty-state-text" style="margin-top:8px;">Fetching headlines…</div></div>';
 }
@@ -2435,13 +2437,17 @@ function renderMarketAlerts() {
     cb_buying: '#00ff88', cb_selling: '#ff4444', etf_inflow: '#00ff88',
     etf_outflow: '#ff4444', lease_spike: '#ffaa00', backwardation: '#ffd700',
     tariff_catalyst: '#ffd700', rsi_oversold: '#4488ff', rsi_overbought: '#ff8844',
+    rsi_approaching_oversold: '#4488ff', ath_pullback: '#ffd700',
     ma50_break: '#ff8844', ytd_correction: '#ff8844', macro_catalyst: '#4488ff',
+    fomc_window: '#4488ff', correlation_breakdown: '#ff8844',
   };
   var typeLabels = {
     cb_buying: 'CB BUYING', cb_selling: 'CB SELLING', etf_inflow: 'ETF INFLOW',
     etf_outflow: 'ETF OUTFLOW', lease_spike: 'LEASE SPIKE', backwardation: 'BACKWARDATION',
     tariff_catalyst: '⚡ TARIFF', rsi_oversold: '📉 RSI', rsi_overbought: '📈 RSI',
+    rsi_approaching_oversold: '📉 RSI', ath_pullback: '🟡 ATH',
     ma50_break: '⚠️ MA50', ytd_correction: '📊 YTD', macro_catalyst: '🏦 MACRO',
+    fomc_window: '🏦 FOMC', correlation_breakdown: '📊 CORR',
   };
   list.innerHTML = d.alerts.slice(0, 8).map(function(a) {
     var color = typeColors[a.type] || '#ffaa00';
@@ -2667,8 +2673,8 @@ function renderCompositeSignal() {
   var catalystScore = 0, catalystLabel = '', catalystColor = '#888';
   var marketIntel = DATA.marketIntel;
   if (marketIntel && marketIntel.alerts && marketIntel.alerts.length) {
-    var bullishTypes = { tariff_catalyst: 1.5, cb_buying: 1, etf_inflow: 0.5, backwardation: 1, lease_spike: 0.5 };
-    var bearishTypes = { cb_selling: -1, etf_outflow: -0.5, ma50_break: -0.5, ytd_correction: -0.5 };
+    var bullishTypes = { tariff_catalyst: 1.5, cb_buying: 1, etf_inflow: 0.5, backwardation: 1, lease_spike: 0.5, rsi_approaching_oversold: 0.5, rsi_oversold: 1.0, ath_pullback: 0.5 };
+    var bearishTypes = { cb_selling: -1, etf_outflow: -0.5, ma50_break: -0.5, ytd_correction: -0.5, rsi_overbought: -0.5 };
     var catSum = 0;
     var criticalAlerts = [];
     marketIntel.alerts.forEach(function(a) {
@@ -2702,7 +2708,46 @@ function renderCompositeSignal() {
     }
   }
 
-  // Normalize score to -12..+12 range (6 factors, each max ±2 = ±12, clamp to ±10)
+  // Factor 7: Ratio Extremes (gold/spx, gold/copper, gold/silver percentiles)
+  var ratios = DATA.ratios;
+  if (ratios && ratios.ratio_ranges) {
+    var ratioScore = 0, ratioLabel = '', ratioColor = '#888';
+    var spxPct = ratios.ratio_ranges.gold_spx ? ratios.ratio_ranges.gold_spx.current_percentile : null;
+    var copperPct = ratios.ratio_ranges.gold_copper ? ratios.ratio_ranges.gold_copper.current_percentile : null;
+    var silverPct = ratios.ratio_ranges.gold_silver ? ratios.ratio_ranges.gold_silver.current_percentile : null;
+    var gsRatio = ratios.ratios ? ratios.ratios.gold_silver : null;
+
+    // Gold/Silver at very low percentile = silver historically cheap = late-bull signal (bullish for complex)
+    if (silverPct != null && silverPct < 5) {
+      ratioScore += 1.0; // bullish — historically precedes silver catch-up (late bull)
+    }
+    // Gold/SPX at extreme high = crowded risk-off = mean reversion risk for gold
+    if (spxPct != null && spxPct > 95) {
+      ratioScore -= 0.5; // caution — gold vastly outperforming stocks, mean reversion risk
+    }
+    // Gold/Copper at extreme high = recession priced in = potential reversal if no recession
+    if (copperPct != null && copperPct > 95) {
+      ratioScore -= 0.5; // caution — recession fear priced in
+    }
+
+    ratioScore = Math.max(-2, Math.min(2, ratioScore));
+
+    var parts = [];
+    if (silverPct != null && silverPct < 5) parts.push('Silver ' + fmt(silverPct, 0) + 'th %ile (cheap)');
+    if (spxPct != null && spxPct > 90) parts.push('Gold/SPX ' + fmt(spxPct, 0) + 'th %ile');
+    if (copperPct != null && copperPct > 90) parts.push('Gold/Copper ' + fmt(copperPct, 0) + 'th %ile');
+
+    if (parts.length > 0) {
+      ratioLabel = parts.slice(0, 2).join(', ');
+      if (ratioScore > 0.2) ratioColor = '#88dd44';
+      else if (ratioScore < -0.2) ratioColor = '#ff8844';
+      else ratioColor = '#888';
+      totalScore += ratioScore;
+      factors.push({ label: 'Ratio Extremes', val: ratioLabel, score: ratioScore, color: ratioColor });
+    }
+  }
+
+  // Normalize score to -14..+14 range (7 factors, each max ±2 = ±14, clamp to ±10)
   var clampedScore = Math.max(-10, Math.min(10, totalScore));
 
   // Determine label and color
@@ -2750,12 +2795,21 @@ function renderCompositeSignal() {
     if (negReal) lines.push('Negative real yields: strongest bull catalyst active.');
     if (dxyWeak && macro.dxy != null) lines.push('Dollar weak — foreign buyer demand enhanced.');
     if (cotCrowded) lines.push('COT: speculative longs crowded — correction risk.');
+    // Ratio extremes context
+    if (ratios && ratios.ratio_ranges) {
+      var spxPctI = ratios.ratio_ranges.gold_spx ? ratios.ratio_ranges.gold_spx.current_percentile : null;
+      var copperPctI = ratios.ratio_ranges.gold_copper ? ratios.ratio_ranges.gold_copper.current_percentile : null;
+      var silverPctI = ratios.ratio_ranges.gold_silver ? ratios.ratio_ranges.gold_silver.current_percentile : null;
+      if (spxPctI != null && spxPctI > 95) lines.push('⚖️ Gold/SPX at ' + fmt(spxPctI, 0) + 'th percentile — gold crushing stocks at near-historic extremes; mean reversion risk elevated.');
+      if (copperPctI != null && copperPctI > 95) lines.push('🔴 Gold/Copper at ' + fmt(copperPctI, 0) + 'th percentile — recession fear fully priced in; recovery could pressure gold vs copper.');
+      if (silverPctI != null && silverPctI < 5) lines.push('🥈 Gold/Silver at ' + fmt(silverPctI, 0) + 'th percentile — silver historically cheap; late-bull signal, watch for silver catch-up rally.');
+    }
     // Check for critical tariff/geopolitical catalysts
     if (marketIntel && marketIntel.alerts) {
       var hasCriticalTariff = marketIntel.alerts.some(function(a) { return a.significance === 'critical' && a.type === 'tariff_catalyst'; });
       var hasCBBuying = marketIntel.alerts.some(function(a) { return a.type === 'cb_buying'; });
       var hasMacroCatalyst = marketIntel.alerts.some(function(a) { return a.type === 'macro_catalyst'; });
-      if (hasCriticalTariff) lines.push('⚡ Critical catalyst: Tariff/trade war escalation — historically strong gold tailwind.');
+      if (hasCriticalTariff) lines.push('⚡ Liberation Day tariffs (Apr 2, 2026): sweeping reciprocal tariffs — historically strong gold safe-haven catalyst.');
       if (hasCBBuying) lines.push('Central bank buying activity detected — structural demand signal.');
       if (hasMacroCatalyst) lines.push('🏦 Upcoming FOMC — rate uncertainty supports gold positioning.');
     }
@@ -4050,6 +4104,12 @@ function renderETFs() {
       w7Html = '<span class="text-[10px] mono" style="color:' + w7Color + ';opacity:0.7;">7d ' +
         (etf.week7_pct >= 0 ? '+' : '') + fmt(etf.week7_pct, 1) + '%</span>';
     }
+    var w4Html = '';
+    if (etf.week4_pct != null) {
+      var w4Color = colorForChange(etf.week4_pct);
+      w4Html = '<span class="text-[10px] mono" style="color:' + w4Color + ';opacity:0.75;">4w ' +
+        (etf.week4_pct >= 0 ? '+' : '') + fmt(etf.week4_pct, 1) + '%</span>';
+    }
 
     card.innerHTML =
       '<div class="flex items-center justify-between mb-2">' +
@@ -4064,6 +4124,7 @@ function renderETFs() {
         '<span class="text-xs mono" style="color:' + changeColor + '">' +
           (etf.change_pct >= 0 ? '+' : '') + fmt(etf.change_pct) + '%</span>' +
         w7Html +
+        w4Html +
       '</div>' +
       (etf.tonnes_est ?
         '<div class="flex items-center gap-2 mt-2">' +
@@ -5298,6 +5359,7 @@ function renderMiners() {
     var sparkId = 'spark-miner-' + sym;
 
     var ytdColor = m.ytd_pct != null ? colorForChange(m.ytd_pct) : '#888';
+    var w4Color = m.week4_pct != null ? colorForChange(m.week4_pct) : '#888';
     var mcapStr = '--';
     if (m.market_cap) {
       var mc = m.market_cap;
@@ -5308,6 +5370,7 @@ function renderMiners() {
       '<td>$' + fmt(m.price) + '</td>' +
       '<td style="color:' + changeColor + '">' + (m.change_pct >= 0 ? '+' : '') + fmt(m.change_pct) + '%</td>' +
       '<td style="color:' + ytdColor + ';font-weight:600;">' + (m.ytd_pct != null ? (m.ytd_pct >= 0 ? '+' : '') + fmt(m.ytd_pct) + '%' : '--') + '</td>' +
+      '<td style="color:' + w4Color + ';">' + (m.week4_pct != null ? (m.week4_pct >= 0 ? '+' : '') + fmt(m.week4_pct) + '%' : '--') + '</td>' +
       '<td class="text-[var(--text2)]">' + mcapStr + '</td>' +
       '<td>$' + (m.aisc != null ? fmtInt(m.aisc) : '--') + '</td>' +
       '<td style="color:' + marginColor + ';font-weight:600;">$' + (m.margin != null ? fmtInt(m.margin) : '--') + '</td>' +

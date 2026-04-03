@@ -17,10 +17,10 @@
   <text x="80" y="150" font-family="Arial" font-size="36" font-weight="bold" fill="#888888" letter-spacing="4">GOLD SITUATION ROOM</text>
   
   <!-- Price -->
-  <text x="80" y="350" font-family="Arial" font-size="96" font-weight="900" fill="#ffd700">$4,703</text>
+  <text x="80" y="350" font-family="Arial" font-size="96" font-weight="900" fill="#ffd700">$4,652</text>
   
   <!-- Change -->
-  <text x="85" y="420" font-family="Arial" font-size="48" fill="#ff4444">▼ 0.09%</text>
+  <text x="85" y="420" font-family="Arial" font-size="48" fill="#ff4444">▼ 1.18%</text>
   
   <!-- Tagline -->
   <text x="80" y="530" font-family="Arial" font-size="28" fill="#555555">Real-time gold intelligence · sham00.github.io/gold-situation-room</text>
