@@ -2404,15 +2404,15 @@ function renderMarketAlerts() {
     cb_buying: '#00ff88', cb_selling: '#ff4444', etf_inflow: '#00ff88',
     etf_outflow: '#ff4444', lease_spike: '#ffaa00', backwardation: '#ffd700',
     tariff_catalyst: '#ffd700', rsi_oversold: '#4488ff', rsi_overbought: '#ff8844',
-    ma50_break: '#ff8844', ytd_correction: '#ff8844',
+    ma50_break: '#ff8844', ytd_correction: '#ff8844', macro_catalyst: '#4488ff',
   };
   var typeLabels = {
     cb_buying: 'CB BUYING', cb_selling: 'CB SELLING', etf_inflow: 'ETF INFLOW',
     etf_outflow: 'ETF OUTFLOW', lease_spike: 'LEASE SPIKE', backwardation: 'BACKWARDATION',
     tariff_catalyst: '⚡ TARIFF', rsi_oversold: '📉 RSI', rsi_overbought: '📈 RSI',
-    ma50_break: '⚠️ MA50', ytd_correction: '📊 YTD',
+    ma50_break: '⚠️ MA50', ytd_correction: '📊 YTD', macro_catalyst: '🏦 MACRO',
   };
-  list.innerHTML = d.alerts.slice(0, 5).map(function(a) {
+  list.innerHTML = d.alerts.slice(0, 8).map(function(a) {
     var color = typeColors[a.type] || '#ffaa00';
     var isCritical = a.significance === 'critical';
     var ts = '';
@@ -2642,8 +2642,10 @@ function renderCompositeSignal() {
     if (marketIntel && marketIntel.alerts) {
       var hasCriticalTariff = marketIntel.alerts.some(function(a) { return a.significance === 'critical' && a.type === 'tariff_catalyst'; });
       var hasCBBuying = marketIntel.alerts.some(function(a) { return a.type === 'cb_buying'; });
+      var hasMacroCatalyst = marketIntel.alerts.some(function(a) { return a.type === 'macro_catalyst'; });
       if (hasCriticalTariff) lines.push('⚡ Critical catalyst: Tariff/trade war escalation — historically strong gold tailwind.');
       if (hasCBBuying) lines.push('Central bank buying activity detected — structural demand signal.');
+      if (hasMacroCatalyst) lines.push('🏦 Upcoming FOMC — rate uncertainty supports gold positioning.');
     }
 
     interpEl.innerHTML = lines.map(function(l) { return '<span style="display:block;margin-bottom:2px;">' + l + '</span>'; }).join('');

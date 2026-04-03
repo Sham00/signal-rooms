@@ -2877,7 +2877,7 @@ def fetch_market_intelligence():
     # Liberation Day tariffs (Apr 2 2026) — major gold catalyst
     liberation_day = datetime(2026, 4, 2, tzinfo=timezone.utc)
     days_since_ld = (_now - liberation_day).days
-    if days_since_ld <= 14:  # Show for 2 weeks
+    if days_since_ld <= 21:  # Show for 3 weeks
         pinned_alerts.append({
             "type": "tariff_catalyst",
             "headline": f"⚡ LIBERATION DAY: Trump announces sweeping reciprocal tariffs (Apr 2) — gold surges as flight-to-safety demand spikes",
@@ -2885,6 +2885,28 @@ def fetch_market_intelligence():
             "significance": "critical",
             "ts": "Wed, 02 Apr 2026 20:00:00 GMT",
             "link": "https://www.whitehouse.gov/presidential-actions/",
+        })
+    # Gold falling with stocks (unusual correlation breakdown — Liberation Day aftermath)
+    if days_since_ld <= 21:
+        pinned_alerts.append({
+            "type": "tariff_catalyst",
+            "headline": "📉 GOLD-STOCKS CORRELATION BREAKDOWN: Gold fell with equities on Apr 2-3 — unusual risk-off liquidation vs traditional safe-haven behavior",
+            "detail": "Gold typically rises when stocks fall. Post-Liberation Day, forced liquidation to cover margin calls temporarily pushed gold lower. Historically resolves bullishly as safe-haven demand resumes.",
+            "significance": "high",
+            "ts": "Thu, 03 Apr 2026 02:00:00 GMT",
+            "link": "",
+        })
+    # FOMC upcoming meeting alert (May 6-7, 2026)
+    fomc_may = datetime(2026, 5, 6, tzinfo=timezone.utc)
+    days_to_fomc = (fomc_may - _now).days
+    if 0 <= days_to_fomc <= 21:
+        pinned_alerts.append({
+            "type": "macro_catalyst",
+            "headline": f"🏦 FOMC MEETING in {days_to_fomc}d (May 6-7): Fed rate decision — gold sensitive to rate path guidance amid tariff-driven inflation",
+            "detail": "Fed caught between tariff-driven inflation (hawkish) and slowing growth (dovish). Gold benefits if Fed pauses or signals cuts.",
+            "significance": "high",
+            "ts": _now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "link": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
         })
     # Prepend pinned alerts (deduplicated with existing)
     existing_headlines = {a["headline"] for a in unique_alerts}
