@@ -1514,7 +1514,7 @@
   <!-- SECTION 0: COMPOSITE BULL/BEAR SIGNAL -->
   <!-- ============================================================ -->
   <section class="full-width card fade-in" id="sec-composite" style="animation-delay:0.05s">
-    <div class="section-title">Market Signal <span class="info-tooltip" data-tip="Composite bull/bear score computed from 8 factors: RSI momentum, real yield (10Y TIPS), DXY trend, ETF flows, COT positioning, active market catalysts (tariffs, CB buying, etc.), ratio extremes (gold/silver, gold/SPX, gold/copper percentiles), and news headline sentiment. Score ranges from -10 (Strongly Bearish) to +10 (Strongly Bullish).">ℹ</span><span class="freshness-badge freshness-live">● Hourly</span></div>
+    <div class="section-title">Market Signal <span class="info-tooltip" data-tip="Composite bull/bear score computed from 9 factors: RSI momentum, real yield (10Y TIPS), DXY trend, ETF flows, COT positioning, active market catalysts (tariffs, CB buying, etc.), ratio extremes (gold/silver, gold/SPX, gold/copper percentiles), news headline sentiment, and MA momentum (20-day vs 50-day crossover). Score ranges from -10 (Strongly Bearish) to +10 (Strongly Bullish).">ℹ</span><span class="freshness-badge freshness-live">● Hourly</span></div>
     <div class="signal-gauge-wrap">
       <!-- Arc gauge -->
       <div class="signal-gauge-arc">
@@ -3157,7 +3157,30 @@ function renderCompositeSignal() {
     factors.push({ label: 'News Sentiment', val: newsLabel, score: newsScore, color: newsColor });
   }
 
-  // Normalize score to -16..+16 range (8 factors, each max ±2 = ±16, clamp to ±10)
+  // Factor 9: MA Momentum — 20-day vs 50-day MA crossover (-2 to +2)
+  var ma20 = price.ma20;
+  var ma50v = price.ma50;
+  var currentPrice = price.price;
+  var maScore = 0, maLabel = '', maColor = '#888';
+  if (ma20 != null && ma50v != null && currentPrice != null) {
+    var ma20VsMa50 = ((ma20 - ma50v) / ma50v) * 100; // % spread
+    var priceVsMa50 = ((currentPrice - ma50v) / ma50v) * 100;
+    if (ma20 > ma50v && priceVsMa50 > 3) {
+      maScore = 2; maLabel = 'MA20 > MA50, strong uptrend'; maColor = '#00ff88';
+    } else if (ma20 > ma50v) {
+      maScore = 1; maLabel = 'MA20 > MA50 (golden cross zone)'; maColor = '#88dd44';
+    } else if (ma20 < ma50v && priceVsMa50 < -3) {
+      maScore = -2; maLabel = 'MA20 < MA50, price below MA50'; maColor = '#ff3333';
+    } else if (ma20 < ma50v) {
+      maScore = -1; maLabel = 'MA20 < MA50 (death cross zone)'; maColor = '#ff8844';
+    } else {
+      maScore = 0; maLabel = 'MA20 ≈ MA50 (neutral)'; maColor = '#888';
+    }
+    totalScore += maScore;
+    factors.push({ label: 'MA Momentum (20/50)', val: maLabel + ' (MA20: ' + fmt(ma20, 0) + ')', score: maScore, color: maColor });
+  }
+
+  // Normalize score to -18..+18 range (9 factors, each max ±2 = ±18, clamp to ±10)
   var clampedScore = Math.max(-10, Math.min(10, totalScore));
 
   // Determine label and color

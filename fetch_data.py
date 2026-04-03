@@ -160,10 +160,12 @@ def fetch_price():
         except Exception:
             pass
 
-    # MA50, MA200, RSI(14) from daily history + rolling series for 1Y chart overlay
+    # MA20, MA50, MA200, RSI(14) from daily history + rolling series for 1Y chart overlay
+    ma20 = None
     ma50 = None
     ma200 = None
     rsi = None
+    ma20_signal = None  # 'above' | 'below'
     ma50_signal = None  # 'above' | 'below'
     ma200_signal = None
     ma50_series = []   # rolling MA50 for 1Y chart overlay [{t, v}]
@@ -173,8 +175,10 @@ def fetch_price():
         closes = ath_hist["Close"]
         dates = ath_hist.index
         if len(closes) >= 200:
+            ma20 = round(float(closes.iloc[-20:].mean()), 2)
             ma50 = round(float(closes.iloc[-50:].mean()), 2)
             ma200 = round(float(closes.iloc[-200:].mean()), 2)
+            ma20_signal = "above" if current > ma20 else "below"
             ma50_signal = "above" if current > ma50 else "below"
             ma200_signal = "above" if current > ma200 else "below"
 
@@ -191,7 +195,9 @@ def fetch_price():
                     ma200_series.append({"t": ds, "v": round(float(ma200_roll.iloc[i]), 2)})
 
         elif len(closes) >= 50:
+            ma20 = round(float(closes.iloc[-20:].mean()), 2) if len(closes) >= 20 else None
             ma50 = round(float(closes.iloc[-50:].mean()), 2)
+            if ma20: ma20_signal = "above" if current > ma20 else "below"
             ma50_signal = "above" if current > ma50 else "below"
         # RSI(14)
         if len(closes) >= 15:
@@ -384,8 +390,10 @@ def fetch_price():
         "lbma": lbma,
         "contango": contango,
         "contango_history": contango_history,
+        "ma20": ma20,
         "ma50": ma50,
         "ma200": ma200,
+        "ma20_signal": ma20_signal,
         "ma50_signal": ma50_signal,
         "ma200_signal": ma200_signal,
         "rsi": rsi,
@@ -3715,6 +3723,82 @@ def fetch_tariffs():
     })
 
 
+def fetch_seasonality():
+    """Compute average gold monthly returns over the past 10 years from GC=F history."""
+    print("Fetching gold seasonality data...")
+    try:
+        import yfinance as yf
+        from datetime import datetime, timezone, timedelta
+
+        end = datetime.now(timezone.utc)
+        start = end - timedelta(days=365 * 11)  # 11 years for 10 full years
+
+        ticker = yf.Ticker("GC=F")
+        hist = ticker.history(start=start.strftime("%Y-%m-%d"), end=end.strftime("%Y-%m-%d"), interval="1mo")
+
+        if hist.empty:
+            print("Seasonality: no data returned")
+            return False
+
+        hist.index = hist.index.tz_localize(None) if hist.index.tzinfo is not None else hist.index
+        hist["month"] = hist.index.month
+        hist["year"] = hist.index.year
+        hist["monthly_return"] = hist["Close"].pct_change() * 100
+
+        # Only use complete months (not current partial month)
+        current_month = end.month
+        current_year = end.year
+        hist = hist[~((hist["year"] == current_year) & (hist["month"] == current_month))]
+
+        # Only use last 10 years of complete data
+        ten_years_ago = current_year - 10
+        hist = hist[hist["year"] > ten_years_ago]
+
+        # Average by month
+        monthly_avg = hist.groupby("month")["monthly_return"].mean().round(2)
+        monthly_std = hist.groupby("month")["monthly_return"].std().round(2)
+        monthly_count = hist.groupby("month")["monthly_return"].count()
+
+        month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+        monthly_data = []
+        for m in range(1, 13):
+            avg = float(monthly_avg.get(m, 0))
+            std = float(monthly_std.get(m, 0))
+            count = int(monthly_count.get(m, 0))
+            monthly_data.append({
+                "month": m,
+                "name": month_names[m - 1],
+                "avg_return": avg,
+                "std_dev": std,
+                "years_of_data": count
+            })
+
+        # Best and worst months
+        sorted_months = sorted(monthly_data, key=lambda x: x["avg_return"], reverse=True)
+        best_months = [m["name"] for m in sorted_months[:3]]
+        worst_months = [m["name"] for m in sorted_months[-3:]]
+
+        current_month_name = month_names[current_month - 1]
+        current_month_data = next((m for m in monthly_data if m["month"] == current_month), None)
+
+        write_json("seasonality.json", {
+            "monthly_avg": monthly_data,
+            "best_months": best_months,
+            "worst_months": worst_months,
+            "current_month": current_month_name,
+            "current_month_avg": current_month_data["avg_return"] if current_month_data else None,
+            "years_analyzed": 10,
+            "source": "yfinance GC=F 10-year monthly returns",
+            "last_updated": datetime.now(timezone.utc).isoformat()
+        })
+        print(f"Seasonality: computed 10Y avg monthly returns. Current month ({current_month_name}): {current_month_data['avg_return'] if current_month_data else 'N/A'}%")
+    except Exception as e:
+        print(f"Seasonality error: {e}")
+        return False
+
+
 def main():
     print("=" * 60)
     print("Gold Situation Room — Data Fetch")
@@ -3736,6 +3820,7 @@ def main():
         ("bank_targets", fetch_bank_targets),
         ("analyst_targets", fetch_analyst_targets),
         ("tariffs", fetch_tariffs),
+        ("seasonality", fetch_seasonality),
     ]
 
     results = {}
