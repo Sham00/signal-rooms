@@ -3381,7 +3381,7 @@ def fetch_analyst_targets():
 # ---------------------------------------------------------------------------
 
 def generate_og_preview():
-    """Generate og-preview.svg with the current gold price from price.json."""
+    """Generate og-preview.svg with the current gold price and key market stats."""
     try:
         price_file = DATA_DIR / "price.json"
         if not price_file.exists():
@@ -3394,45 +3394,123 @@ def generate_og_preview():
         if price is None:
             print("OG preview: no price found, skipping")
             return
+
+        # Load supplementary data for richer preview
+        ytd_pct = price_data.get("ytd_change_pct", 0) or 0
+        rsi = price_data.get("rsi")
+
+        gs_ratio = None
+        try:
+            ratios_data = json.load(open(DATA_DIR / "ratios.json"))
+            gs_ratio = ratios_data.get("ratios", {}).get("gold_silver")
+        except Exception:
+            pass
+
+        bank_consensus = None
+        bank_upside_pct = None
+        try:
+            bt_data = json.load(open(DATA_DIR / "bank_targets.json"))
+            bank_consensus = bt_data.get("consensus_median")
+            if bank_consensus and price:
+                bank_upside_pct = ((bank_consensus - price) / price) * 100
+        except Exception:
+            pass
+
+        real_yield = None
+        try:
+            macro_data = json.load(open(DATA_DIR / "macro.json"))
+            real_yield = macro_data.get("real_yield_10y")
+        except Exception:
+            pass
+
         # Format values
         price_str = f"${price:,.0f}"
         sign = "▲" if change_pct >= 0 else "▼"
         change_color = "#00ff88" if change_pct >= 0 else "#ff4444"
         change_str = f"{sign} {abs(change_pct):.2f}%"
+
+        ytd_sign = "▲" if ytd_pct >= 0 else "▼"
+        ytd_color = "#00ff88" if ytd_pct >= 0 else "#ff4444"
+        ytd_str = f"{ytd_sign} {abs(ytd_pct):.1f}% YTD"
+
+        # Build stat pills for bottom row
+        stat_items = []
+        if gs_ratio is not None:
+            stat_items.append(("Au/Ag Ratio", f"{gs_ratio:.1f}x", "#ffd700"))
+        if rsi is not None:
+            rsi_color = "#ff4444" if rsi > 70 else "#00ff88" if rsi < 30 else "#888"
+            stat_items.append(("RSI(14)", f"{rsi:.0f}", rsi_color))
+        if bank_consensus and bank_upside_pct is not None:
+            up_color = "#00ff88" if bank_upside_pct > 0 else "#ff4444"
+            stat_items.append(("Bank Consensus", f"${bank_consensus:,.0f} (+{bank_upside_pct:.0f}%)", up_color))
+        if real_yield is not None:
+            ry_color = "#00ff88" if real_yield < 0 else "#ff8800" if real_yield < 1.5 else "#ff4444"
+            stat_items.append(("Real Yield 10Y", f"{real_yield:.2f}%", ry_color))
+
+        # Build SVG stat pills
+        pill_x = 80
+        pill_y = 500
+        pill_height = 60
+        pill_gap = 20
+        pills_svg = ""
+        for label, value, color in stat_items:
+            pill_width = max(200, len(value) * 14 + len(label) * 10)
+            pills_svg += f"""
+  <rect x="{pill_x}" y="{pill_y}" width="{pill_width}" height="{pill_height}" rx="8" fill="rgba(255,255,255,0.05)" stroke="{color}" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="{pill_x + 14}" y="{pill_y + 20}" font-family="Arial" font-size="13" fill="#666">{label}</text>
+  <text x="{pill_x + 14}" y="{pill_y + 44}" font-family="Arial" font-size="18" font-weight="bold" fill="{color}">{value}</text>"""
+            pill_x += pill_width + pill_gap
+
         svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0a0a0a"/>
-      <stop offset="100%" stop-color="#111111"/>
+      <stop offset="0%" stop-color="#080808"/>
+      <stop offset="100%" stop-color="#0f0f0f"/>
+    </linearGradient>
+    <linearGradient id="goldGlow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffd700" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#ffd700" stop-opacity="0"/>
     </linearGradient>
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
-  <rect x="0" y="0" width="1200" height="6" fill="#ffd700"/>
-  
-  <!-- Gold bar icon -->
-  <rect x="80" y="200" width="120" height="70" rx="8" fill="#ffd700"/>
-  <rect x="90" y="210" width="100" height="50" rx="4" fill="#b8960f" opacity="0.5"/>
-  <text x="140" y="245" font-family="Arial" font-size="28" font-weight="bold" fill="#0a0a0a" text-anchor="middle">Au</text>
-  
-  <!-- Title -->
-  <text x="80" y="150" font-family="Arial" font-size="36" font-weight="bold" fill="#888888" letter-spacing="4">GOLD SITUATION ROOM</text>
-  
-  <!-- Price -->
-  <text x="80" y="350" font-family="Arial" font-size="96" font-weight="900" fill="#ffd700">{price_str}</text>
-  
-  <!-- Change -->
-  <text x="85" y="420" font-family="Arial" font-size="48" fill="{change_color}">{change_str}</text>
-  
-  <!-- Tagline -->
-  <text x="80" y="530" font-family="Arial" font-size="28" fill="#555555">Real-time gold intelligence · sham00.github.io/gold-situation-room</text>
-  
-  <!-- Decorative lines -->
-  <line x1="80" y1="460" x2="800" y2="460" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Top gold accent bar -->
+  <rect x="0" y="0" width="1200" height="5" fill="#ffd700"/>
+  <!-- Subtle gold glow behind price -->
+  <rect x="60" y="160" width="700" height="220" rx="16" fill="url(#goldGlow)"/>
+
+  <!-- Header row -->
+  <text x="80" y="80" font-family="Arial" font-size="14" font-weight="bold" fill="#444" letter-spacing="5" text-transform="uppercase">GOLD SITUATION ROOM</text>
+  <text x="1120" y="80" font-family="Arial" font-size="12" fill="#333" text-anchor="end">sham00.github.io/gold-situation-room</text>
+
+  <!-- Au atom symbol -->
+  <circle cx="1100" cy="260" r="80" fill="none" stroke="#ffd700" stroke-width="1" stroke-opacity="0.1"/>
+  <circle cx="1100" cy="260" r="50" fill="none" stroke="#ffd700" stroke-width="1" stroke-opacity="0.15"/>
+  <text x="1100" y="253" font-family="Arial" font-size="22" font-weight="bold" fill="#333" text-anchor="middle">79</text>
+  <text x="1100" y="278" font-family="Arial" font-size="38" font-weight="900" fill="#3a3a3a" text-anchor="middle">Au</text>
+
+  <!-- Divider -->
+  <line x1="80" y1="105" x2="1120" y2="105" stroke="#1a1a1a" stroke-width="1"/>
+
+  <!-- Price label -->
+  <text x="80" y="175" font-family="Arial" font-size="16" fill="#555" letter-spacing="2">GOLD SPOT PRICE (USD/oz)</text>
+
+  <!-- Main price -->
+  <text x="80" y="295" font-family="Arial" font-size="108" font-weight="900" fill="#ffd700">{price_str}</text>
+
+  <!-- Change and YTD on same row -->
+  <text x="84" y="350" font-family="Arial" font-size="40" fill="{change_color}">{change_str}</text>
+  <text x="84" y="410" font-family="Arial" font-size="28" fill="{ytd_color}">{ytd_str}</text>
+
+  <!-- Divider before stats -->
+  <line x1="80" y1="478" x2="1120" y2="478" stroke="#1a1a1a" stroke-width="1"/>
+
+  <!-- Stat pills -->
+  {pills_svg}
 </svg>"""
         og_path = Path(__file__).parent / "og-preview.svg"
         with open(og_path, "w") as f:
             f.write(svg)
-        print(f"OG preview updated: {price_str} {change_str}")
+        print(f"OG preview updated: {price_str} {change_str} YTD:{ytd_str}")
     except Exception as e:
         print(f"OG preview error: {e}")
 
