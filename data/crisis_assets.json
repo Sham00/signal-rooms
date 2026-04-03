@@ -261,9 +261,9 @@
       ]
     },
     "Bitcoin": {
-      "price": 66854.66,
+      "price": 66730.1,
       "start_price": 88731.98,
-      "ytd_pct": -24.66,
+      "ytd_pct": -24.8,
       "color": "#ff8800",
       "chart": [
         {
@@ -632,7 +632,7 @@
         },
         {
           "t": "2026-04-03",
-          "v": 75.34
+          "v": 75.2
         }
       ]
     },
@@ -1417,9 +1417,9 @@
       ]
     },
     "DXY": {
-      "price": 99.98,
+      "price": 99.97,
       "start_price": 98.42,
-      "ytd_pct": 1.59,
+      "ytd_pct": 1.58,
       "color": "#aa44ff",
       "chart": [
         {
@@ -1672,7 +1672,7 @@
         },
         {
           "t": "2026-04-02",
-          "v": 101.59
+          "v": 101.58
         }
       ]
     }
@@ -1683,5 +1683,5 @@
     "reliability": "live",
     "notes": "All assets rebased to 100 at Jan 1 of current year for YTD comparison."
   },
-  "last_updated": "2026-04-03T00:23:50Z"
+  "last_updated": "2026-04-03T00:54:47Z"
 }
