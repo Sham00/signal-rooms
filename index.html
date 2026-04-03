@@ -1261,6 +1261,23 @@
     border: 1px solid var(--card-border);
     line-height: 1.8;
   }
+  .alert-preset-btn {
+    background: rgba(255,215,0,0.08);
+    color: #aaa;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+    transition: all .15s;
+    letter-spacing: .04em;
+  }
+  .alert-preset-btn:hover {
+    background: rgba(255,215,0,0.18);
+    color: #ffd700;
+    border-color: rgba(255,215,0,0.4);
+  }
   /* ===== END PRICE ALERTS ===== */
 </style>
 </head>
@@ -1327,16 +1344,34 @@
 <div id="price-alert-modal" role="dialog" aria-modal="true" aria-label="Price Alerts">
   <div class="alert-modal-box">
     <div class="alert-modal-title">🔔 Price Alerts</div>
-    <div style="font-size:11px;color:var(--text2);font-family:'JetBrains Mono',monospace;margin-bottom:18px;line-height:1.6;">
+    <div style="font-size:11px;color:var(--text2);font-family:'JetBrains Mono',monospace;margin-bottom:14px;line-height:1.6;">
       Set upper and/or lower price thresholds. Alerts are stored locally in your browser and checked on every page load.
+    </div>
+    <!-- Quick preset buttons -->
+    <div style="margin-bottom:16px;">
+      <div style="font-size:9px;color:#555;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Quick Presets</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="alert-presets-upper">
+        <span style="font-size:9px;color:#555;font-family:'JetBrains Mono',monospace;align-self:center;margin-right:2px;">▲ Upper:</span>
+        <button class="alert-preset-btn" onclick="setAlertPreset('upper','+5')" title="Set upper alert 5% above current price">+5%</button>
+        <button class="alert-preset-btn" onclick="setAlertPreset('upper','+10')" title="Set upper alert 10% above current price">+10%</button>
+        <button class="alert-preset-btn" onclick="setAlertPreset('upper','fib-res')" title="Set upper alert at nearest Fib resistance" id="preset-fib-res">Fib R</button>
+        <button class="alert-preset-btn" onclick="setAlertPreset('upper','ath')" title="Set upper alert at all-time high" id="preset-ath">ATH</button>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;" id="alert-presets-lower">
+        <span style="font-size:9px;color:#555;font-family:'JetBrains Mono',monospace;align-self:center;margin-right:2px;">▼ Lower:</span>
+        <button class="alert-preset-btn" onclick="setAlertPreset('lower','-5')" title="Set lower alert 5% below current price">-5%</button>
+        <button class="alert-preset-btn" onclick="setAlertPreset('lower','-10')" title="Set lower alert 10% below current price">-10%</button>
+        <button class="alert-preset-btn" onclick="setAlertPreset('lower','fib-sup')" title="Set lower alert at nearest Fib support" id="preset-fib-sup">Fib S</button>
+        <button class="alert-preset-btn" onclick="setAlertPreset('lower','ma200')" title="Set lower alert at 200-day moving average" id="preset-ma200">MA200</button>
+      </div>
     </div>
     <div class="alert-input-row">
       <label>Upper Limit</label>
-      <input type="number" id="alert-upper" placeholder="e.g. 3200" step="10" min="0">
+      <input type="number" id="alert-upper" placeholder="e.g. 5000" step="10" min="0">
     </div>
     <div class="alert-input-row">
       <label>Lower Limit</label>
-      <input type="number" id="alert-lower" placeholder="e.g. 2800" step="10" min="0">
+      <input type="number" id="alert-lower" placeholder="e.g. 4200" step="10" min="0">
     </div>
     <div id="alert-active-display" class="alert-active-list" style="display:none;"></div>
     <div class="alert-btn-row">
@@ -7205,8 +7240,50 @@ document.addEventListener('keydown', function(e) {
         display.style.display = 'none';
       }
     }
+    // Update preset button labels with actual prices
+    updateAlertPresetLabels();
     var modal = document.getElementById('price-alert-modal');
     if (modal) modal.classList.add('open');
+  };
+
+  function updateAlertPresetLabels() {
+    var p = currentGoldPrice;
+    var price = DATA.price;
+    if (!p || !price) return;
+    var fmtK = function(v) { return v >= 1000 ? '$' + (v/1000).toFixed(1) + 'k' : '$' + Math.round(v); };
+    // Fib resistance
+    var fibRes = price.fib_levels && price.fib_levels.nearest_resistance ? price.fib_levels.nearest_resistance.price : null;
+    var fibSup = price.fib_levels && price.fib_levels.nearest_support ? price.fib_levels.nearest_support.price : null;
+    var ma200 = price.ma200 || null;
+    var ath = price.ath || null;
+    var el;
+    el = document.getElementById('preset-fib-res');
+    if (el && fibRes) el.textContent = 'Fib R ' + fmtK(fibRes);
+    el = document.getElementById('preset-ath');
+    if (el && ath) el.textContent = 'ATH ' + fmtK(ath);
+    el = document.getElementById('preset-fib-sup');
+    if (el && fibSup) el.textContent = 'Fib S ' + fmtK(fibSup);
+    el = document.getElementById('preset-ma200');
+    if (el && ma200) el.textContent = 'MA200 ' + fmtK(ma200);
+  }
+
+  window.setAlertPreset = function(type, preset) {
+    var p = currentGoldPrice;
+    var price = DATA.price;
+    if (!p) return;
+    var val = null;
+    if (preset === '+5') val = Math.round(p * 1.05 / 10) * 10;
+    else if (preset === '+10') val = Math.round(p * 1.10 / 10) * 10;
+    else if (preset === 'fib-res') val = price && price.fib_levels && price.fib_levels.nearest_resistance ? Math.round(price.fib_levels.nearest_resistance.price / 10) * 10 : null;
+    else if (preset === 'ath') val = price && price.ath ? Math.round(price.ath / 10) * 10 : null;
+    else if (preset === '-5') val = Math.round(p * 0.95 / 10) * 10;
+    else if (preset === '-10') val = Math.round(p * 0.90 / 10) * 10;
+    else if (preset === 'fib-sup') val = price && price.fib_levels && price.fib_levels.nearest_support ? Math.round(price.fib_levels.nearest_support.price / 10) * 10 : null;
+    else if (preset === 'ma200') val = price && price.ma200 ? Math.round(price.ma200 / 10) * 10 : null;
+    if (val) {
+      var input = document.getElementById('alert-' + type);
+      if (input) { input.value = val; input.focus(); }
+    }
   };
 
   window.closeAlertModal = function() {
