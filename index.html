@@ -1856,6 +1856,15 @@
         <!-- Filled by JS -->
       </div>
     </div>
+
+    <!-- 30-Day GLD Daily Returns bar chart -->
+    <div class="mt-6">
+      <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">GLD 30-Day Daily Returns <span class="info-tooltip" data-tip="Daily price change % for GLD over the past 30 trading days. Green bars = positive day (inflow signal), red bars = negative day (outflow signal). Use as a proxy for ETF flow direction.">ℹ</span></div>
+      <div class="chart-wrap" style="height: 160px;">
+        <canvas id="chart-etf-daily-returns"></canvas>
+      </div>
+      <div class="text-[9px] mono mt-1" style="color:#444;">Green = positive day (buy signal) · Red = negative day (sell signal) · Proxy for daily ETF flow direction</div>
+    </div>
   </section>
 
   <!-- ============================================================ -->
@@ -3360,14 +3369,24 @@ function renderPriceSection() {
       if (rsiBar) rsiBar.style.background = '#ff4444';
     } else if (d.rsi <= 30) {
       rsiEl.style.color = '#00ff88';
-      rsiSig.textContent = 'Oversold — potential buy';
+      rsiSig.textContent = 'Oversold — strong buy signal';
       rsiSig.style.color = '#00ff88';
       if (rsiBar) rsiBar.style.background = '#00ff88';
-    } else if (d.rsi >= 55) {
+    } else if (d.rsi <= 40) {
+      rsiEl.style.color = '#88dd44';
+      rsiSig.textContent = 'Approaching oversold — bounce watch';
+      rsiSig.style.color = '#88dd44';
+      if (rsiBar) rsiBar.style.background = '#88dd44';
+    } else if (d.rsi >= 60) {
       rsiEl.style.color = '#ffd700';
       rsiSig.textContent = 'Bullish momentum';
       rsiSig.style.color = '#ffd700';
       if (rsiBar) rsiBar.style.background = 'var(--gold)';
+    } else if (d.rsi >= 55) {
+      rsiEl.style.color = '#aabb44';
+      rsiSig.textContent = 'Moderate bullish';
+      rsiSig.style.color = '#aabb44';
+      if (rsiBar) rsiBar.style.background = '#aabb44';
     } else {
       rsiEl.style.color = '#888';
       rsiSig.textContent = 'Neutral zone';
@@ -4557,6 +4576,69 @@ function renderETFs() {
       rangeHtml;
     cardsContainer.appendChild(card);
   });
+
+  // 30-day daily returns bar chart for GLD
+  var gldData = d && d.etfs && d.etfs.GLD ? d.etfs.GLD : null;
+  if (gldData && gldData.chart_1y && gldData.chart_1y.length > 30) {
+    var recent30 = gldData.chart_1y.slice(-31);
+    var labels30 = [], returns30 = [], barColors30 = [];
+    for (var ri = 1; ri < recent30.length; ri++) {
+      var prevV = recent30[ri-1].v, currV = recent30[ri].v;
+      if (prevV && currV) {
+        var ret = ((currV - prevV) / prevV) * 100;
+        var dt = new Date(recent30[ri].t + 'T12:00:00');
+        labels30.push(dt.toLocaleDateString('en-US', { month:'short', day:'numeric' }));
+        returns30.push(Math.round(ret * 100) / 100);
+        barColors30.push(ret >= 0 ? 'rgba(0,255,136,0.75)' : 'rgba(255,68,68,0.75)');
+      }
+    }
+    var dailyRetCtx = document.getElementById('chart-etf-daily-returns');
+    if (dailyRetCtx && labels30.length) {
+      destroyChart('etf-daily-returns');
+      charts['etf-daily-returns'] = new Chart(dailyRetCtx.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: labels30,
+          datasets: [{
+            label: 'GLD Daily Return %',
+            data: returns30,
+            backgroundColor: barColors30,
+            borderWidth: 0,
+            borderRadius: 2,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  return (ctx.parsed.y >= 0 ? '+' : '') + ctx.parsed.y.toFixed(2) + '%';
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#555', font: { size: 9 }, maxTicksLimit: 8 }
+            },
+            y: {
+              position: 'right',
+              grid: { color: 'rgba(255,255,255,0.04)' },
+              ticks: {
+                color: '#666',
+                font: { size: 9 },
+                callback: function(v) { return (v >= 0 ? '+' : '') + v.toFixed(1) + '%'; }
+              }
+            }
+          }
+        }
+      });
+    }
+  }
 }
 
 // --- Analyst Price Targets ---
