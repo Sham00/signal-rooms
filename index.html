@@ -2103,6 +2103,15 @@
       </div>
     </div>
 
+    <!-- CPI-Adjusted (Real) Gold Price Chart -->
+    <div class="mt-6">
+      <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Gold Price: Nominal vs. Inflation-Adjusted (2026 USD) <span class="info-tooltip" data-tip="Compares gold's nominal price (what you'd have paid) vs. real price adjusted for CPI inflation in 2026 dollars. The 1980 peak at ~$850 nominal = ~$3,200+ in today's dollars — showing gold only recently broke its real all-time high.">ℹ</span></div>
+      <div class="chart-wrap chart-loading" style="height: 260px;">
+        <canvas id="chart-real-gold"></canvas>
+      </div>
+      <div class="text-[9px] text-[var(--text2)] mono mt-1">Real price uses BLS CPI-U annual averages • 2026 USD baseline</div>
+    </div>
+
     <!-- Gold Seasonality Chart -->
     <div class="mt-6">
       <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Gold Seasonality — Avg. Monthly Return <span class="info-tooltip" data-tip="Average monthly return for gold based on all available price history. Shows which months gold has historically performed best. Bar color: green = avg positive month, red = avg negative.">ℹ</span></div>
@@ -5917,6 +5926,85 @@ function renderHistorical() {
       }
     }
   } catch(e) { console.warn('Seasonality chart error:', e); }
+
+  // Real (CPI-adjusted) gold chart
+  try {
+    if (d.real_gold_chart && d.real_gold_chart.length) {
+      var realChart = d.real_gold_chart;
+      var rLabels = realChart.map(function(p) { return p.t; });
+      var rNominal = realChart.map(function(p) { return p.nominal != null ? p.nominal : null; });
+      var rReal = realChart.map(function(p) { return p.v; });
+
+      destroyChart('real-gold');
+      var ctxR = document.getElementById('chart-real-gold');
+      if (ctxR) {
+        var wrapR = ctxR.closest('.chart-wrap');
+        if (wrapR) wrapR.classList.remove('chart-loading');
+        charts['real-gold'] = new Chart(ctxR.getContext('2d'), {
+          type: 'line',
+          data: {
+            labels: rLabels,
+            datasets: [
+              {
+                label: 'Real Price (2026 USD)',
+                data: rReal,
+                borderColor: '#00ff88',
+                borderWidth: 2,
+                pointRadius: 0,
+                fill: false,
+                tension: 0.3,
+                yAxisID: 'y1',
+              },
+              {
+                label: 'Nominal Price',
+                data: rNominal,
+                borderColor: '#ffd700',
+                borderWidth: 1.5,
+                borderDash: [4, 2],
+                pointRadius: 0,
+                fill: false,
+                tension: 0.3,
+                yAxisID: 'y1',
+              }
+            ]
+          },
+          options: {
+            interaction: { intersect: false, mode: 'index' },
+            scales: {
+              x: {
+                grid: { display: false },
+                ticks: {
+                  maxTicksLimit: 10,
+                  callback: function(val) {
+                    try { return new Date(this.getLabelForValue(val)).getFullYear(); } catch(e) { return ''; }
+                  }
+                }
+              },
+              y1: {
+                position: 'right',
+                grid: { color: 'rgba(255,255,255,0.03)' },
+                ticks: { callback: function(v) { return '$' + fmtCompact(v); } }
+              }
+            },
+            plugins: {
+              legend: {
+                display: true,
+                labels: { boxWidth: 10, padding: 12, color: '#888', font: { size: 10 } }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(ctx) {
+                    if (ctx.datasetIndex === 0) return 'Real (2026$): $' + fmt(ctx.parsed.y, 0);
+                    return 'Nominal: $' + fmt(ctx.parsed.y, 0);
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+  } catch(e) { console.warn('Real gold chart error:', e); }
 
   // Event cards
   var evtContainer = document.getElementById('event-cards');

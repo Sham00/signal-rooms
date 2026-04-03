@@ -31,6 +31,12 @@
       "tier": "bull"
     },
     {
+      "institution": "CIBC",
+      "target": 6000,
+      "timeframe": "2026",
+      "tier": "bull"
+    },
+    {
       "institution": "Deutsche Bank",
       "target": 6000,
       "timeframe": "2026",
@@ -38,6 +44,18 @@
     },
     {
       "institution": "Societe Generale",
+      "target": 6000,
+      "timeframe": "End-2026",
+      "tier": "bull"
+    },
+    {
+      "institution": "BNP Paribas",
+      "target": 6000,
+      "timeframe": "End-2026",
+      "tier": "bull"
+    },
+    {
+      "institution": "Yardeni Research",
       "target": 6000,
       "timeframe": "End-2026",
       "tier": "bull"
@@ -52,7 +70,7 @@
       "institution": "Morgan Stanley",
       "target": 5700,
       "timeframe": "2026",
-      "tier": "base"
+      "tier": "bull"
     },
     {
       "institution": "Goldman Sachs",
@@ -67,9 +85,27 @@
       "tier": "base"
     },
     {
+      "institution": "Bank of America",
+      "target": 5000,
+      "timeframe": "2026",
+      "tier": "base"
+    },
+    {
       "institution": "Citi",
       "target": 5000,
       "timeframe": "Q2 2026",
+      "tier": "base"
+    },
+    {
+      "institution": "Commerzbank",
+      "target": 5000,
+      "timeframe": "EOY 2026",
+      "tier": "base"
+    },
+    {
+      "institution": "Heraeus",
+      "target": 5000,
+      "timeframe": "2026",
       "tier": "base"
     },
     {
@@ -79,14 +115,20 @@
       "tier": "base"
     },
     {
-      "institution": "Bank of America",
+      "institution": "Metals Focus",
       "target": 5000,
       "timeframe": "2026",
       "tier": "base"
     },
     {
-      "institution": "Heraeus",
+      "institution": "State Street",
       "target": 5000,
+      "timeframe": "Early 2026",
+      "tier": "base"
+    },
+    {
+      "institution": "Ventura",
+      "target": 4800,
       "timeframe": "2026",
       "tier": "base"
     },
@@ -100,6 +142,12 @@
       "institution": "Standard Chartered",
       "target": 4500,
       "timeframe": "Q4 2026",
+      "tier": "base"
+    },
+    {
+      "institution": "Fidelity International",
+      "target": 4000,
+      "timeframe": "End-2026",
       "tier": "bear"
     },
     {
@@ -116,9 +164,9 @@
     }
   ],
   "consensus_median": 5400,
-  "consensus_avg": 5386,
-  "count": 19,
-  "last_verified": "2026-04-02",
-  "last_updated": "2026-04-03T11:43:26Z",
+  "consensus_avg": 5338,
+  "count": 27,
+  "last_verified": "2026-04-03",
+  "last_updated": "2026-04-03T12:47:38Z",
   "data_quality": "static"
 }

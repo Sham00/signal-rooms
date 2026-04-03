@@ -2598,16 +2598,53 @@ def fetch_historical():
     except Exception as e:
         print(f"  Seasonality warning: {e}")
 
+    # -----------------------------------------------------------------------
+    # CPI-adjusted (real) gold price chart
+    # CPI multipliers: convert historical nominal gold to 2026 USD
+    # Using CPI-U annual average index (1982-84=100 baseline → scaled to 2026)
+    # 2026 CPI reference: ~317 (estimated). Multiplier = 317 / CPI_that_year
+    # Source: BLS CPI-U annual averages (public domain)
+    # -----------------------------------------------------------------------
+    cpi_annual = {
+        1971: 40.5,  1972: 41.8,  1973: 44.4,  1974: 49.3,
+        1975: 53.8,  1976: 56.9,  1977: 60.6,  1978: 65.2,
+        1979: 72.6,  1980: 82.4,  1981: 90.9,  1982: 96.5,
+        1983: 99.6,  1984: 103.9, 1985: 107.6, 1986: 109.6,
+        1987: 113.6, 1988: 118.3, 1989: 124.0, 1990: 130.7,
+        1991: 136.2, 1992: 140.3, 1993: 144.5, 1994: 148.2,
+        1995: 152.4, 1996: 156.9, 1997: 160.5, 1998: 163.0,
+        1999: 166.6, 2000: 172.2, 2001: 177.1, 2002: 179.9,
+        2003: 184.0, 2004: 188.9, 2005: 195.3, 2006: 201.6,
+        2007: 207.3, 2008: 215.3, 2009: 214.5, 2010: 218.1,
+        2011: 224.9, 2012: 229.6, 2013: 233.0, 2014: 236.7,
+        2015: 237.0, 2016: 240.0, 2017: 245.1, 2018: 251.1,
+        2019: 255.7, 2020: 258.8, 2021: 270.9, 2022: 292.7,
+        2023: 304.7, 2024: 313.5, 2025: 316.0, 2026: 317.0,
+    }
+    cpi_now = cpi_annual.get(2026, 317.0)
+
+    real_gold_chart = []
+    for pt in timeline_chart:
+        try:
+            year = int(pt["t"][:4])
+            cpi = cpi_annual.get(year, cpi_now)
+            multiplier = cpi_now / cpi
+            real_val = round(pt["v"] * multiplier, 2)
+            real_gold_chart.append({"t": pt["t"], "v": real_val, "nominal": pt["v"]})
+        except Exception:
+            pass
+
     write_json("historical.json", {
         "events": events,
         "decade_returns": decade_returns,
         "timeline_chart": timeline_chart,
+        "real_gold_chart": real_gold_chart,
         "seasonal_monthly": seasonal_monthly,
         "data_quality": {
             "source": "yfinance GC=F monthly (post-2000) + London PM Fix historical data (pre-2000, hardcoded)",
             "freshness": "monthly (timeline) / static (seasonality based on all available history)",
             "reliability": "live (recent) / hardcoded (pre-2000)",
-            "notes": "Pre-2000 data from London PM Fix annual averages. Seasonality uses full available history.",
+            "notes": "Pre-2000 data from London PM Fix annual averages. Seasonality uses full available history. Real price uses BLS CPI-U annual averages.",
         },
     })
 
