@@ -100,7 +100,7 @@
     },
     {
       "source": "Google News",
-      "title": "Gold Price Today on April 01, 2026 - usatoday.com",
+      "title": "Gold Price Today on April 01, 2026 - USA Today",
       "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxNektaQzd6eHVSUG1zUUxxZjlGd0xGb2RzUEJXZmJJSEtuX0pMM0JGMzMzS3BLbXRUR0o0SE9zaTNkaVJPUWdjN3ZrTWhlMTVkQ1FvZUVfbHQ3OGRoNFVqYjdma0x1TDhNRUpWS3lQR3pVX3dud1dFNEswMmkzRkRoRllTVE9wdS1xVHZ4VkRzZ0lsU1NmQTgwOWowTW9vU3Jxb3JPcHNqdw?oc=5",
       "published": "Wed, 01 Apr 2026 12:20:10 GMT",
       "sentiment": "neutral"
@@ -187,5 +187,5 @@
     "reliability": "live",
     "notes": "Sentiment scoring is keyword-based heuristic. Not a substitute for full NLP sentiment analysis."
   },
-  "last_updated": "2026-04-03T13:22:01Z"
+  "last_updated": "2026-04-03T13:41:26Z"
 }

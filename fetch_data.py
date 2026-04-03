@@ -329,6 +329,41 @@ def fetch_price():
     except Exception as e:
         print(f"  Contango history error: {e}")
 
+    # Fibonacci retracement levels (from 52-week high to 52-week low)
+    # Classic Fibonacci levels: 0%, 23.6%, 38.2%, 50%, 61.8%, 78.6%, 100%
+    fib_levels = {}
+    try:
+        if high_52w and low_52w:
+            fib_range = high_52w - low_52w
+            fib_ratios = [0.0, 0.236, 0.382, 0.5, 0.618, 0.786, 1.0]
+            fib_labels = ["0%", "23.6%", "38.2%", "50%", "61.8%", "78.6%", "100%"]
+            levels = []
+            for ratio, label in zip(fib_ratios, fib_labels):
+                level_price = round(high_52w - fib_range * ratio, 2)
+                distance_pct = round((level_price - current) / current * 100, 2)
+                levels.append({
+                    "label": label,
+                    "price": level_price,
+                    "distance_pct": distance_pct,
+                    "is_support": level_price < current,
+                    "is_resistance": level_price > current,
+                })
+            # Find nearest support and resistance
+            supports = [l for l in levels if l["is_support"]]
+            resistances = [l for l in levels if l["is_resistance"]]
+            nearest_support = max(supports, key=lambda x: x["price"]) if supports else None
+            nearest_resistance = min(resistances, key=lambda x: x["price"]) if resistances else None
+            fib_levels = {
+                "high": high_52w,
+                "low": low_52w,
+                "levels": levels,
+                "nearest_support": nearest_support,
+                "nearest_resistance": nearest_resistance,
+                "note": "Fibonacci retracement from 52-week high to 52-week low",
+            }
+    except Exception as e:
+        print(f"  Fibonacci calc failed: {e}")
+
     write_json("price.json", {
         "price": round(current, 2),
         "prev_close": round(prev_close, 2),
@@ -357,6 +392,7 @@ def fetch_price():
         "ma50_series": ma50_series,
         "ma200_series": ma200_series,
         "rsi_series": rsi_series_data,
+        "fib_levels": fib_levels,
         "data_quality": {
             "source": "yfinance GC=F (COMEX front-month continuous contract)",
             "freshness": "hourly",
@@ -2657,6 +2693,7 @@ def fetch_crisis_assets():
     print("Fetching crisis asset comparison data...")
     assets = {
         "Gold": "GC=F",
+        "S&P 500": "^GSPC",
         "Bitcoin": "BTC-USD",
         "Silver": "SI=F",
         "Long Bonds (TLT)": "TLT",
@@ -2665,6 +2702,7 @@ def fetch_crisis_assets():
     }
     colors = {
         "Gold": "#ffd700",
+        "S&P 500": "#00cc88",
         "Bitcoin": "#ff8800",
         "Silver": "#aaaaaa",
         "Long Bonds (TLT)": "#4488ff",
@@ -2707,10 +2745,10 @@ def fetch_crisis_assets():
     write_json("crisis_assets.json", {
         "assets": result,
         "data_quality": {
-            "source": "yfinance (GC=F, BTC-USD, SI=F, TLT, ^VIX, DX-Y.NYB) — YTD normalized to 100",
+            "source": "yfinance (GC=F, ^GSPC, BTC-USD, SI=F, TLT, ^VIX, DX-Y.NYB) — YTD normalized to 100",
             "freshness": "daily",
             "reliability": "live",
-            "notes": "All assets rebased to 100 at Jan 1 of current year for YTD comparison.",
+            "notes": "All assets rebased to 100 at Jan 1 of current year for YTD comparison. S&P 500 added Apr 2026 to show gold/stocks divergence during Liberation Day tariff event.",
         },
     })
 

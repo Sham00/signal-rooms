@@ -1376,6 +1376,14 @@
         <canvas id="chart-rsi-history"></canvas>
       </div>
     </div>
+
+    <!-- Fibonacci Retracement Levels -->
+    <div class="mt-6" id="fib-section" style="display:none">
+      <div class="text-xs text-[var(--text2)] uppercase tracking-widest mb-3 mono">Fibonacci Retracement Levels <span class="info-tooltip" data-tip="Fibonacci retracement levels computed from the 52-week high to 52-week low. Traders use these as potential support (below price) and resistance (above price) zones. The 38.2%, 50%, and 61.8% levels are most significant.">ℹ</span></div>
+      <div id="fib-nearest" class="flex gap-4 mb-4 flex-wrap"></div>
+      <div id="fib-table" class="space-y-1"></div>
+      <div class="text-[10px] text-[var(--text2)] mono mt-2">Retracement from 52W high: <span id="fib-high">--</span> → 52W low: <span id="fib-low">--</span></div>
+    </div>
   </section>
 
   <!-- ============================================================ -->
@@ -2055,7 +2063,7 @@
   <!-- CRISIS ASSET COMPARISON (YTD) -->
   <!-- ============================================================ -->
   <section class="full-width card fade-in" id="sec-crisis" style="animation-delay:0.67s">
-    <div class="section-title">Crisis Asset Performance (YTD) <span class="info-tooltip" data-tip="All assets rebased to 100 at Jan 1 2026. Shows which safe-haven/risk assets are leading or lagging year-to-date.">i</span><span class="freshness-badge freshness-live">● Hourly</span></div>
+    <div class="section-title">Crisis Asset Performance (YTD) <span class="info-tooltip" data-tip="All assets rebased to 100 at Jan 1 2026. Shows which safe-haven/risk assets are leading or lagging year-to-date. Includes S&amp;P 500 to show gold/stocks divergence during Liberation Day tariff crisis.">i</span><span class="freshness-badge freshness-live">● Hourly</span></div>
     <div class="chart-wrap" style="height: 320px;">
       <canvas id="chart-crisis-assets"></canvas>
     </div>
@@ -2477,6 +2485,7 @@ function renderMarketAlerts() {
 function renderAll() {
   renderHeader();
   renderPriceSection();
+  renderFibLevels();
   renderLBMA();
   renderRatios();
   renderCentralBanks();
@@ -3109,6 +3118,59 @@ function renderPriceSection() {
       if (rsiBar) rsiBar.style.background = '#555';
     }
   }
+}
+
+function renderFibLevels() {
+  var d = DATA.price;
+  if (!d || !d.fib_levels || !d.fib_levels.levels) return;
+
+  var fib = d.fib_levels;
+  var section = document.getElementById('fib-section');
+  if (section) section.style.display = '';
+
+  // Nearest support/resistance badges
+  var nearestEl = document.getElementById('fib-nearest');
+  if (nearestEl && fib.nearest_support && fib.nearest_resistance) {
+    nearestEl.innerHTML =
+      '<div class="bg-[#0a0a0a] rounded-lg p-3 border border-[rgba(0,255,136,0.3)] flex-1 min-w-[140px]">' +
+        '<div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Nearest Support</div>' +
+        '<div class="text-lg font-bold mono text-[#00ff88]">$' + fmt(fib.nearest_support.price) + '</div>' +
+        '<div class="text-xs text-[var(--text2)] mono">Fib ' + fib.nearest_support.label + ' · ' + fmt(Math.abs(fib.nearest_support.distance_pct), 1) + '% below</div>' +
+      '</div>' +
+      '<div class="bg-[#0a0a0a] rounded-lg p-3 border border-[rgba(255,68,68,0.3)] flex-1 min-w-[140px]">' +
+        '<div class="text-[10px] text-[var(--text2)] uppercase tracking-wider mono mb-1">Nearest Resistance</div>' +
+        '<div class="text-lg font-bold mono text-[#ff4444]">$' + fmt(fib.nearest_resistance.price) + '</div>' +
+        '<div class="text-xs text-[var(--text2)] mono">Fib ' + fib.nearest_resistance.label + ' · ' + fmt(Math.abs(fib.nearest_resistance.distance_pct), 1) + '% above</div>' +
+      '</div>';
+  }
+
+  // Full levels table
+  var tableEl = document.getElementById('fib-table');
+  if (tableEl && fib.levels) {
+    tableEl.innerHTML = fib.levels.map(function(level) {
+      var isActive = !level.is_support && !level.is_resistance;
+      var color = level.is_support ? '#00ff88' : level.is_resistance ? '#ff4444' : '#ffd700';
+      var role = level.is_support ? 'Support' : level.is_resistance ? 'Resistance' : 'Current';
+      var distText = level.distance_pct === 0 ? '← Current price' :
+        (level.distance_pct > 0 ? '+' + fmt(level.distance_pct, 1) + '% above' : fmt(level.distance_pct, 1) + '% below');
+      var barWidth = Math.min(100, Math.abs(level.distance_pct) * 4);
+      return '<div class="flex items-center gap-3 py-1">' +
+        '<div class="mono text-[10px] text-[var(--text2)] w-10 text-right flex-shrink-0">' + level.label + '</div>' +
+        '<div class="flex-1 relative" style="height:4px;background:rgba(255,255,255,0.05);border-radius:2px;">' +
+          '<div style="position:absolute;top:0;height:4px;border-radius:2px;background:' + color + ';opacity:0.5;width:' + barWidth + '%;' + (level.is_resistance ? 'left:0' : 'right:0') + '"></div>' +
+        '</div>' +
+        '<div class="mono text-sm font-bold w-20 text-right flex-shrink-0" style="color:' + color + '">$' + fmt(level.price) + '</div>' +
+        '<div class="mono text-[10px] text-[var(--text2)] w-24 text-right flex-shrink-0">' + distText + '</div>' +
+        '<div class="mono text-[9px] uppercase tracking-wide w-16 text-right flex-shrink-0" style="color:' + color + ';opacity:0.7">' + role + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // Update range labels
+  var highEl = document.getElementById('fib-high');
+  var lowEl = document.getElementById('fib-low');
+  if (highEl) highEl.textContent = '$' + fmt(fib.high);
+  if (lowEl) lowEl.textContent = '$' + fmt(fib.low);
 }
 
 function renderPriceChart(timeframe) {
