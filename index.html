@@ -1325,6 +1325,29 @@
     border-color: rgba(255,215,0,0.4);
   }
   /* ===== END PRICE ALERTS ===== */
+
+  /* ===== COLLAPSIBLE SECTIONS ===== */
+  .section-title.section-collapsible {
+    cursor: pointer;
+    position: relative;
+    padding-right: 28px;
+  }
+  .section-title.section-collapsible:hover { opacity: 0.85; }
+  .section-chevron {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+    user-select: none;
+    line-height: 1;
+    transition: color 0.15s;
+    padding: 2px 0;
+  }
+  .section-title.section-collapsible:hover .section-chevron { color: var(--gold); }
+  /* ===== END COLLAPSIBLE SECTIONS ===== */
 </style>
 </head>
 <body>
@@ -3369,7 +3392,9 @@ function updateFreshnessBadges() {
 function renderPriceSection() {
   var d = DATA.price;
   if (!d) {
-    document.getElementById('sec-price').innerHTML = '<div class="section-title">Price Command Center</div>' + makeEmptyState('📡', 'Price data unavailable', true);
+    var priceBody = document.getElementById('body-sec-price');
+    if (priceBody) { priceBody.innerHTML = makeEmptyState('📡', 'Price data unavailable', true); }
+    else { document.getElementById('sec-price').innerHTML = '<div class="section-title">Price Command Center</div>' + makeEmptyState('📡', 'Price data unavailable', true); }
     return;
   }
 
@@ -7104,9 +7129,125 @@ setInterval(function() {
 }, 300000);
 
 // =====================================================================
+// COLLAPSIBLE SECTIONS
+// =====================================================================
+
+// true = collapsed by default, false = expanded by default
+var SECTION_COLLAPSE_DEFAULTS = {
+  'sec-composite':      false,  // Market Signal — primary, always visible
+  'sec-price':          false,  // Price Command Center — primary
+  'sec-lbma':           true,   // LBMA Fix — institutional detail
+  'sec-ratios':         false,  // Key Ratios — primary
+  'sec-cb':             false,  // Central Bank Tracker — important
+  'sec-gold-flows':     true,   // Global Gold Flows — educational/decorative
+  'sec-etf':            true,   // ETF Flows — secondary
+  'sec-analyst-targets':true,   // Analyst Targets — secondary
+  'sec-tariffs':        false,  // Trade War / Tariff — currently relevant
+  'sec-cot':            true,   // COT Positioning — advanced
+  'sec-comex-vault':    true,   // COMEX Vault — advanced
+  'sec-lease-rate':     true,   // Gold Lease Rate — advanced
+  'sec-news':           false,  // News Feed — primary
+  'sec-macro':          false,  // Macro Context — primary
+  'sec-miners':         true,   // Mining Snapshot — secondary
+  'sec-crisis':         false,  // Crisis Asset Performance — useful YTD chart
+  'sec-bank-targets':   true,   // Wall Street Targets — overlaps analyst-targets
+  'sec-historical':     true,   // Historical Context — reference
+};
+
+// Sections whose sibling elements must also toggle
+var SECTION_COMPANIONS = {
+  'sec-ratios': ['ratio-cards-grid'],
+};
+
+function initCollapsibleSections() {
+  Object.keys(SECTION_COLLAPSE_DEFAULTS).forEach(function(id) {
+    var section = document.getElementById(id);
+    if (!section) return;
+    var titleEl = section.querySelector('.section-title');
+    if (!titleEl) return;
+
+    // Saved state: '1' = collapsed, '0' = expanded
+    var saved = localStorage.getItem('collapse-' + id);
+    var isCollapsed = saved !== null ? (saved === '1') : SECTION_COLLAPSE_DEFAULTS[id];
+
+    // Mark title as collapsible
+    titleEl.classList.add('section-collapsible');
+
+    // Add chevron indicator
+    var chevron = document.createElement('span');
+    chevron.className = 'section-chevron';
+    chevron.id = 'chev-' + id;
+    chevron.textContent = isCollapsed ? '▶' : '▼';
+    titleEl.appendChild(chevron);
+
+    // Wrap everything after the title into a section-body div
+    var body = document.createElement('div');
+    body.id = 'body-' + id;
+    var siblings = [];
+    var next = titleEl.nextElementSibling;
+    while (next) { siblings.push(next); next = next.nextElementSibling; }
+    siblings.forEach(function(s) { body.appendChild(s); });
+    section.appendChild(body);
+
+    // Apply initial collapsed state
+    if (isCollapsed) {
+      body.style.display = 'none';
+      (SECTION_COMPANIONS[id] || []).forEach(function(cid) {
+        var c = document.getElementById(cid);
+        if (c) c.style.display = 'none';
+      });
+    }
+
+    // Click to toggle (ignore clicks on info tooltips)
+    titleEl.addEventListener('click', function(e) {
+      if (e.target.classList.contains('info-tooltip') || (e.target.closest && e.target.closest('.info-tooltip'))) return;
+      toggleSection(id);
+    });
+  });
+}
+
+function toggleSection(id) {
+  var body = document.getElementById('body-' + id);
+  var chevron = document.getElementById('chev-' + id);
+  if (!body) return;
+
+  var expanding = body.style.display === 'none';
+
+  if (expanding) {
+    body.style.display = '';
+    if (chevron) chevron.textContent = '▼';
+    localStorage.setItem('collapse-' + id, '0');
+    (SECTION_COMPANIONS[id] || []).forEach(function(cid) {
+      var c = document.getElementById(cid);
+      if (c) c.style.display = '';
+    });
+    // Resize any Chart.js instances that were hidden
+    setTimeout(function() {
+      [body].concat((SECTION_COMPANIONS[id] || []).map(function(cid) {
+        return document.getElementById(cid);
+      })).forEach(function(el) {
+        if (!el) return;
+        el.querySelectorAll('canvas').forEach(function(canvas) {
+          if (charts[canvas.id]) charts[canvas.id].resize();
+        });
+      });
+    }, 50);
+  } else {
+    body.style.display = 'none';
+    if (chevron) chevron.textContent = '▶';
+    localStorage.setItem('collapse-' + id, '1');
+    (SECTION_COMPANIONS[id] || []).forEach(function(cid) {
+      var c = document.getElementById(cid);
+      if (c) c.style.display = 'none';
+    });
+  }
+}
+
+// =====================================================================
 // INIT
 // =====================================================================
 
+initCollapsibleSections();
 loadAllData();
 </script>
 
