@@ -1247,7 +1247,7 @@
     },
     {
       "t": "2026-04-01",
-      "v": 4702.7
+      "v": 4651.5
     }
   ],
   "seasonal_monthly": [
@@ -1271,7 +1271,7 @@
     },
     {
       "month": "Apr",
-      "avg_return": 0.96,
+      "avg_return": 0.91,
       "positive_pct": 64.0,
       "n": 22
     },
@@ -1330,5 +1330,5 @@
     "reliability": "live (recent) / hardcoded (pre-2000)",
     "notes": "Pre-2000 data from London PM Fix annual averages. Seasonality uses full available history."
   },
-  "last_updated": "2026-04-03T07:21:12Z"
+  "last_updated": "2026-04-03T09:04:52Z"
 }
