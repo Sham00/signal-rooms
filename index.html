@@ -1673,6 +1673,9 @@
     <div class="section-title" style="padding: 0 0 0 0;">Key Ratios <span class="info-tooltip" data-tip="Gold priced in other assets. Percentile shows where the current ratio sits in its 10-year range. Green = gold is cheap relative to that asset.">i</span><span class="freshness-badge freshness-live">● Hourly</span></div>
   </div>
 
+  <!-- Ratio Confluence Alert — shown when multiple ratios hit extremes simultaneously -->
+  <div class="full-width" id="ratio-confluence-banner" style="display:none; margin-bottom:12px;"></div>
+
   <!-- Ratio cards container — filled dynamically by JS -->
   <div class="full-width" id="ratio-cards-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
     <!-- JS populates compact ratio cards here -->
@@ -4591,10 +4594,99 @@ function renderLBMA() {
   document.getElementById('lbma-source').textContent = lbma.source || '--';
 }
 
+// --- RATIO CONFLUENCE ALERT ---
+function renderRatioConfluence() {
+  var d = DATA.ratios;
+  var banner = document.getElementById('ratio-confluence-banner');
+  if (!d || !d.ratio_ranges || !banner) return;
+
+  var rr = d.ratio_ranges;
+  var extremes = [];
+  var warnings = [];
+
+  // Check for extreme percentile readings (>90th or <10th)
+  var spxPct   = rr.gold_spx    ? rr.gold_spx.current_percentile    : null;
+  var copperPct= rr.gold_copper ? rr.gold_copper.current_percentile  : null;
+  var silverPct= rr.gold_silver ? rr.gold_silver.current_percentile  : null;
+  var oilPct   = rr.gold_oil    ? rr.gold_oil.current_percentile     : null;
+  var btcPct   = rr.gold_btc    ? rr.gold_btc.current_percentile     : null;
+
+  var gsrVal   = d.ratios ? d.ratios.gold_silver : null;
+
+  if (spxPct != null && spxPct > 95)    extremes.push({ label: 'Gold/SPX', pct: spxPct, dir: 'high', note: 'historic risk-off extreme' });
+  else if (spxPct != null && spxPct > 85) warnings.push({ label: 'Gold/SPX', pct: spxPct, dir: 'high', note: 'elevated risk-off' });
+
+  if (copperPct != null && copperPct > 95) extremes.push({ label: 'Gold/Copper', pct: copperPct, dir: 'high', note: 'max recession fear' });
+  else if (copperPct != null && copperPct > 85) warnings.push({ label: 'Gold/Copper', pct: copperPct, dir: 'high', note: 'elevated recession fear' });
+
+  if (silverPct != null && silverPct < 5)  extremes.push({ label: 'Gold/Silver', pct: silverPct, dir: 'low', note: 'silver historic cheapness' });
+  else if (silverPct != null && silverPct < 15) warnings.push({ label: 'Gold/Silver', pct: silverPct, dir: 'low', note: 'silver cheap' });
+
+  if (oilPct != null && oilPct > 90)     extremes.push({ label: 'Gold/Oil', pct: oilPct, dir: 'high', note: 'oil historically cheap' });
+  if (btcPct != null && btcPct > 90)     extremes.push({ label: 'Gold/BTC', pct: btcPct, dir: 'high', note: 'gold dominant vs BTC' });
+  if (btcPct != null && btcPct < 5)      extremes.push({ label: 'Gold/BTC', pct: btcPct, dir: 'low',  note: 'BTC surge vs gold' });
+
+  var total = extremes.length + warnings.length;
+  if (total < 2) { banner.style.display = 'none'; return; }
+
+  // Build confluence message
+  var isFullExtreme = extremes.length >= 2;
+  var allItems = extremes.concat(warnings);
+
+  var headerIcon = isFullExtreme ? '🔥' : '⚠';
+  var headerColor = isFullExtreme ? '#ffd700' : '#ffaa00';
+  var headerBg   = isFullExtreme ? 'rgba(255,215,0,0.08)' : 'rgba(255,170,0,0.06)';
+  var borderColor= isFullExtreme ? 'rgba(255,215,0,0.3)'  : 'rgba(255,170,0,0.2)';
+
+  var title = isFullExtreme
+    ? headerIcon + ' MULTI-RATIO EXTREME CONFLUENCE (' + extremes.length + ' ratios at historic levels)'
+    : headerIcon + ' RATIO CONFLUENCE SIGNAL (' + total + ' ratios at elevated levels)';
+
+  // Build interpretation lines
+  var interp = [];
+  if (spxPct != null && spxPct > 90 && copperPct != null && copperPct > 90) {
+    interp.push('Gold outperforming both stocks <em>and</em> copper simultaneously — classic recession-fear flight to safety.');
+  }
+  if (silverPct != null && silverPct < 10 && (spxPct != null && spxPct > 85)) {
+    interp.push('Silver lagging gold while gold crushes stocks — late-stage bull signal. Silver historically catches up when fear peaks.');
+  }
+  if (oilPct != null && oilPct > 85 && copperPct != null && copperPct > 85) {
+    interp.push('Both oil and copper cheap vs gold — commodity complex pricing in demand destruction. Watch for convergence trade.');
+  }
+  if (extremes.length >= 3) {
+    interp.push('Triple+ extreme confluence is extremely rare — historically coincides with major macro turning points or peak gold outperformance.');
+  }
+
+  var pillsHtml = allItems.map(function(it) {
+    var bg = it.dir === 'high' ? 'rgba(255,68,68,0.15)' : 'rgba(0,255,136,0.15)';
+    var col = it.dir === 'high' ? '#ff8844' : '#00ff88';
+    var arrow = it.dir === 'high' ? '▲' : '▼';
+    var pctStr = it.dir === 'high'
+      ? fmt(it.pct, 0) + 'th pct'
+      : fmt(it.pct, 0) + 'th pct';
+    return '<span style="display:inline-flex;align-items:center;gap:4px;background:' + bg + ';color:' + col + ';font-family:\'JetBrains Mono\',monospace;font-size:10px;padding:2px 7px;border-radius:3px;white-space:nowrap;">' +
+      arrow + ' ' + it.label + ' · ' + pctStr + ' · ' + it.note + '</span>';
+  }).join('');
+
+  var interpHtml = interp.length
+    ? '<div style="margin-top:8px;font-family:\'JetBrains Mono\',monospace;font-size:10px;color:#bbb;line-height:1.7;">' +
+        interp.map(function(l){ return '→ ' + l; }).join('<br>') + '</div>'
+    : '';
+
+  banner.innerHTML =
+    '<div style="background:' + headerBg + ';border:1px solid ' + borderColor + ';border-radius:6px;padding:10px 14px;">' +
+      '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;font-weight:700;color:' + headerColor + ';letter-spacing:0.07em;margin-bottom:7px;">' + title + '</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:5px;">' + pillsHtml + '</div>' +
+      interpHtml +
+    '</div>';
+  banner.style.display = '';
+}
+
 // --- RATIOS (compact cards) ---
 function renderRatios() {
   var d = DATA.ratios;
   if (!d) return;
+  renderRatioConfluence();
 
   var RATIO_META = {
     gold_silver: {
