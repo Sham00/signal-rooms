@@ -52,7 +52,7 @@
     {
       "source": "Google News Gold Investment",
       "title": "Turkey\u2019s gold reserves plunge by 118 tons in 2 weeks amid market pressure: report - Turkish Minute",
-      "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxQWXdMWGhzTGRBaUtMaGtsTVE5VGY5SldHU2YtaE1TdVBsc0duV29QSnBlTExMVGZUZmVPUGRXQlJCeU5WdklMYmtubkJ5eDRZVnBpd1Fjam41TFZBRG9QY1VNQVkyN3owVVQ1cC1veDEwNXFhZmlrUVQxaVYwZEEtdldNbUJ2TVR2RW55ZDBFSXBUTG9EVlJzelhSSVcxUThlV2RLWFZhSnhXVk9yUTVfeXNiU1VSaGdWSW1uWHdR0gHDAUFVX3lxTE5QaGtwY2ZMLXZDTjIyUnA2TC1vSjlValY1SFhIY3BuV1lsdHhHdVJ4bnZWV0pULU5SZ3lFb0FDZm13RF9LZlpueHF2LVgyZUZmN3dMcDdRcVlfaTFWcXRXU3ZyOEdNemVuMUk4NnpuR09CYWJoME52ZzRBcndIU0NhdzYxSEhZU0dBemdXVTBib2cxbWNhSzd1RXNDRjJKRERvRFFIV25RSzNIRDMySHJkV0tMR3B0NGlGX0lDb0JFdGNzZw?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTFBkWWIyeDgxQk5mbjNRN3ZjVnRENHd0Y25vZEN3MjNRSXY0VzBianR1ZThiU1Y2eTR4VUhfSnVST2F1ZXRwN2pxSThoUGpic1V20gHDAUFVX3lxTE5QaGtwY2ZMLXZDTjIyUnA2TC1vSjlValY1SFhIY3BuV1lsdHhHdVJ4bnZWV0pULU5SZ3lFb0FDZm13RF9LZlpueHF2LVgyZUZmN3dMcDdRcVlfaTFWcXRXU3ZyOEdNemVuMUk4NnpuR09CYWJoME52ZzRBcndIU0NhdzYxSEhZU0dBemdXVTBib2cxbWNhSzd1RXNDRjJKRERvRFFIV25RSzNIRDMySHJkV0tMR3B0NGlGX0lDb0JFdGNzZw?oc=5",
       "published": "Fri, 03 Apr 2026 19:12:02 GMT",
       "sentiment": "negative"
     },
@@ -176,16 +176,16 @@
       "sentiment": "positive"
     }
   ],
-  "sentiment_score": 45.5,
-  "bull_count": 51,
+  "sentiment_score": 44.9,
+  "bull_count": 46,
   "bear_count": 11,
-  "neutral_count": 26,
-  "bull_pct": 58.0,
+  "neutral_count": 21,
+  "bull_pct": 59.0,
   "data_quality": {
     "source": "RSS feeds: Yahoo Finance Gold, Google News, Reuters Gold, FXStreet, Mining.com, Reuters, Investing.com",
     "freshness": "hourly",
     "reliability": "live",
     "notes": "Sentiment scoring is keyword-based heuristic. Not a substitute for full NLP sentiment analysis."
   },
-  "last_updated": "2026-04-04T02:45:04Z"
+  "last_updated": "2026-04-04T04:58:34Z"
 }

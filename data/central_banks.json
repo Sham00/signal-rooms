@@ -4538,17 +4538,10 @@
   "source": "Trading Economics (multi-source, IMF unavailable)",
   "cb_news": [
     {
-      "title": "TCMB Survey: Household Inflation Expectations Near 50% as Gold Remains Top Investment Choice - PA Turkey",
+      "title": "TCMB Survey: Household Inflation Expectations Near 50% as Gold Remains Top Investment Choice - paturkey.com",
       "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxPdnQ1U3FTdmFrT2ViQ0FDWmpsekFleWV6dG52TVRwa1NZd19yeWZjZVNuMERZNlMyN2FaZjF1X1JMcE05azM3T1FlR04yOTdJX2h1Tm41NnBFZEt6NTBmeW1TMjFVYXpCZER5QmZFQ2lSekVaUTVZVGRPY28zNGFSZW9uSmcxWG1YWGFmaXdOOXQxbm5LdEs5WGhnRmdOdk9wc3puUWhDT3JKaHQ4T2VRNk53cjloSkQ4eGduZ3RlWGd6VUdYZ0E5V2FDMm4?oc=5",
       "source": "Google News Turkey Gold",
       "published": "Wed, 25 Mar 2026 20:42:19 GMT",
-      "sentiment": "neutral"
-    },
-    {
-      "title": "Turkey strikes currency swap deal with UAE as ties warm - Reuters",
-      "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNdU0xTDNuRGVFdXhhQjREYlc1QUVoaVczUklqSVU3Vjh1Z01ONkxySTRpQTV0Sm14NFRHamVjeHJZN1ZCWnM5ZGJTN0NEYi1QRjJXSExFWWd1aHpJay1uMmh6Ym1fbmZsV0xSOUptS0VjOE9UZ1FmYnhRUl9WSDc4bVQ2MXFHMzk5UFBJb1VyRDlLYTZFY3lXNzhJSDJIUE9sY084?oc=5",
-      "source": "Google News Turkey Gold",
-      "published": "Wed, 19 Jan 2022 08:00:00 GMT",
       "sentiment": "neutral"
     },
     {
@@ -4566,10 +4559,17 @@
       "sentiment": "neutral"
     },
     {
-      "title": "China\u2019s PBOC Adds Gold for 14th Month As Prices Hit Record - Bloomberg.com",
-      "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxPY2w4WlkxbnhBYVRUTUYwMDhkd0w4NTZVWUQxTGY2R0pXNGcwRjJUdGl2bDZYYm5KdTIzUzZoYXoxdEhNWHBPU3d5QzlQcmF5djZ3em55Qm9lYVhEUEFEODBLUDhJT1dDS2tZMlBic040Ums5eFBPLTlYWkN4NzViXzZVdGVwWjdHNW0zVlNmcEFGZEN6ZXRoRmN3VjRObVNYSTlicDRadWVwRVlidEE?oc=5",
+      "title": "China\u2019s central bank buys gold for 14th consecutive month - Mining.com",
+      "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxNYkp5SmRWM2xIVXUzR2NaZS1wOEtSSzVqcWNSdVh5V3UyUzE3Tnp0V3ItRXVpYTE1eTdBd3NLY1NuNHpjVVRRTDBtLXRoOThmSUdXMGZlc2JvbFd6YlZmT1VHQzdvcFVQWmJfN1F1UGZkTU9RbjJBWmU0M0R1WDhXWmdZNTl5WWd5cmx1MA?oc=5",
       "source": "Google News PBOC Gold",
       "published": "Wed, 07 Jan 2026 08:00:00 GMT",
+      "sentiment": "negative"
+    },
+    {
+      "title": "Central bank gold buying picks up in May | Post by Marissa Salim | Gold Focus blog - World Gold Council",
+      "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxPT2V3V0RuTDJUVnJKQWNaUE12Z2FUWGNHTGFCemtIeUhvYmFWTV85dUstMUJpY0x6T2d5MjJnV3Q4WTd0X3FDSkpUOER4eDZKUktFZ1E2aTZiX25sZ2RHaHNFY2NMa1Q3Q2k1cTFZZFBpTlA5V2hNc1hNWW9EVjl1dzFmVEw0djd3NWc?oc=5",
+      "source": "Google News CB",
+      "published": "Wed, 02 Jul 2025 07:00:00 GMT",
       "sentiment": "positive"
     }
   ],
@@ -4579,5 +4579,5 @@
     "reliability": "live",
     "notes": "IMF API unavailable. Using Trading Economics current data. History arrays from hardcoded WGC/IMF estimates. pct_of_reserves from WGC hardcoded estimates."
   },
-  "last_updated": "2026-04-04T02:44:39Z"
+  "last_updated": "2026-04-04T04:58:03Z"
 }
