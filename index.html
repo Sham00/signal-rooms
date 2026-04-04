@@ -1407,6 +1407,34 @@
 <main class="dashboard-grid" id="dashboard">
 
   <!-- ============================================================ -->
+  <!-- LIBERATION DAY ANNIVERSARY BANNER -->
+  <!-- ============================================================ -->
+  <div class="full-width fade-in" id="sec-anniversary" style="animation-delay:0.02s">
+    <div style="background:linear-gradient(135deg,rgba(255,215,0,0.08) 0%,rgba(255,100,0,0.06) 50%,rgba(255,215,0,0.04) 100%);border:1px solid rgba(255,215,0,0.25);border-radius:12px;padding:16px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:16px;">
+      <div style="font-size:24px;flex-shrink:0;">🟡</div>
+      <div style="flex:1;min-width:200px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:#ffd700;margin-bottom:4px;">Liberation Day II · Apr 2, 2026</div>
+        <div style="font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:#ffffff;margin-bottom:2px;">Sweeping reciprocal tariffs announced — gold down from ATH but still +48.6% since Liberation Day I (Apr 2025)</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#888;">Gold surged from $3,097 → $5,318 ATH → now $<span id="anniversary-spot">4,651</span> · RSI 36.9 (approaching oversold) · Nearest support: Fib 23.6% at $4,760</div>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div style="text-align:center;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2);border-radius:8px;padding:8px 14px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#888;text-transform:uppercase;margin-bottom:2px;">1-Year Return</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#00ff88;" id="anniversary-return">+48.6%</div>
+        </div>
+        <div style="text-align:center;background:rgba(255,100,0,0.06);border:1px solid rgba(255,100,0,0.2);border-radius:8px;padding:8px 14px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#888;text-transform:uppercase;margin-bottom:2px;">From ATH</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#ff8844;" id="anniversary-drawdown">−12.5%</div>
+        </div>
+        <div style="text-align:center;background:rgba(68,136,255,0.06);border:1px solid rgba(68,136,255,0.2);border-radius:8px;padding:8px 14px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#888;text-transform:uppercase;margin-bottom:2px;">ATH</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#4488ff;">$5,318</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
   <!-- SECTION 0: COMPOSITE BULL/BEAR SIGNAL -->
   <!-- ============================================================ -->
   <section class="full-width card fade-in" id="sec-composite" style="animation-delay:0.05s">
@@ -2734,8 +2762,25 @@ function renderMarketAlerts() {
   strip.style.display = '';
 }
 
+function renderAnniversaryBanner() {
+  var p = DATA.price;
+  if (!p || !p.price) return;
+  var spot = p.price;
+  var ath = 5318.4;
+  var ldI = 3097.0; // Liberation Day I price (Apr 2, 2025 approx)
+  var ret1y = ((spot - ldI) / ldI * 100).toFixed(1);
+  var drawdown = ((spot - ath) / ath * 100).toFixed(1);
+  var retEl = document.getElementById('anniversary-return');
+  var drawEl = document.getElementById('anniversary-drawdown');
+  var spotEl = document.getElementById('anniversary-spot');
+  if (spotEl) spotEl.textContent = spot.toLocaleString('en-US', {minimumFractionDigits:0,maximumFractionDigits:0});
+  if (retEl) { retEl.textContent = (ret1y > 0 ? '+' : '') + ret1y + '%'; retEl.style.color = ret1y >= 0 ? '#00ff88' : '#ff4444'; }
+  if (drawEl) { drawEl.textContent = (drawdown > 0 ? '+' : '') + drawdown + '%'; drawEl.style.color = drawdown >= 0 ? '#00ff88' : '#ff8844'; }
+}
+
 function renderAll() {
   renderHeader();
+  renderAnniversaryBanner();
   renderPriceSection();
   renderFibLevels();
   renderLBMA();
