@@ -2012,6 +2012,15 @@
       </div>
     </div>
 
+    <!-- Gold Price at Tariff Escalation Events -->
+    <div class="mb-6">
+      <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">Gold Price at Each Tariff Escalation <span class="info-tooltip" data-tip="Gold spot price at the time of each major tariff escalation event. Bars show gold's price level; label shows % change from the prior event. A positive % means gold rose into or immediately after the tariff event.">ℹ</span></div>
+      <div class="chart-wrap chart-loading" style="height:220px;">
+        <canvas id="chart-tariff-escalation"></canvas>
+      </div>
+      <div class="text-[9px] text-[var(--text2)] mono mt-1">Gold spot price (GC=F) at each tariff event date • % label = change since prior event</div>
+    </div>
+
     <!-- Bottom row: Tariff news feed -->
     <div>
       <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-3">Tariff &amp; Trade News</div>
@@ -5564,6 +5573,98 @@ function renderTariffs() {
           '</div></div>';
       });
       newsEl.innerHTML = newsHtml;
+    }
+  }
+
+  // --- Tariff Escalation Price Chart ---
+  var escEvents = d.tariff_events || [];
+  if (escEvents.length >= 2) {
+    var escLabels = escEvents.map(function(ev) { return ev.short || ev.label; });
+    var escPrices = escEvents.map(function(ev) { return ev.gold_price || null; });
+    var escColors = escEvents.map(function(ev, i) {
+      if (i === 0) return 'rgba(255,215,0,0.5)';
+      var prev = escPrices[i - 1];
+      var cur = escPrices[i];
+      if (cur == null || prev == null) return 'rgba(136,136,136,0.5)';
+      return cur >= prev ? 'rgba(0,255,136,0.6)' : 'rgba(255,68,68,0.6)';
+    });
+    var escBorders = escColors.map(function(c) { return c.replace('0.6', '1').replace('0.5', '1'); });
+
+    destroyChart('tariff-escalation');
+    var escCanvas = document.getElementById('chart-tariff-escalation');
+    if (escCanvas) {
+      var escWrap = escCanvas.closest('.chart-wrap');
+      charts['tariff-escalation'] = new Chart(escCanvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: escLabels,
+          datasets: [{
+            label: 'Gold price at event',
+            data: escPrices,
+            backgroundColor: escColors,
+            borderColor: escBorders,
+            borderWidth: 2,
+            borderRadius: 4,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: function(items) {
+                  var i = items[0].dataIndex;
+                  return escEvents[i].label + ' (' + escEvents[i].date + ')';
+                },
+                label: function(ctx) {
+                  var i = ctx.dataIndex;
+                  var price = escPrices[i];
+                  var lines = ['Gold: $' + fmt(price, 0)];
+                  if (i > 0 && escPrices[i - 1] != null && price != null) {
+                    var chg = ((price - escPrices[i - 1]) / escPrices[i - 1] * 100);
+                    lines.push('vs prior event: ' + (chg >= 0 ? '+' : '') + fmt(chg, 1) + '%');
+                  }
+                  if (escEvents[i].detail) lines.push(escEvents[i].detail);
+                  return lines;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#888', font: { size: 9, family: 'JetBrains Mono, monospace' }, maxRotation: 25 }
+            },
+            y: {
+              grid: { color: 'rgba(255,255,255,0.03)' },
+              ticks: { color: '#888', callback: function(v) { return '$' + fmtInt(v); } },
+              beginAtZero: false
+            }
+          }
+        },
+        plugins: [{
+          id: 'escPctLabels',
+          afterDatasetsDraw: function(chart) {
+            var c = chart.ctx;
+            var meta = chart.getDatasetMeta(0);
+            meta.data.forEach(function(bar, i) {
+              if (i === 0 || escPrices[i] == null || escPrices[i - 1] == null) return;
+              var chg = ((escPrices[i] - escPrices[i - 1]) / escPrices[i - 1] * 100);
+              var label = (chg >= 0 ? '+' : '') + fmt(chg, 1) + '%';
+              c.save();
+              c.fillStyle = chg >= 0 ? '#00ff88' : '#ff4444';
+              c.font = 'bold 9px JetBrains Mono, monospace';
+              c.textAlign = 'center';
+              var yPos = chg >= 0 ? bar.y - 5 : bar.y + 13;
+              c.fillText(label, bar.x, yPos);
+              c.restore();
+            });
+          }
+        }]
+      });
+      if (escWrap) escWrap.classList.remove('chart-loading');
     }
   }
 }
