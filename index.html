@@ -1606,6 +1606,14 @@
       </div>
     </div>
 
+    <!-- RSI Oversold Bounce History (shown when RSI < 40) -->
+    <div class="mt-6" id="rsi-oversold-panel" style="display:none">
+      <div class="text-xs text-[var(--text2)] uppercase tracking-widest mb-3 mono">RSI Oversold Bounce History <span class="info-tooltip" data-tip="Every time RSI dropped below 40 in the past year, gold bounced. Shows each instance, price at the time, and 30-day forward return. Current RSI in oversold territory — historically a high-probability setup.">ℹ</span></div>
+      <div id="rsi-oversold-banner" class="mb-3 px-3 py-2 rounded mono text-xs" style="background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.25);color:#00ff88;"></div>
+      <div id="rsi-oversold-table" class="space-y-1"></div>
+      <div class="text-[9px] text-[var(--text2)] mono mt-2">Shows instances where RSI crossed below 40 from above, using 1Y daily data • 30d return = price 22 trading days later</div>
+    </div>
+
     <!-- MACD Chart -->
     <div class="mt-6" id="macd-section" style="display:none">
       <div class="text-xs text-[var(--text2)] uppercase tracking-widest mb-2 mono">MACD (12,26,9) — Momentum Indicator <span class="info-tooltip" data-tip="MACD = EMA(12) minus EMA(26). Signal line = EMA(9) of MACD. Histogram = MACD minus Signal. Green histogram bars = bullish momentum building. Red = bearish. A MACD crossover above the signal line is a buy signal.">ℹ</span>
@@ -3809,6 +3817,7 @@ function renderPriceSection() {
 
   renderCurrencyGrid();
   renderRSIChart();
+  renderRSIOversoldPanel();
   renderMACDChart();
 
   var pctToATH = 100 - (d.pct_below_ath || 0);
@@ -4377,6 +4386,110 @@ function renderRSIChart() {
       }
     }]
   });
+}
+
+// --- RSI OVERSOLD BOUNCE HISTORY PANEL ---
+function renderRSIOversoldPanel() {
+  var d = DATA.price;
+  var panel = document.getElementById('rsi-oversold-panel');
+  if (!panel || !d) return;
+
+  var currentRSI = d.rsi;
+  // Only show when RSI < 40
+  if (currentRSI == null || currentRSI >= 40) {
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = '';
+
+  var rsiSeries = d.rsi_series || [];
+  var chart1y = (d.charts && d.charts['1y']) || [];
+  // Build date→price map
+  var priceMap = {};
+  chart1y.forEach(function(pt) { priceMap[pt.t] = pt.v; });
+  var dates = Object.keys(priceMap).sort();
+
+  // Find instances where RSI crossed below 40
+  var instances = [];
+  var prevAbove = true;
+  for (var i = 0; i < rsiSeries.length; i++) {
+    var t = rsiSeries[i].t;
+    var r = rsiSeries[i].v;
+    var curAbove = r >= 40;
+    if (prevAbove && !curAbove) {
+      // crossed below 40 — record
+      var p0 = priceMap[t];
+      var idx = dates.indexOf(t);
+      var ret30 = null;
+      var tFut = null;
+      if (idx !== -1 && p0) {
+        var futIdx = Math.min(idx + 22, dates.length - 1);
+        tFut = dates[futIdx];
+        var pFut = priceMap[tFut];
+        if (pFut) ret30 = (pFut - p0) / p0 * 100;
+      }
+      instances.push({ date: t, rsi: r, price: p0, ret30: ret30, futDate: tFut });
+    }
+    prevAbove = curAbove;
+  }
+
+  // Statistics — exclude current instance (no 30d data yet) + last instance which may still be rolling
+  var completed = instances.filter(function(x) { return x.ret30 !== null; });
+  var positive = completed.filter(function(x) { return x.ret30 > 0; });
+  var avgRet = completed.length > 0
+    ? completed.reduce(function(sum, x) { return sum + x.ret30; }, 0) / completed.length
+    : null;
+
+  // Banner
+  var bannerEl = document.getElementById('rsi-oversold-banner');
+  if (bannerEl && completed.length > 0) {
+    var pctPos = Math.round((positive.length / completed.length) * 100);
+    var retStr = avgRet !== null ? (avgRet > 0 ? '+' : '') + avgRet.toFixed(1) + '%' : '--';
+    bannerEl.innerHTML = '🟢 RSI ' + currentRSI.toFixed(1) + ' — Historically, gold bounced ' + pctPos + '% of the time in the 30 days following an RSI &lt;40 reading' +
+      (avgRet !== null ? ' — avg 30d return: <strong>' + retStr + '</strong>' : '') +
+      ' (' + completed.length + ' prior instances)';
+    if (pctPos >= 70) {
+      bannerEl.style.background = 'rgba(0,255,136,0.08)';
+      bannerEl.style.borderColor = 'rgba(0,255,136,0.25)';
+      bannerEl.style.color = '#00ff88';
+    } else {
+      bannerEl.style.background = 'rgba(255,170,0,0.08)';
+      bannerEl.style.borderColor = 'rgba(255,170,0,0.25)';
+      bannerEl.style.color = '#ffaa00';
+    }
+  }
+
+  // Table of instances
+  var tableEl = document.getElementById('rsi-oversold-table');
+  if (tableEl) {
+    if (instances.length === 0) {
+      tableEl.innerHTML = '<div class="text-xs text-[var(--text2)] mono py-2">No prior oversold instances found in 1Y data.</div>';
+      return;
+    }
+    var rows = instances.slice().reverse().map(function(inst) {
+      var retColor = inst.ret30 === null ? '#888' : inst.ret30 >= 0 ? '#00ff88' : '#ff4444';
+      var retText = inst.ret30 === null ? 'Pending (30d)' : (inst.ret30 > 0 ? '+' : '') + inst.ret30.toFixed(1) + '%';
+      var priceText = inst.price ? '$' + inst.price.toLocaleString('en-US', {maximumFractionDigits: 0}) : '--';
+      var dateText = inst.date ? inst.date.replace(/^20\d\d-/, '') : '--';
+      var futText = inst.futDate ? inst.futDate.replace(/^20\d\d-/, '') : '--';
+      return '<div class="flex items-center gap-3 py-1 px-2 rounded hover:bg-white/5 transition-colors">' +
+        '<div class="mono text-[10px] text-[var(--text2)] w-12 flex-shrink-0">' + dateText + '</div>' +
+        '<div class="mono text-[10px] text-[var(--gold)] w-10 flex-shrink-0">RSI ' + inst.rsi.toFixed(0) + '</div>' +
+        '<div class="mono text-[10px] text-white w-20 flex-shrink-0">' + priceText + '</div>' +
+        '<div class="flex-1 text-[10px] text-[var(--text2)] mono">→ 30d</div>' +
+        '<div class="mono text-sm font-bold w-20 text-right flex-shrink-0" style="color:' + retColor + '">' + retText + '</div>' +
+      '</div>';
+    });
+    tableEl.innerHTML =
+      '<div class="flex items-center gap-3 py-1 px-2 border-b border-white/5 mb-1">' +
+        '<div class="mono text-[9px] text-[var(--text2)] uppercase w-12 flex-shrink-0">Date</div>' +
+        '<div class="mono text-[9px] text-[var(--text2)] uppercase w-10 flex-shrink-0">RSI</div>' +
+        '<div class="mono text-[9px] text-[var(--text2)] uppercase w-20 flex-shrink-0">Price</div>' +
+        '<div class="flex-1"></div>' +
+        '<div class="mono text-[9px] text-[var(--text2)] uppercase w-20 text-right flex-shrink-0">30d Return</div>' +
+      '</div>' +
+      rows.join('');
+  }
 }
 
 function computeEMA(values, period) {
