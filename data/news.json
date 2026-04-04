@@ -1,8 +1,15 @@
 {
   "articles": [
     {
+      "source": "Yahoo Finance Gold",
+      "title": "A Look At New Gold (TSX:NGD) Valuation After Earnings Spark Fresh Investor Interest",
+      "link": "https://finance.yahoo.com/markets/stocks/articles/look-gold-tsx-ngd-valuation-050807964.html?.tsrc=rss",
+      "published": "Sat, 04 Apr 2026 05:08:07 +0000",
+      "sentiment": "neutral"
+    },
+    {
       "source": "Google News Gold Investment",
-      "title": "Singapore Is Pushing to Become a Major Gold-Trading Hub - Bloomberg.com",
+      "title": "Singapore Is Pushing to Become a Major Gold-Trading Hub - Bloomberg",
       "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQZk5ldFVZQmFqT3g5NDl5V2ZCWllCdUlSanVmaXpsZzVfWFNQbmN4WG1kQ2pjME1ZQW1fNFpRbC12dF84RVd4cnFJLURnLVVwdWtUbE45LTFhWVJrYi1vYjBmY01tdG9GUVhRRmQxOGpIczZOa1hJNUQyTmZLU2JUNi04VE9OeHFwWlcxZXVXdS1SWF96cmJGTXJtb0hTT3hSVzNaOF9vMWhlMHNVQl9vOXo0SEdHLUNfTzBkX19FclNCNno5?oc=5",
       "published": "Sat, 04 Apr 2026 01:00:00 GMT",
       "sentiment": "neutral"
@@ -12,13 +19,6 @@
       "title": "Gold Rate Today [3 April, 2026]: Gold Pulls Back 2.8% to $4,650 on De-escalation Hopes; Domestic Rates Drop to \u20b91.48 Lakh/10g | Check City-Wise Rates of 24K, 22K & 18K - The Sunday Guardian",
       "link": "https://news.google.com/rss/articles/CBMipAJBVV95cUxPTXRlRzB5NmVWQy1yQWhkUlNJUF95c3pFenZiLWZiS1lOTW1JYlNJY0ZEMG1JSzRGQTZCU1ItcDkzbTFGQmZCaTlSdzNJNDVoTzd4ZWhpX2E4OUVDSnRSbDBYZGtMdHFtUXVTUTVuaXdtdTlyQWxYdXVqbUp3UWZ2cEh0UXNPRjlHbS0wOGk1VnlWNTJvUEU2dHRNdTFVbVdvejdLV3NUVHdXYkktY0NkYzJlMjBXNEdNMHRnaU1zY19KeDNKclBBdVh3MHlVOGdna0JQNTVuTEFUaXlJMElzU28tZVkwUkppelRpYUk1RG9HX0ZyNk9WMVBSUzZkYWRPaUNmMlFXeE5YQlRrbG5aZ2RPUm4wSkViVXhJMmpqWlJoWUw0?oc=5",
       "published": "Sat, 04 Apr 2026 00:21:39 GMT",
-      "sentiment": "positive"
-    },
-    {
-      "source": "Google News Gold Investment",
-      "title": "Peter Schiff flags a troubling trend that could send gold soaring - thestreet.com",
-      "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxOUm5zcHZYbW10WDktT1p3R0J3NXhCSWxrLUhQQVdFVmxJcTdSUVA2aTBxc2JyRF90M2lIbm9ILVhSYlplLTlhSzB5bXJFTkFIRUdqbmFBbEF5Ti0wZmJid0JtekFUNU1GcUNYVU9mWDQycjZnSUY0V3RfRnZQZEdocWxKTzFqVUZZUVZFRVhrc0hVTV9mZkxlb2lXc2tIZFBOWnI4?oc=5",
-      "published": "Fri, 03 Apr 2026 23:33:00 GMT",
       "sentiment": "positive"
     },
     {
@@ -51,7 +51,7 @@
     },
     {
       "source": "Google News Gold Investment",
-      "title": "Turkey\u2019s gold reserves plunge by 118 tons in 2 weeks amid market pressure: report - Turkish Minute",
+      "title": "Turkey\u2019s gold reserves plunge by 118 tons in 2 weeks amid market pressure: report - turkishminute.com",
       "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTFBkWWIyeDgxQk5mbjNRN3ZjVnRENHd0Y25vZEN3MjNRSXY0VzBianR1ZThiU1Y2eTR4VUhfSnVST2F1ZXRwN2pxSThoUGpic1V20gHDAUFVX3lxTE5QaGtwY2ZMLXZDTjIyUnA2TC1vSjlValY1SFhIY3BuV1lsdHhHdVJ4bnZWV0pULU5SZ3lFb0FDZm13RF9LZlpueHF2LVgyZUZmN3dMcDdRcVlfaTFWcXRXU3ZyOEdNemVuMUk4NnpuR09CYWJoME52ZzRBcndIU0NhdzYxSEhZU0dBemdXVTBib2cxbWNhSzd1RXNDRjJKRERvRFFIV25RSzNIRDMySHJkV0tMR3B0NGlGX0lDb0JFdGNzZw?oc=5",
       "published": "Fri, 03 Apr 2026 19:12:02 GMT",
       "sentiment": "negative"
@@ -177,15 +177,15 @@
     }
   ],
   "sentiment_score": 44.9,
-  "bull_count": 46,
+  "bull_count": 51,
   "bear_count": 11,
-  "neutral_count": 21,
-  "bull_pct": 59.0,
+  "neutral_count": 27,
+  "bull_pct": 57.3,
   "data_quality": {
     "source": "RSS feeds: Yahoo Finance Gold, Google News, Reuters Gold, FXStreet, Mining.com, Reuters, Investing.com",
     "freshness": "hourly",
     "reliability": "live",
     "notes": "Sentiment scoring is keyword-based heuristic. Not a substitute for full NLP sentiment analysis."
   },
-  "last_updated": "2026-04-04T04:58:34Z"
+  "last_updated": "2026-04-04T06:05:35Z"
 }
