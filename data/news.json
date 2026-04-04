@@ -1,6 +1,13 @@
 {
   "articles": [
     {
+      "source": "Google News Gold Investment",
+      "title": "Central Bank Gold Selling - Robin J Brooks | Substack",
+      "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE1xNV9FWHFnVDk3OXZTMUZ5Z04zS3dXelBCX3A0cVFVUDVmeHZyVDhsM1RaLVZvcHRfa3VCR01mSkh3eUlsbWt4alBIOG1odFVxUURrQ3g5dVhEc3g5UF9BNGNjV2phREU3ZUpRX0lR?oc=5",
+      "published": "Sat, 04 Apr 2026 09:00:13 GMT",
+      "sentiment": "negative"
+    },
+    {
       "source": "Yahoo Finance Gold",
       "title": "NovaGold Advances Donlin Gold Study And Funding Options For Investors",
       "link": "https://finance.yahoo.com/markets/stocks/articles/novagold-advances-donlin-gold-study-070907056.html?.tsrc=rss",
@@ -51,7 +58,7 @@
     },
     {
       "source": "Google News",
-      "title": "Gold Price Forecast 2026: JP Morgan, ANZ, HSBC & Heraeus Analysis - News and Statistics - indexbox.io",
+      "title": "Gold Price Forecast 2026: JP Morgan, ANZ, HSBC & Heraeus Analysis - News and Statistics - IndexBox",
       "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxPaEhLcEE5TEpJMHRkSGFkY1Exd0M1QUlwNWRldlU4NDU4MXJ5dDhwbkI2NV9aTUotWllaazJDZUtEck5UTEsxV2Z0aDhMM2pmWVZGS2hrNW45TGNxdFhfY25SNlJ5SjgwVk1pNjNDSWRfQmtvMFVtQjI3UzNtZVJ0MV9DeUNkZ1cxRy0wYlRyNzR4QnlPNmR3R1FVX3RObnVJeGs5NXFYZGRIdw?oc=5",
       "published": "Fri, 03 Apr 2026 19:50:00 GMT",
       "sentiment": "positive"
@@ -93,7 +100,7 @@
     },
     {
       "source": "Google News Gold Investment",
-      "title": "Gold Surges to $4,676 as Turkey Dumps Reserves and ETF Outflows Surge - nationaltoday.com",
+      "title": "Gold Surges to $4,676 as Turkey Dumps Reserves and ETF Outflows Surge - National Today",
       "link": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxOOWJmRzdKZWR6TThlR1ltTU1hQWxkejVfbXJnaVBNYVZQZ0czQzdBMTVVdzgzZDA3c1Q5U1B3TmFsMnNRbDlFOVFBcHAtMFZYVXNOQ2E4ek90WldJcHhkR1RxUnZzazZrTS1jT1Y4Y3dLdDhpemI0TWtDMGVmVUdQdGtxODNHTjU0dHpIZ0N2c0E3amljR3FKWTM4T01pendIVmJNRGxmYjA1bXY5T3IxS2lNMUMxQlZSUTF1am83bzdNY3M?oc=5",
       "published": "Fri, 03 Apr 2026 17:03:00 GMT",
       "sentiment": "positive"
@@ -121,7 +128,7 @@
     },
     {
       "source": "Google News Gold Investment",
-      "title": "Is the gold rally over? 3 things to consider now - CBS News",
+      "title": "Is the gold rally over? 3 things to consider now - cbsnews.com",
       "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTE5YRXVidmNrSzZRQkZhZmFQQjVUM2lNMUJRLVphVTJaR3ZyTHVKTEdya2tNZUFtN1ItaFcwSFVUVHNHa19PUGdnN3RUMnBKTE5VTGhRZF9ULWozNGNPSDRBQlZvVGstb2phUjVF?oc=5",
       "published": "Fri, 03 Apr 2026 16:13:44 GMT",
       "sentiment": "positive"
@@ -167,19 +174,12 @@
       "link": "https://www.fool.com/investing/2026/04/03/heres-why-ssr-mining-shares-soared-this-week/?.tsrc=rss",
       "published": "Fri, 03 Apr 2026 12:24:47 +0000",
       "sentiment": "positive"
-    },
-    {
-      "source": "Yahoo Finance Gold",
-      "title": "Does Royal Gold\u2019s (RGLD) 2026 Outlook and Asset Handbook Recast Its Long\u2011Term Portfolio Strategy?",
-      "link": "https://finance.yahoo.com/markets/commodities/articles/does-royal-gold-rgld-2026-120706538.html?.tsrc=rss",
-      "published": "Fri, 03 Apr 2026 12:07:06 +0000",
-      "sentiment": "positive"
     }
   ],
-  "sentiment_score": 44.3,
+  "sentiment_score": 43.0,
   "bull_count": 45,
-  "bear_count": 10,
-  "neutral_count": 24,
+  "bear_count": 11,
+  "neutral_count": 23,
   "bull_pct": 57.0,
   "data_quality": {
     "source": "RSS feeds: Yahoo Finance Gold, Google News, Reuters Gold, FXStreet, Mining.com, Reuters, Investing.com",
@@ -187,5 +187,5 @@
     "reliability": "live",
     "notes": "Sentiment scoring is keyword-based heuristic. Not a substitute for full NLP sentiment analysis."
   },
-  "last_updated": "2026-04-04T08:53:05Z"
+  "last_updated": "2026-04-04T09:48:22Z"
 }
