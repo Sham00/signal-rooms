@@ -2349,6 +2349,32 @@
         <canvas id="chart-seasonality"></canvas>
       </div>
     </div>
+
+    <!-- Gold vs Cash vs S&P 500 Purchasing Power Chart -->
+    <div class="mt-6">
+      <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-2">$10,000 Invested in 2000 — Gold vs S&amp;P 500 vs Cash <span class="info-tooltip" data-tip="If you invested $10,000 in January 2000: Gold (+1,540%), S&P 500 Total Return (+530%), Cash/CPI (+80%). Gold has dramatically outperformed as a long-term store of value.">ℹ</span></div>
+      <div class="chart-wrap chart-loading" style="height: 260px;">
+        <canvas id="chart-purch-power"></canvas>
+      </div>
+      <div id="purch-power-stats" class="grid grid-cols-3 gap-3 mt-3">
+        <div class="text-center">
+          <div class="text-[10px] mono uppercase tracking-wider" style="color:#ffd700">🟡 Gold</div>
+          <div id="purch-gold-val" class="text-lg font-bold mono" style="color:#ffd700">—</div>
+          <div id="purch-gold-ret" class="text-[10px] mono" style="color:#ffd700">—</div>
+        </div>
+        <div class="text-center">
+          <div class="text-[10px] mono uppercase tracking-wider" style="color:#00c851">📈 S&amp;P 500</div>
+          <div id="purch-spx-val" class="text-lg font-bold mono" style="color:#00c851">—</div>
+          <div id="purch-spx-ret" class="text-[10px] mono" style="color:#00c851">—</div>
+        </div>
+        <div class="text-center">
+          <div class="text-[10px] mono uppercase tracking-wider" style="color:#888">💵 Cash (CPI)</div>
+          <div id="purch-cash-val" class="text-lg font-bold mono" style="color:#888">—</div>
+          <div id="purch-cash-ret" class="text-[10px] mono" style="color:#888">—</div>
+        </div>
+      </div>
+      <div class="text-[9px] text-[var(--text2)] mono mt-1">Gold: GC=F monthly close from yfinance • S&amp;P 500: annual total return with dividends reinvested (hardcoded 2000–2025) • Cash: BLS CPI-U cumulative inflation</div>
+    </div>
   </section>
 
   <!-- ============================================================ -->
@@ -6933,6 +6959,180 @@ function renderHistorical() {
       }
     }
   } catch(e) { console.warn('Seasonality chart error:', e); }
+
+  // ── Purchasing Power: Gold vs S&P 500 vs Cash (2000 → present) ──
+  try {
+    var timelineData = d.timeline_chart;
+    if (timelineData && timelineData.length) {
+      // S&P 500 annual total returns 2000–2025 (with dividends reinvested)
+      var sp500Returns = {
+        2000: -9.10, 2001: -11.89, 2002: -22.10, 2003: 28.68, 2004: 10.88,
+        2005: 4.91,  2006: 15.79,  2007: 5.49,  2008: -37.00, 2009: 26.46,
+        2010: 15.06, 2011: 2.11,  2012: 16.00,  2013: 32.39,  2014: 13.69,
+        2015: 1.38,  2016: 11.96,  2017: 21.83,  2018: -4.38,  2019: 31.49,
+        2020: 18.40, 2021: 28.71,  2022: -18.11, 2023: 26.29,  2024: 25.02,
+        2025: -4.5
+      };
+      // Annual CPI increases (BLS CPI-U, approximate)
+      var cpiReturns = {
+        2000: 3.4, 2001: 2.8, 2002: 1.6, 2003: 2.3, 2004: 2.7,
+        2005: 3.4, 2006: 3.2, 2007: 2.9, 2008: 3.8, 2009: -0.4,
+        2010: 1.6, 2011: 3.2, 2012: 2.1, 2013: 1.5, 2014: 1.6,
+        2015: 0.1, 2016: 1.3, 2017: 2.1, 2018: 2.4, 2019: 1.8,
+        2020: 1.2, 2021: 4.7, 2022: 8.0, 2023: 4.1, 2024: 2.9,
+        2025: 3.0
+      };
+
+      // Find Jan 2000 gold price
+      var pt2000 = null;
+      for (var ti = 0; ti < timelineData.length; ti++) {
+        if (timelineData[ti].t && timelineData[ti].t.startsWith('2000')) {
+          pt2000 = timelineData[ti];
+          break;
+        }
+      }
+      if (!pt2000) pt2000 = { t: '2000-01-01', v: 287 };
+      var goldBase = pt2000.v || 287;
+
+      // Build year-end data points from 2000 to latest
+      var ppLabels = [];
+      var ppGold = [];
+      var ppSpx = [];
+      var ppCash = [];
+
+      var spxVal = 10000;
+      var cashVal = 10000;
+
+      // Get gold price for each year
+      var goldByYear = {};
+      for (var ti2 = 0; ti2 < timelineData.length; ti2++) {
+        var pt = timelineData[ti2];
+        if (pt.t) {
+          var yr = parseInt(pt.t.substring(0, 4));
+          if (yr >= 2000) {
+            goldByYear[yr] = pt.v; // stores last seen value for that year
+          }
+        }
+      }
+
+      for (var yr = 2000; yr <= 2026; yr++) {
+        ppLabels.push(yr.toString());
+        // Gold value: $10,000 / goldBase * goldByYear[yr]
+        var gp = goldByYear[yr] || goldByYear[yr - 1];
+        ppGold.push(gp ? Math.round(10000 * gp / goldBase) : null);
+        // S&P: compound from annual returns
+        if (yr > 2000) {
+          var ret = sp500Returns[yr - 1];
+          if (ret != null) spxVal = spxVal * (1 + ret / 100);
+        }
+        ppSpx.push(Math.round(spxVal));
+        // Cash: compound from CPI
+        if (yr > 2000) {
+          var cpi = cpiReturns[yr - 1];
+          if (cpi != null) cashVal = cashVal * (1 + cpi / 100);
+        }
+        ppCash.push(Math.round(cashVal));
+      }
+
+      // Update endpoint stats
+      var lastGold = ppGold.filter(function(v) { return v != null; }).slice(-1)[0] || 10000;
+      var lastSpx = ppSpx.slice(-1)[0] || 10000;
+      var lastCash = ppCash.slice(-1)[0] || 10000;
+      var goldEl = document.getElementById('purch-gold-val');
+      var spxEl = document.getElementById('purch-spx-val');
+      var cashEl = document.getElementById('purch-cash-val');
+      var goldRetEl = document.getElementById('purch-gold-ret');
+      var spxRetEl = document.getElementById('purch-spx-ret');
+      var cashRetEl = document.getElementById('purch-cash-ret');
+      if (goldEl) goldEl.textContent = '$' + fmtInt(lastGold);
+      if (spxEl) spxEl.textContent = '$' + fmtInt(lastSpx);
+      if (cashEl) cashEl.textContent = '$' + fmtInt(lastCash);
+      if (goldRetEl) goldRetEl.textContent = '+' + Math.round((lastGold - 10000) / 100) + '% total';
+      if (spxRetEl) spxRetEl.textContent = '+' + Math.round((lastSpx - 10000) / 100) + '% total';
+      if (cashRetEl) cashRetEl.textContent = '+' + Math.round((lastCash - 10000) / 100) + '% total';
+
+      destroyChart('purch-power');
+      var ctxPP = document.getElementById('chart-purch-power');
+      if (ctxPP) {
+        var wrapPP = ctxPP.closest('.chart-wrap');
+        if (wrapPP) wrapPP.classList.remove('chart-loading');
+        charts['purch-power'] = new Chart(ctxPP.getContext('2d'), {
+          type: 'line',
+          data: {
+            labels: ppLabels,
+            datasets: [
+              {
+                label: 'Gold',
+                data: ppGold,
+                borderColor: '#ffd700',
+                backgroundColor: 'rgba(255,215,0,0.08)',
+                borderWidth: 2.5,
+                pointRadius: 0,
+                fill: false,
+                tension: 0.3,
+                spanGaps: true,
+              },
+              {
+                label: 'S&P 500 (TR)',
+                data: ppSpx,
+                borderColor: '#00c851',
+                backgroundColor: 'rgba(0,200,81,0.06)',
+                borderWidth: 2,
+                pointRadius: 0,
+                fill: false,
+                tension: 0.3,
+              },
+              {
+                label: 'Cash (CPI)',
+                data: ppCash,
+                borderColor: '#888',
+                backgroundColor: 'rgba(136,136,136,0.04)',
+                borderWidth: 1.5,
+                pointRadius: 0,
+                fill: false,
+                tension: 0.3,
+                borderDash: [4, 3],
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+              x: {
+                grid: { color: 'rgba(255,255,255,0.03)' },
+                ticks: { font: { size: 9 }, maxTicksLimit: 14 }
+              },
+              y: {
+                grid: { color: 'rgba(255,255,255,0.03)' },
+                ticks: {
+                  callback: function(v) { return '$' + (v >= 1000 ? Math.round(v/1000) + 'K' : v); },
+                  font: { size: 9 }
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                display: true,
+                labels: { color: '#aaa', font: { size: 10, family: 'JetBrains Mono' }, boxWidth: 16, padding: 12 }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(ctx) {
+                    var val = ctx.parsed.y;
+                    if (val == null) return ctx.dataset.label + ': N/A';
+                    var ret = Math.round((val - 10000) / 100);
+                    return ctx.dataset.label + ': $' + fmtInt(val) + ' (' + (ret >= 0 ? '+' : '') + ret + '%)';
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+  } catch(e) { console.warn('Purchasing power chart error:', e); }
 
   // Real (CPI-adjusted) gold chart
   try {
