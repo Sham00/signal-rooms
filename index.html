@@ -136,6 +136,14 @@
     transition: left 1s ease;
   }
 
+  /* CB Country Heatmap */
+  .cb-heatmap-table { border-collapse: separate; border-spacing: 2px; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+  .cb-heatmap-table th { color: var(--text2); font-weight: 600; text-align: center; padding: 4px 6px; white-space: nowrap; font-size: 10px; }
+  .cb-heatmap-table th.row-label { text-align: left; padding-right: 10px; min-width: 100px; }
+  .cb-heatmap-table td { width: 52px; height: 34px; border-radius: 4px; text-align: center; vertical-align: middle; cursor: default; transition: opacity 0.15s; font-size: 10px; font-weight: 600; color: rgba(0,0,0,0.8); }
+  .cb-heatmap-table td:hover { opacity: 0.85; outline: 1px solid #ffd700; }
+  .cb-heatmap-table td.row-label { background: none !important; color: var(--text2); text-align: left; padding-right: 10px; font-size: 11px; font-weight: 400; }
+
   /* Heatmap table */
   .heat-table { width: 100%; border-collapse: separate; border-spacing: 0; }
   .heat-table th {
@@ -1787,6 +1795,15 @@
       <div id="cb-news-list" class="space-y-1"><!-- filled by JS --></div>
     </div>
 
+    <!-- CB Buying Heatmap -->
+    <div class="mb-6 pt-4 border-t border-[var(--card-border)]">
+      <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-1">Annual Gold Purchases by Central Bank (tonnes) <span class="info-tooltip" data-tip="Darker gold = more buying that year. Based on WGC quarterly reports and central bank disclosures. 2025–2026 are partial-year estimates.">ℹ</span></div>
+      <div class="text-[10px] text-[var(--text2)] mono mb-3" style="color:#555;">Darker = more buying · Hover for exact tonnes</div>
+      <div style="overflow-x:auto;">
+        <div id="cb-heatmap" style="min-width:340px;"></div>
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Table -->
       <div class="lg:col-span-2 overflow-x-auto">
@@ -2274,7 +2291,7 @@
     <div class="section-title">Macro Context <span class="info-tooltip" data-tip="Key macroeconomic indicators that drive gold prices. Gold typically rises with inflation, falling real yields, and dollar weakness.">ℹ</span><span class="freshness-badge freshness-live">● Daily</span></div>
 
     <!-- Macro stat cards -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6" id="macro-cards">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4 mb-6" id="macro-cards">
       <!-- Filled by JS -->
     </div>
 
@@ -3372,7 +3389,20 @@ function renderCompositeSignal() {
     factors.push({ label: 'Gold–SPX Correlation', val: corrLabel, score: corrScore, color: corrColor });
   }
 
-  // Normalize score to -20..+20 range (10 factors, each max ±2 = ±20, clamp to ±10)
+  // Factor 11: VIX Fear Index — high VIX = fear = safe-haven demand for gold (-1.5 to +1.5)
+  var vixVal = macro.vix;
+  if (vixVal != null) {
+    var vixScore = 0, vixLabel = '', vixColor = '#888';
+    if (vixVal > 35)       { vixScore = 1.5;  vixLabel = 'Extreme Fear (' + vixVal.toFixed(1) + ')'; vixColor = '#00ff88'; }
+    else if (vixVal > 25)  { vixScore = 1.0;  vixLabel = 'Elevated Fear (' + vixVal.toFixed(1) + ')'; vixColor = '#88dd44'; }
+    else if (vixVal > 18)  { vixScore = 0;    vixLabel = 'Moderate (' + vixVal.toFixed(1) + ')'; vixColor = '#888'; }
+    else if (vixVal > 12)  { vixScore = -0.5; vixLabel = 'Low Fear (' + vixVal.toFixed(1) + ')'; vixColor = '#ff8844'; }
+    else                   { vixScore = -1.5; vixLabel = 'Complacency (' + vixVal.toFixed(1) + ')'; vixColor = '#ff3333'; }
+    totalScore += vixScore;
+    factors.push({ label: 'VIX Fear Index', val: vixLabel, score: vixScore, color: vixColor });
+  }
+
+  // Normalize score to -22..+22 range (11 factors, each max ±2 = ±22, clamp to ±10)
   var clampedScore = Math.max(-10, Math.min(10, totalScore));
 
   // Determine label and color
@@ -3442,6 +3472,9 @@ function renderCompositeSignal() {
     }
     if (newsVeryBull) lines.push('📰 News sentiment very bullish — broad positive media coverage supporting gold.');
     if (newsVeryBear) lines.push('📰 News sentiment very bearish — negative media pressure, watch for capitulation.');
+    // VIX context
+    if (vixVal != null && vixVal > 30) lines.push('😱 VIX at ' + vixVal.toFixed(1) + ' — extreme fear elevates gold safe-haven demand; historically strong environment for gold.');
+    else if (vixVal != null && vixVal < 14) lines.push('😴 VIX at ' + vixVal.toFixed(1) + ' — complacency in markets; gold may consolidate without a fear catalyst.');
     // Gold-SPX correlation context
     if (corrVal !== null) {
       if (corrVal > 0.4) lines.push('📉 Gold–SPX correlation elevated (' + corrVal.toFixed(2) + '): gold moving with equities — safe-haven premium temporarily impaired. Liberation Day II risk-off liquidation pattern.');
@@ -4532,6 +4565,77 @@ function renderCentralBanks() {
       }
     }
   });
+
+  // CB Country Buying Heatmap (grid: top buyers × years 2020-2025)
+  (function() {
+    var heatmapEl = document.getElementById('cb-heatmap');
+    if (!heatmapEl || !d.reserves || !Array.isArray(d.reserves)) return;
+
+    var years = ['2020','2021','2022','2023','2024','2025'];
+    // Pick top buyers by total change 2020-2025 (exclude steady holders like US/Germany)
+    var buyers = d.reserves.map(function(r) {
+      var h = r.history || [];
+      // For each year, get the net change (last month of year minus first month)
+      var annual = {};
+      years.forEach(function(yr) {
+        var yrEntries = h.filter(function(e) { return e.date && e.date.startsWith(yr); });
+        if (yrEntries.length >= 2) {
+          annual[yr] = Math.round(yrEntries[yrEntries.length-1].tonnes - yrEntries[0].tonnes);
+        } else if (yrEntries.length === 1) {
+          annual[yr] = 0;
+        } else {
+          annual[yr] = null;
+        }
+      });
+      var totalChange = years.reduce(function(acc, yr) { return acc + (annual[yr] || 0); }, 0);
+      return { country: r.country, annual: annual, totalChange: totalChange };
+    }).filter(function(b) { return b.totalChange > 5; }) // only net buyers
+      .sort(function(a, b) { return b.totalChange - a.totalChange; })
+      .slice(0, 10);
+
+    if (!buyers.length) return;
+
+    // Max value for color scaling
+    var maxVal = 0;
+    buyers.forEach(function(b) {
+      years.forEach(function(yr) { if (b.annual[yr] && b.annual[yr] > maxVal) maxVal = b.annual[yr]; });
+    });
+    if (maxVal < 1) maxVal = 1;
+
+    function heatColor(val) {
+      if (val === null || val === undefined) return 'rgba(255,255,255,0.04)';
+      if (val <= 0) return 'rgba(255,255,255,0.04)';
+      var ratio = Math.min(val / maxVal, 1);
+      // Ramp from dark gold to bright gold
+      var r = Math.round(80 + 175 * ratio);
+      var g = Math.round(50 + 155 * ratio);
+      var b = Math.round(0 + 20 * ratio);
+      return 'rgb(' + r + ',' + g + ',' + b + ')';
+    }
+
+    var html = '<table class="cb-heatmap-table">';
+    html += '<thead><tr><th class="row-label">Country</th>';
+    years.forEach(function(yr) { html += '<th>' + yr + '</th>'; });
+    html += '<th>Total</th></tr></thead><tbody>';
+
+    buyers.forEach(function(b) {
+      html += '<tr>';
+      html += '<td class="row-label">' + b.country + '</td>';
+      years.forEach(function(yr) {
+        var val = b.annual[yr];
+        var bg = heatColor(val);
+        var textVal = (val !== null && val !== undefined) ? (val > 0 ? '+' + val : (val === 0 ? '—' : val)) : '?';
+        var textColor = (val !== null && val > 5) ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.35)';
+        html += '<td style="background:' + bg + ';color:' + textColor + ';" title="' + b.country + ' ' + yr + ': ' + (val !== null ? val + 't' : 'n/a') + '">' + textVal + '</td>';
+      });
+      // Total column
+      var bg = heatColor(b.totalChange);
+      html += '<td style="background:' + heatColor(Math.min(b.totalChange * 0.3, maxVal)) + ';color:rgba(255,215,0,0.9);font-weight:700;">+' + b.totalChange + '</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    heatmapEl.innerHTML = html;
+  })();
 
   // CB Intelligence news feed
   var cbNewsList = document.getElementById('cb-news-list');
@@ -5716,6 +5820,7 @@ function renderMacro() {
     { key: 'fed_funds', label: 'Fed Funds Rate', unit: '%', rangeMin: 0, rangeMax: 6, color: '#ff8800', tip: 'The interest rate the Federal Reserve charges banks overnight. Lower rates reduce the opportunity cost of holding gold (which pays no yield), making gold more attractive.' },
     { key: 'm2', label: 'M2 Growth YoY', unit: '%', rangeMin: -5, rangeMax: 30, color: '#00ff88', tip: 'Annual growth rate of total money in circulation. Rapid M2 expansion (money printing) historically correlates with gold price increases as currency purchasing power dilutes.' },
     { key: 'us_10y', label: 'US 10Y Yield', unit: '%', rangeMin: 0, rangeMax: 5, color: '#ffd700', tip: 'Nominal yield on 10-year US Treasuries. Rising nominal yields can pressure gold prices as bonds become more competitive with yield-free gold.' },
+    { key: 'vix', label: 'VIX Fear Index', unit: '', rangeMin: 10, rangeMax: 50, color: '#aa44ff', tip: 'The CBOE Volatility Index measures market fear. VIX above 30 signals elevated fear — historically bullish for gold as investors flee to safe havens. VIX below 15 signals complacency and can precede gold consolidation.' },
   ];
 
   var container = document.getElementById('macro-cards');
