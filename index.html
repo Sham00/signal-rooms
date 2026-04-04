@@ -2419,6 +2419,15 @@
       <div class="text-[9px] text-[var(--text2)] mono mt-1">Gold: GC=F monthly close from yfinance • S&amp;P 500: annual total return with dividends reinvested (hardcoded 2000–2025) • Cash: BLS CPI-U cumulative inflation</div>
     </div>
 
+    <!-- Historical Drawdown Comparison (Priority 33) -->
+    <div class="mt-6" id="drawdown-section">
+      <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-3">Drawdown Recovery Map — Historical Pullbacks vs Current <span class="info-tooltip" data-tip="Every significant gold pullback (>10%) from peak to trough, with recovery time. The current drawdown is shown in gold. Comparable past pullbacks provide context for expected recovery windows.">ℹ</span></div>
+      <div id="drawdown-map" class="space-y-2">
+        <div class="flex justify-center py-4"><div class="spinner"></div></div>
+      </div>
+      <div class="text-[9px] text-[var(--text2)] mono mt-2">All drawdowns >10% from peak. Days to trough = calendar days from peak to bottom. Days to recovery = calendar days from peak to full recovery.</div>
+    </div>
+
     <!-- Gold Standard History Timeline (Priority 32) -->
     <div class="mt-6">
       <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono mb-3">Gold Standard History — Key Milestones <span class="info-tooltip" data-tip="The journey from the gold standard to fiat currency to gold's modern role as a reserve asset. Each event shaped gold's price trajectory.">ℹ</span></div>
@@ -2912,6 +2921,7 @@ function renderAll() {
   renderMiners();
   renderCrisisAssets();
   renderHistorical();
+  renderDrawdownMap();
   renderBankTargets();
   renderCompositeSignal();
   renderMarketAlerts();
@@ -7344,6 +7354,89 @@ function renderHistorical() {
       '</div>';
     evtContainer.appendChild(card);
   });
+}
+
+// =====================================================================
+// DRAWDOWN RECOVERY MAP (Priority 33)
+// =====================================================================
+function renderDrawdownMap() {
+  var el = document.getElementById('drawdown-map');
+  if (!el) return;
+
+  var historical = DATA.historical;
+  var price = DATA.price;
+  if (!historical || !historical.drawdown_history) {
+    el.innerHTML = '<div class="text-xs mono" style="color:#444;">No drawdown data available.</div>';
+    return;
+  }
+
+  var drawdowns = historical.drawdown_history;
+  // Sort by drawdown magnitude (most severe first)
+  drawdowns = drawdowns.slice().sort(function(a, b) { return a.drawdown_pct - b.drawdown_pct; });
+
+  var currentPrice = price ? price.price : null;
+  var ath = price ? price.ath : null;
+  var athDate = price ? price.ath_date : null;
+  var currentPct = (ath && currentPrice) ? ((currentPrice - ath) / ath * 100) : null;
+  var daysSinceATH = price ? price.days_since_ath : null;
+
+  // Current drawdown summary banner
+  var bannerHtml = '';
+  if (currentPct !== null) {
+    var pctAbs = Math.abs(currentPct).toFixed(1);
+    var daysStr = daysSinceATH ? daysSinceATH + ' days' : '—';
+    bannerHtml = '<div style="background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.25);border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;">' +
+      '<div style="flex:0 0 auto;">' +
+        '<div class="text-[10px] mono uppercase tracking-widest" style="color:#888;">Current Drawdown from ATH</div>' +
+        '<div class="mono" style="font-size:24px;font-weight:700;color:#ff8844;">−' + pctAbs + '%</div>' +
+        '<div class="text-[10px] mono" style="color:#888;">ATH: $' + fmtInt(ath) + ' on ' + (athDate || '?') + ' · ' + daysStr + ' ago</div>' +
+      '</div>' +
+      '<div style="flex:1;min-width:200px;">' +
+        '<div class="text-[10px] mono uppercase tracking-widest mb-1" style="color:#888;">Context from History</div>' +
+        '<div class="text-[11px] mono" style="color:#ccc;line-height:1.7;">' +
+          'Comparable past drawdowns (15–21%) recovered in <strong style="color:#ffd700;">108–741 days</strong> from peak. ' +
+          'Current drawdown duration: <strong style="color:#ffd700;">' + daysStr + '</strong>. ' +
+          (daysSinceATH && daysSinceATH < 200 ? 'Still within typical early-to-mid recovery window.' : 'Extended — watch for momentum shift.') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  // Drawdown bar chart rows
+  var rows = drawdowns.map(function(dd) {
+    var isCurrent = !dd.recovered;
+    var pct = Math.abs(dd.drawdown_pct);
+    var barWidth = Math.min(100, pct / 50 * 100); // 50% drawdown = 100% bar
+    var barColor = isCurrent ? '#ffd700' : (pct > 30 ? '#ff4444' : pct > 20 ? '#ff8844' : '#88aacc');
+    var rowBg = isCurrent ? 'rgba(255,215,0,0.07)' : 'rgba(255,255,255,0.02)';
+    var rowBorder = isCurrent ? '1px solid rgba(255,215,0,0.3)' : '1px solid rgba(255,255,255,0.05)';
+
+    var recovLabel = dd.recovered ?
+      (dd.days_to_recovery ? dd.days_to_recovery + 'd to recover' : 'Recovered') :
+      '⏳ Recovering';
+    var troughLabel = dd.days_to_trough ? dd.days_to_trough + 'd to trough' : '—';
+    var peakLabel = dd.peak_date ? dd.peak_date.slice(0,7) : '?';
+
+    return '<div style="background:' + rowBg + ';border:' + rowBorder + ';border-radius:8px;padding:10px 12px;margin-bottom:6px;">' +
+      '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">' +
+        '<div style="flex:0 0 72px;">' +
+          '<div class="mono" style="font-size:13px;font-weight:700;color:' + barColor + ';">−' + pct.toFixed(1) + '%</div>' +
+          '<div class="text-[9px] mono" style="color:#666;">' + peakLabel + (isCurrent ? ' · NOW' : '') + '</div>' +
+        '</div>' +
+        '<div style="flex:1;min-width:100px;">' +
+          '<div style="background:#111;border-radius:4px;height:6px;overflow:hidden;">' +
+            '<div style="width:' + barWidth + '%;height:100%;background:' + barColor + ';border-radius:4px;transition:width 0.8s ease;' + (isCurrent ? 'box-shadow:0 0 6px ' + barColor + ';' : '') + '"></div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="flex:0 0 auto;text-align:right;">' +
+          '<div class="text-[10px] mono" style="color:#aaa;">' + troughLabel + '</div>' +
+          '<div class="text-[10px] mono" style="color:' + (dd.recovered ? '#00ff88' : '#ffd700') + ';">' + recovLabel + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  el.innerHTML = bannerHtml + rows;
 }
 
 // =====================================================================
