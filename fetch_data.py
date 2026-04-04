@@ -2441,7 +2441,23 @@ def fetch_news():
             "sentiment": "neutral",
         })
 
-    articles.sort(key=lambda x: x.get("published", ""), reverse=True)
+    def _parse_pub_date(pub_str):
+        """Parse RSS published dates to sortable timestamp."""
+        if not pub_str:
+            return 0
+        from email.utils import parsedate_to_datetime
+        try:
+            return parsedate_to_datetime(pub_str).timestamp()
+        except Exception:
+            pass
+        # Try ISO format
+        try:
+            from datetime import datetime as _dt
+            return _dt.fromisoformat(pub_str.replace("Z", "+00:00")).timestamp()
+        except Exception:
+            return 0
+
+    articles.sort(key=lambda x: _parse_pub_date(x.get("published", "")), reverse=True)
 
     # Sentiment tracker
     bull_count = sum(1 for a in articles if a["sentiment"] == "positive")
