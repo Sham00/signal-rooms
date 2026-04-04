@@ -2345,6 +2345,7 @@
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-4" id="crisis-asset-legend">
       <!-- Filled by JS -->
     </div>
+    <div id="crisis-alert-bar" class="mt-4" style="display:none;"></div>
     <div id="crisis-context-blurb" class="text-[11px] mono mt-4 pt-4 border-t border-[var(--card-border)]" style="color:#888;line-height:1.7;"></div>
   </section>
 
@@ -6805,6 +6806,7 @@ function renderCrisisAssets() {
           var yScale = chart.scales.y;
           var xScale = chart.scales.x;
           var c = chart.ctx;
+          // Baseline at 100
           var y = yScale.getPixelForValue(100);
           c.save();
           c.strokeStyle = 'rgba(255,255,255,0.25)';
@@ -6815,6 +6817,29 @@ function renderCrisisAssets() {
           c.fillStyle = 'rgba(255,255,255,0.3)';
           c.font = '9px JetBrains Mono, monospace';
           c.fillText('Jan 1 baseline', xScale.left + 4, y - 3);
+          // Liberation Day II vertical line (Apr 2, 2026)
+          var ldDate = '2026-04-02';
+          var ldIdx = -1;
+          var labels = chart.data.labels;
+          for (var i = 0; i < labels.length; i++) {
+            if (labels[i] && labels[i].substring(0, 10) === ldDate) { ldIdx = i; break; }
+          }
+          if (ldIdx >= 0) {
+            var xld = xScale.getPixelForValue(ldIdx);
+            c.strokeStyle = 'rgba(255,215,0,0.6)';
+            c.lineWidth = 1.5;
+            c.setLineDash([5, 3]);
+            c.beginPath(); c.moveTo(xld, yScale.top); c.lineTo(xld, yScale.bottom); c.stroke();
+            c.setLineDash([]);
+            // Label at top
+            c.fillStyle = '#ffd700';
+            c.font = 'bold 9px JetBrains Mono, monospace';
+            var labelText = '⚡ Liberation Day II';
+            var textWidth = c.measureText(labelText).width;
+            var labelX = xld + 4;
+            if (labelX + textWidth > xScale.right) labelX = xld - textWidth - 4;
+            c.fillText(labelText, labelX, yScale.top + 11);
+          }
           c.restore();
         }
       }]
@@ -6846,6 +6871,25 @@ function renderCrisisAssets() {
     });
   }
 
+  // Correlation breakdown / Liberation Day alert bar
+  var alertBarEl = document.getElementById('crisis-alert-bar');
+  if (alertBarEl) {
+    var intel = DATA.marketIntel;
+    var corrBreak = intel && intel.alerts && intel.alerts.find(function(a) { return a.type === 'correlation_breakdown'; });
+    if (corrBreak) {
+      alertBarEl.style.display = '';
+      alertBarEl.innerHTML =
+        '<div style="background:rgba(255,136,68,0.08);border:1px solid rgba(255,136,68,0.3);border-radius:8px;padding:10px 14px;display:flex;align-items:flex-start;gap:10px;">' +
+        '<span style="font-size:16px;flex-shrink:0;line-height:1.4;">📉</span>' +
+        '<div>' +
+        '<div style="font-family:JetBrains Mono,monospace;font-size:10px;font-weight:700;color:#ff8844;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Correlation Breakdown Alert</div>' +
+        '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#ccc;line-height:1.55;">' + corrBreak.detail + '</div>' +
+        '</div></div>';
+    } else {
+      alertBarEl.style.display = 'none';
+    }
+  }
+
   // Dynamic context blurb
   var blurbEl = document.getElementById('crisis-context-blurb');
   if (blurbEl) {
@@ -6855,13 +6899,18 @@ function renderCrisisAssets() {
     var bondAsset = d.assets['Long Bonds (TLT)'];
     var silverAsset = d.assets['Silver'];
     var dxyAsset = d.assets['DXY'];
+    var spxAsset = d.assets['S&P 500'];
     var lines = [];
+    // Gold vs S&P divergence (key story post Liberation Day)
+    if (goldAsset && spxAsset && goldAsset.ytd_pct > 5 && spxAsset.ytd_pct < -2) {
+      var div = goldAsset.ytd_pct - spxAsset.ytd_pct;
+      lines.push('🟡 Gold +' + fmt(goldAsset.ytd_pct, 1) + '% vs S&P 500 ' + (spxAsset.ytd_pct >= 0 ? '+' : '') + fmt(spxAsset.ytd_pct, 1) + '% YTD — a ' + fmt(div, 1) + 'pp divergence. Gold is performing its classic role as a hedge against equity risk.');
+    }
     // Gold vs Bitcoin divergence
     if (goldAsset && btcAsset) {
       var gdiff = goldAsset.ytd_pct - btcAsset.ytd_pct;
       if (gdiff > 20) lines.push('🟡 Gold is outperforming Bitcoin by ' + fmt(gdiff, 1) + 'pp YTD — a clear flight-to-safety signal as institutional capital prioritizes stable stores of value over risk assets.');
       else if (gdiff < -20) lines.push('₿ Bitcoin is outperforming Gold by ' + fmt(-gdiff, 1) + 'pp YTD — risk appetite is elevated; crypto may be absorbing capital that historically flowed to gold.');
-      else lines.push('Gold and Bitcoin are closely tracking YTD, suggesting mixed safe-haven sentiment.');
     }
     // VIX reading
     if (vixAsset && vixAsset.ytd_pct > 50) lines.push('⚠️ VIX is up ' + fmt(vixAsset.ytd_pct, 0) + '% YTD — fear is elevated. Historically, gold performs well in high-VIX environments as investors seek hedges.');
