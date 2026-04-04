@@ -1414,8 +1414,8 @@
       <div style="font-size:24px;flex-shrink:0;">🟡</div>
       <div style="flex:1;min-width:200px;">
         <div style="font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:#ffd700;margin-bottom:4px;">Liberation Day II · Apr 2, 2026</div>
-        <div style="font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:#ffffff;margin-bottom:2px;">Sweeping reciprocal tariffs announced — gold down from ATH but still +48.6% since Liberation Day I (Apr 2025)</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#888;">Gold surged from $3,097 → $5,318 ATH → now $<span id="anniversary-spot">4,651</span> · RSI 36.9 (approaching oversold) · Nearest support: Fib 23.6% at $4,760</div>
+        <div style="font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:#ffffff;margin-bottom:2px;">Sweeping reciprocal tariffs announced — gold down from ATH but <span id="anniversary-headline-return">still +48.6%</span> since Liberation Day I (Apr 2025)</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#888;" id="anniversary-subline">Gold surged from $3,097 → $5,318 ATH → now $<span id="anniversary-spot">4,651</span> · RSI 36.9 (approaching oversold) · Nearest support: Fib 23.6% at $4,760</div>
       </div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;">
         <div style="text-align:center;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2);border-radius:8px;padding:8px 14px;">
@@ -2775,16 +2775,42 @@ function renderAnniversaryBanner() {
   var p = DATA.price;
   if (!p || !p.price) return;
   var spot = p.price;
-  var ath = 5318.4;
+  var ath = p.ath || 5318.4;
   var ldI = 3097.0; // Liberation Day I price (Apr 2, 2025 approx)
   var ret1y = ((spot - ldI) / ldI * 100).toFixed(1);
   var drawdown = ((spot - ath) / ath * 100).toFixed(1);
   var retEl = document.getElementById('anniversary-return');
   var drawEl = document.getElementById('anniversary-drawdown');
   var spotEl = document.getElementById('anniversary-spot');
+  var headlineRetEl = document.getElementById('anniversary-headline-return');
+  var sublineEl = document.getElementById('anniversary-subline');
+
   if (spotEl) spotEl.textContent = spot.toLocaleString('en-US', {minimumFractionDigits:0,maximumFractionDigits:0});
   if (retEl) { retEl.textContent = (ret1y > 0 ? '+' : '') + ret1y + '%'; retEl.style.color = ret1y >= 0 ? '#00ff88' : '#ff4444'; }
   if (drawEl) { drawEl.textContent = (drawdown > 0 ? '+' : '') + drawdown + '%'; drawEl.style.color = drawdown >= 0 ? '#00ff88' : '#ff8844'; }
+
+  // Update headline inline return text
+  if (headlineRetEl) {
+    headlineRetEl.textContent = (ret1y > 0 ? '+' : '') + ret1y + '%';
+    headlineRetEl.style.color = ret1y >= 0 ? '#00ff88' : '#ff4444';
+  }
+
+  // Dynamically update sub-line with live RSI + nearest Fib level
+  if (sublineEl && p.rsi != null) {
+    var rsi = p.rsi;
+    var rsiNote = rsi <= 30 ? ' (oversold)' : rsi <= 40 ? ' (approaching oversold)' : rsi >= 70 ? ' (overbought)' : '';
+    var athStr = ath.toLocaleString('en-US', {minimumFractionDigits:0,maximumFractionDigits:0});
+    var spotStr = spot.toLocaleString('en-US', {minimumFractionDigits:0,maximumFractionDigits:0});
+    var fibNote = '';
+    if (p.fib_levels && p.fib_levels.nearest_support) {
+      var ns = p.fib_levels.nearest_support;
+      fibNote = ' · Nearest support: Fib ' + ns.label + ' at $' + ns.price.toLocaleString('en-US', {minimumFractionDigits:0,maximumFractionDigits:0});
+    } else if (p.fib_levels && p.fib_levels.nearest_resistance) {
+      var nr = p.fib_levels.nearest_resistance;
+      fibNote = ' · Nearest resistance: Fib ' + nr.label + ' at $' + nr.price.toLocaleString('en-US', {minimumFractionDigits:0,maximumFractionDigits:0});
+    }
+    sublineEl.innerHTML = 'Gold surged from $3,097 → $' + athStr + ' ATH → now $<span id="anniversary-spot">' + spotStr + '</span> · RSI ' + rsi.toFixed(1) + rsiNote + fibNote;
+  }
 }
 
 function renderAll() {
@@ -3812,6 +3838,102 @@ function renderPriceChart(timeframe) {
         c.textAlign = 'center';
         c.fillText('⚡ Liberation Day', x, yScale.top + 11);
         c.restore();
+      }
+    }, {
+      id: 'athMarker',
+      afterDraw: function(chart) {
+        // Draw ATH horizontal line + ATH dot + 52W low annotation on 1Y chart
+        if (timeframe !== '1y') return;
+        var d = DATA.price;
+        if (!d || !d.ath) return;
+        var yScale = chart.scales.y;
+        var xScale = chart.scales.x;
+        if (!yScale || !xScale) return;
+        var c = chart.ctx;
+        var labels = chart.data.labels;
+        var athDate = d.ath_date; // e.g. '2026-01-29'
+        var athPrice = d.ath;
+        var lowDate = d.low_52w_date;
+        var lowPrice = d.low_52w;
+
+        // --- ATH horizontal dashed line ---
+        var athY = yScale.getPixelForValue(athPrice);
+        if (athY >= yScale.top && athY <= yScale.bottom) {
+          c.save();
+          c.strokeStyle = 'rgba(255,215,0,0.55)';
+          c.lineWidth = 1;
+          c.setLineDash([4, 5]);
+          c.beginPath();
+          c.moveTo(xScale.left, athY);
+          c.lineTo(xScale.right, athY);
+          c.stroke();
+          c.setLineDash([]);
+
+          // ATH label
+          c.fillStyle = 'rgba(255,215,0,0.9)';
+          c.font = 'bold 8px JetBrains Mono, monospace';
+          c.textAlign = 'left';
+          c.fillText('ATH $' + Math.round(athPrice).toLocaleString(), xScale.left + 4, athY - 3);
+          c.restore();
+        }
+
+        // --- ATH vertical line + dot at ATH date ---
+        if (athDate && labels) {
+          var athIdx = -1;
+          for (var i = 0; i < labels.length; i++) {
+            if (labels[i] && labels[i].substring(0, 10) === athDate) { athIdx = i; break; }
+          }
+          if (athIdx >= 0) {
+            var athX = xScale.getPixelForValue(athIdx);
+            c.save();
+            c.strokeStyle = 'rgba(255,215,0,0.4)';
+            c.lineWidth = 1;
+            c.setLineDash([3, 5]);
+            c.beginPath();
+            c.moveTo(athX, yScale.top);
+            c.lineTo(athX, athY);
+            c.stroke();
+            c.setLineDash([]);
+            // ATH dot
+            c.fillStyle = '#ffd700';
+            c.beginPath();
+            c.arc(athX, athY, 4, 0, Math.PI * 2);
+            c.fill();
+            // Date label
+            c.fillStyle = 'rgba(255,215,0,0.75)';
+            c.font = '7px JetBrains Mono, monospace';
+            c.textAlign = 'center';
+            try {
+              var athDateLabel = new Date(athDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+              c.fillText(athDateLabel, athX, yScale.top + 11);
+            } catch(e) {}
+            c.restore();
+          }
+        }
+
+        // --- 52W Low dot + label ---
+        if (lowDate && labels && lowPrice) {
+          var lowIdx = -1;
+          for (var j = 0; j < labels.length; j++) {
+            if (labels[j] && labels[j].substring(0, 10) === lowDate) { lowIdx = j; break; }
+          }
+          if (lowIdx >= 0) {
+            var lowX = xScale.getPixelForValue(lowIdx);
+            var lowY = yScale.getPixelForValue(lowPrice);
+            if (lowY >= yScale.top && lowY <= yScale.bottom) {
+              c.save();
+              c.fillStyle = '#ff4444';
+              c.beginPath();
+              c.arc(lowX, lowY, 4, 0, Math.PI * 2);
+              c.fill();
+              c.fillStyle = 'rgba(255,68,68,0.85)';
+              c.font = 'bold 8px JetBrains Mono, monospace';
+              c.textAlign = 'left';
+              c.fillText('52W Low', lowX + 6, lowY + 4);
+              c.restore();
+            }
+          }
+        }
       }
     }, {
       id: 'fibLevels',
