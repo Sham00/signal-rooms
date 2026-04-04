@@ -2238,7 +2238,7 @@
   <!-- GOLD LEASE RATE -->
   <!-- ============================================================ -->
   <section class="full-width card fade-in" id="sec-lease-rate" style="animation-delay:0.53s">
-    <div class="section-title">Gold Lease Rate (GLR) <span class="info-tooltip" data-tip="Gold lease rate is what it costs to borrow physical gold. Spikes above 2% signal severe physical tightness — a historically reliable bullish indicator.">i</span><span class="freshness-badge freshness-estimate">Est.</span></div>
+    <div class="section-title" id="lease-rate-title">Gold Lease Rate (GLR) <span class="info-tooltip" data-tip="Gold lease rate is what it costs to borrow physical gold. Spikes above 2% signal severe physical tightness — a historically reliable bullish indicator.">i</span><span class="freshness-badge freshness-estimate">Est.</span><span id="lease-curve-badge" style="display:none;margin-left:8px;padding:2px 7px;border-radius:10px;font-size:9px;font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:.06em;cursor:help;"></span></div>
     <div class="chart-wrap" style="height: 200px;">
       <canvas id="chart-lease-rate"></canvas>
     </div>
@@ -2420,7 +2420,7 @@
   <!-- ============================================================ -->
   <section class="full-width card fade-in" id="sec-crisis" style="animation-delay:0.67s">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
-      <div class="section-title" style="margin-bottom:0;">Crisis Asset Performance <span class="info-tooltip" data-tip="All assets rebased to 100 at the selected start date. Shows which safe-haven/risk assets are leading or lagging. Includes S&amp;P 500 to show gold/stocks divergence during Liberation Day tariff crisis.">i</span><span class="freshness-badge freshness-live">● Hourly</span></div>
+      <div class="section-title" style="margin-bottom:0;">Crisis Asset Performance <span class="info-tooltip" data-tip="All assets rebased to 100 at the selected start date. Shows which safe-haven/risk assets are leading or lagging. Includes S&amp;P 500 to show gold/stocks divergence during Liberation Day tariff crisis.">i</span><span class="freshness-badge freshness-live">● Hourly</span><span id="crisis-divergence-badge" style="display:none;margin-left:8px;padding:3px 9px;border-radius:10px;font-size:9px;font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:.06em;background:rgba(255,215,0,0.18);border:1px solid rgba(255,215,0,0.55);color:#ffd700;cursor:help;"></span></div>
       <div style="display:flex;gap:6px;align-items:center;">
         <span style="font-size:10px;color:#888;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.08em;">Rebase from:</span>
         <button id="crisis-btn-ytd" onclick="setCrisisView('ytd')" style="padding:4px 10px;border-radius:6px;border:1px solid var(--gold);background:var(--gold);color:#000;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;transition:all .2s;">Jan 1</button>
@@ -6459,6 +6459,28 @@ function renderLeaseRate() {
   var alertEl = document.getElementById('lease-rate-alert');
   if (alertEl) alertEl.style.display = hasAlert ? 'block' : 'none';
 
+  // Backwardation / Contango badge (Priority 17)
+  var curveBadge = document.getElementById('lease-curve-badge');
+  if (curveBadge && leaseData['1M'] != null && leaseData['3M'] != null) {
+    var r1m = leaseData['1M'], r3m = leaseData['3M'];
+    if (r1m > r3m) {
+      // Inverted curve = backwardation = physical tightness signal
+      curveBadge.textContent = '⚡ BACKWARDATION';
+      curveBadge.style.display = 'inline-block';
+      curveBadge.style.background = 'rgba(255,170,0,0.18)';
+      curveBadge.style.border = '1px solid rgba(255,170,0,0.6)';
+      curveBadge.style.color = '#ffaa00';
+      curveBadge.title = 'Backwardation: 1M rate (' + r1m.toFixed(2) + '%) > 3M rate (' + r3m.toFixed(2) + '%). Short-term lease rates higher than longer-dated — signals physical gold is scarce and in high demand right now. Historically a bullish signal.';
+    } else {
+      curveBadge.textContent = 'CONTANGO';
+      curveBadge.style.display = 'inline-block';
+      curveBadge.style.background = 'rgba(100,100,120,0.18)';
+      curveBadge.style.border = '1px solid rgba(150,150,170,0.35)';
+      curveBadge.style.color = '#888';
+      curveBadge.title = 'Contango: 1M rate (' + r1m.toFixed(2) + '%) < 3M rate (' + r3m.toFixed(2) + '%). Normal forward curve — carry cost priced in, no unusual physical tightness.';
+    }
+  }
+
   destroyChart('lease-rate');
   var ctx = document.getElementById('chart-lease-rate');
   if (ctx) {
@@ -6527,6 +6549,31 @@ function renderCrisisAssets() {
     var silverAsset = d.assets['Silver'];
     var dxyAsset = d.assets['DXY'];
     var lines = [];
+
+    // Priority 16: Gold vs SPX divergence ALERT badge
+    var spxAsset = d.assets['S&P 500'];
+    var divBadge = document.getElementById('crisis-divergence-badge');
+    if (divBadge && goldAsset && spxAsset) {
+      var goldYtd = goldAsset.ytd_pct || 0;
+      var spxYtd = spxAsset.ytd_pct || 0;
+      var divergence = goldYtd - spxYtd;
+      if (divergence > 10) {
+        divBadge.style.display = 'inline-block';
+        var spxSign = spxYtd >= 0 ? '+' : '';
+        divBadge.textContent = '⚡ DIVERGENCE: Gold +' + fmt(goldYtd, 1) + '% vs SPX ' + spxSign + fmt(spxYtd, 1) + '% = ' + fmt(divergence, 0) + 'pp';
+        divBadge.title = 'Gold outperforming S&P 500 by ' + fmt(divergence, 1) + ' percentage points YTD. Historically, large gold/stocks divergence signals institutional risk-off rotation — investors seeking hard asset safety over equities. This divergence has historically preceded further gold gains.';
+      } else if (divergence < -10) {
+        divBadge.style.display = 'inline-block';
+        divBadge.style.background = 'rgba(100,100,120,0.18)';
+        divBadge.style.border = '1px solid rgba(150,150,170,0.35)';
+        divBadge.style.color = '#888';
+        divBadge.textContent = 'SPX leading Gold by ' + fmt(-divergence, 0) + 'pp';
+        divBadge.title = 'Risk-on environment: stocks outperforming gold by ' + fmt(-divergence, 1) + 'pp YTD.';
+      } else {
+        divBadge.style.display = 'none';
+      }
+    }
+
     // Gold vs Bitcoin divergence
     if (goldAsset && btcAsset) {
       var gdiff = goldAsset.ytd_pct - btcAsset.ytd_pct;
