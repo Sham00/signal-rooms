@@ -1136,6 +1136,9 @@
     /* Prevent fixed bottom nav overflow from creating document horizontal scroll */
     body { overflow-x: hidden; }
   }
+  @media (max-width: 600px) {
+    .calc-grid { grid-template-columns: 1fr !important; }
+  }
   /* ===== END MOBILE OPTIMIZATION ===== */
 
   /* ===== PRICE ALERTS ===== */
@@ -2321,6 +2324,63 @@
     </div>
   </section>
 
+  <!-- ============================================================ -->
+  <!-- SECTION: PORTFOLIO CALCULATOR -->
+  <!-- ============================================================ -->
+  <section class="full-width card fade-in" id="sec-calc" style="animation-delay:0.8s">
+    <div class="section-title">Portfolio Calculator <span class="info-tooltip" data-tip="Calculate the current value of your gold holdings, or find out how many ounces you can buy with a given budget. Uses live spot price.">ℹ</span><span class="freshness-badge freshness-live">● Live</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;" class="calc-grid">
+      <!-- Mode A: Value my holdings -->
+      <div style="background:rgba(255,215,0,0.04);border:1px solid rgba(255,215,0,0.12);border-radius:10px;padding:14px;">
+        <div class="text-xs mono uppercase tracking-widest mb-3" style="color:#ffd700;">💰 Value My Holdings</div>
+        <div style="margin-bottom:8px;">
+          <label class="text-xs mono" style="color:#888;display:block;margin-bottom:4px;">Ounces owned</label>
+          <input id="calc-oz" type="number" min="0" step="0.1" placeholder="e.g. 10" oninput="calcUpdateValue()"
+            style="width:100%;background:#1a1a1a;border:1px solid #333;border-radius:6px;padding:8px 10px;color:#fff;font-family:JetBrains Mono,monospace;font-size:13px;outline:none;">
+        </div>
+        <div class="text-xs mono" style="color:#555;margin-bottom:8px;">Spot: <span id="calc-spot-display" style="color:#ffd700;">loading…</span></div>
+        <div style="background:#111;border-radius:8px;padding:10px 12px;">
+          <div class="text-xs mono" style="color:#888;margin-bottom:2px;">Portfolio Value</div>
+          <div id="calc-portfolio-value" class="mono" style="font-size:22px;font-weight:700;color:#ffd700;">—</div>
+        </div>
+      </div>
+      <!-- Mode B: How much gold can I buy? -->
+      <div style="background:rgba(255,215,0,0.04);border:1px solid rgba(255,215,0,0.12);border-radius:10px;padding:14px;">
+        <div class="text-xs mono uppercase tracking-widest mb-3" style="color:#ffd700;">🛒 How Much Can I Buy?</div>
+        <div style="margin-bottom:8px;">
+          <label class="text-xs mono" style="color:#888;display:block;margin-bottom:4px;">Budget (USD)</label>
+          <input id="calc-budget" type="number" min="0" step="100" placeholder="e.g. 5000" oninput="calcUpdateBudget()"
+            style="width:100%;background:#1a1a1a;border:1px solid #333;border-radius:6px;padding:8px 10px;color:#fff;font-family:JetBrains Mono,monospace;font-size:13px;outline:none;">
+        </div>
+        <div class="text-xs mono" style="color:#555;margin-bottom:8px;">Per oz: <span id="calc-spot-display2" style="color:#ffd700;">loading…</span></div>
+        <div style="background:#111;border-radius:8px;padding:10px 12px;">
+          <div class="text-xs mono" style="color:#888;margin-bottom:2px;">Gold You Can Buy</div>
+          <div id="calc-buy-oz" class="mono" style="font-size:22px;font-weight:700;color:#ffd700;">—</div>
+        </div>
+      </div>
+    </div>
+    <!-- Break-even / gain-loss row -->
+    <div style="background:rgba(255,255,255,0.03);border:1px solid #222;border-radius:10px;padding:14px;">
+      <div class="text-xs mono uppercase tracking-widest mb-3" style="color:#888;">📈 Gain / Loss Calculator</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:end;">
+        <div>
+          <label class="text-xs mono" style="color:#888;display:block;margin-bottom:4px;">Ounces</label>
+          <input id="calc-gl-oz" type="number" min="0" step="0.1" placeholder="e.g. 5" oninput="calcUpdateGL()"
+            style="width:100%;background:#1a1a1a;border:1px solid #333;border-radius:6px;padding:8px 10px;color:#fff;font-family:JetBrains Mono,monospace;font-size:13px;outline:none;">
+        </div>
+        <div>
+          <label class="text-xs mono" style="color:#888;display:block;margin-bottom:4px;">Avg cost/oz</label>
+          <input id="calc-gl-cost" type="number" min="0" step="10" placeholder="e.g. 2800" oninput="calcUpdateGL()"
+            style="width:100%;background:#1a1a1a;border:1px solid #333;border-radius:6px;padding:8px 10px;color:#fff;font-family:JetBrains Mono,monospace;font-size:13px;outline:none;">
+        </div>
+        <div style="background:#111;border-radius:8px;padding:8px 12px;min-height:44px;display:flex;flex-direction:column;justify-content:center;">
+          <div class="text-xs mono" style="color:#888;margin-bottom:2px;">Unrealized P&amp;L</div>
+          <div id="calc-gl-result" class="mono" style="font-size:16px;font-weight:700;">—</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <!-- Footer -->
@@ -2696,6 +2756,7 @@ function renderAll() {
   renderCompositeSignal();
   renderMarketAlerts();
   renderWhatToWatch();
+  initPortfolioCalc();
   updateFreshnessBadges();
   renderKeyStatsBanner();
 
@@ -2847,6 +2908,51 @@ function renderWhatToWatch() {
       '</div>' +
     '</div>';
   }).join('');
+}
+
+// --- PORTFOLIO CALCULATOR ---
+function initPortfolioCalc() {
+  var price = DATA.price ? DATA.price.price : null;
+  if (!price) return;
+  var fmtSpot = '$' + price.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  var s1 = document.getElementById('calc-spot-display');
+  var s2 = document.getElementById('calc-spot-display2');
+  if (s1) s1.textContent = fmtSpot;
+  if (s2) s2.textContent = fmtSpot;
+  window._calcSpot = price;
+}
+
+function calcUpdateValue() {
+  var spot = window._calcSpot;
+  var oz = parseFloat(document.getElementById('calc-oz').value);
+  var el = document.getElementById('calc-portfolio-value');
+  if (!el) return;
+  if (!spot || isNaN(oz) || oz < 0) { el.textContent = '—'; return; }
+  var val = oz * spot;
+  el.textContent = '$' + val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function calcUpdateBudget() {
+  var spot = window._calcSpot;
+  var budget = parseFloat(document.getElementById('calc-budget').value);
+  var el = document.getElementById('calc-buy-oz');
+  if (!el) return;
+  if (!spot || isNaN(budget) || budget < 0) { el.textContent = '—'; return; }
+  var oz = budget / spot;
+  el.textContent = oz.toFixed(4) + ' oz';
+}
+
+function calcUpdateGL() {
+  var spot = window._calcSpot;
+  var oz = parseFloat(document.getElementById('calc-gl-oz').value);
+  var cost = parseFloat(document.getElementById('calc-gl-cost').value);
+  var el = document.getElementById('calc-gl-result');
+  if (!el) return;
+  if (!spot || isNaN(oz) || isNaN(cost) || oz < 0 || cost < 0) { el.textContent = '—'; el.style.color = '#888'; return; }
+  var pnl = (spot - cost) * oz;
+  var pct = ((spot - cost) / cost * 100).toFixed(2);
+  el.textContent = (pnl >= 0 ? '+' : '') + '$' + pnl.toLocaleString('en-US', { maximumFractionDigits: 0 }) + ' (' + (pnl >= 0 ? '+' : '') + pct + '%)';
+  el.style.color = pnl >= 0 ? '#00ff88' : '#ff4444';
 }
 
 // --- GOLD PRICE TODAY SUMMARY SENTENCE ---
@@ -7005,8 +7111,8 @@ document.addEventListener('keydown', function(e) {
     <button onclick="mobileNavTo('sec-historical',document.querySelector('.mobile-nav-tab[data-section=more-menu]'));document.getElementById('more-menu-sheet').style.display='none';" style="display:flex;flex-direction:column;align-items:center;padding:12px 8px;background:none;border:none;color:#888;font-size:10px;font-family:JetBrains Mono,monospace;gap:4px;cursor:pointer;"><span style="font-size:18px;">📜</span>History</button>
     <button onclick="mobileNavTo('sec-comex-vault',document.querySelector('.mobile-nav-tab[data-section=more-menu]'));document.getElementById('more-menu-sheet').style.display='none';" style="display:flex;flex-direction:column;align-items:center;padding:12px 8px;background:none;border:none;color:#888;font-size:10px;font-family:JetBrains Mono,monospace;gap:4px;cursor:pointer;"><span style="font-size:18px;">🏛️</span>COMEX</button>
     <button onclick="mobileNavTo('sec-gold-flows',document.querySelector('.mobile-nav-tab[data-section=more-menu]'));document.getElementById('more-menu-sheet').style.display='none';" style="display:flex;flex-direction:column;align-items:center;padding:12px 8px;background:none;border:none;color:#888;font-size:10px;font-family:JetBrains Mono,monospace;gap:4px;cursor:pointer;"><span style="font-size:18px;">🌐</span>Flows</button>
-    <button onclick="mobileNavTo('sec-what-to-watch',document.querySelector('.mobile-nav-tab[data-section=more-menu]'));document.getElementById('more-menu-sheet').style.display='none';" style="display:flex;flex-direction:column;align-items:center;padding:12px 8px;background:none;border:none;color:#888;font-size:10px;font-family:JetBrains Mono,monospace;gap:4px;cursor:pointer;"><span style="font-size:18px;">👁️</span>Watch List</button>
-    <button onclick="mobileNavTo('sec-portfolio-calc',document.querySelector('.mobile-nav-tab[data-section=more-menu]'));document.getElementById('more-menu-sheet').style.display='none';" style="display:flex;flex-direction:column;align-items:center;padding:12px 8px;background:none;border:none;color:#888;font-size:10px;font-family:JetBrains Mono,monospace;gap:4px;cursor:pointer;"><span style="font-size:18px;">🧮</span>Calculator</button>
+    <button onclick="mobileNavTo('sec-watch',document.querySelector('.mobile-nav-tab[data-section=more-menu]'));document.getElementById('more-menu-sheet').style.display='none';" style="display:flex;flex-direction:column;align-items:center;padding:12px 8px;background:none;border:none;color:#888;font-size:10px;font-family:JetBrains Mono,monospace;gap:4px;cursor:pointer;"><span style="font-size:18px;">👁️</span>Watch List</button>
+    <button onclick="mobileNavTo('sec-calc',document.querySelector('.mobile-nav-tab[data-section=more-menu]'));document.getElementById('more-menu-sheet').style.display='none';" style="display:flex;flex-direction:column;align-items:center;padding:12px 8px;background:none;border:none;color:#888;font-size:10px;font-family:JetBrains Mono,monospace;gap:4px;cursor:pointer;"><span style="font-size:18px;">🧮</span>Calculator</button>
     <button onclick="mobileNavTo('sec-crisis',document.querySelector('.mobile-nav-tab[data-section=more-menu]'));document.getElementById('more-menu-sheet').style.display='none';" style="display:flex;flex-direction:column;align-items:center;padding:12px 8px;background:none;border:none;color:#888;font-size:10px;font-family:JetBrains Mono,monospace;gap:4px;cursor:pointer;"><span style="font-size:18px;">⚡</span>Crisis</button>
   </div>
 </div>
