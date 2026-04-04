@@ -767,7 +767,7 @@
     }
     
     /* Macro cards: tighter grid */
-    #macro-cards { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+    #macro-cards { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; } /* 2-col on smallest screens; larger breakpoints override */
     
     /* Crisis asset legend: 3 cols on mobile */
     #crisis-asset-legend { grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; }
@@ -2143,7 +2143,7 @@
     <div class="section-title">Macro Context <span class="info-tooltip" data-tip="Key macroeconomic indicators that drive gold prices. Gold typically rises with inflation, falling real yields, and dollar weakness.">ℹ</span><span class="freshness-badge freshness-live">● Daily</span></div>
 
     <!-- Macro stat cards -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6" id="macro-cards">
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4 mb-6" id="macro-cards">
       <!-- Filled by JS -->
     </div>
 
@@ -2161,6 +2161,19 @@
           <canvas id="chart-macro-dxy"></canvas>
         </div>
       </div>
+    </div>
+
+    <!-- Gold vs VIX Fear Gauge chart (full-width row) -->
+    <div class="mt-6">
+      <div class="flex items-center gap-3 mb-2 flex-wrap">
+        <div class="text-xs text-[var(--text2)] uppercase tracking-widest mono">Gold vs VIX Fear Index — 1 Year <span class="info-tooltip" data-tip="Gold (gold line) and VIX (purple line, right axis). VIX spikes in market panic events. Gold often surges with VIX as investors flee to safety — unlike stocks which crash with VIX spikes. Shows gold's unique dual role: both rising in fear AND in bull trends.">ℹ</span></div>
+        <div id="vix-level-badge" class="text-[10px] font-bold mono px-2 py-0.5 rounded" style="background:rgba(204,68,255,0.15);color:#cc44ff;border:1px solid rgba(204,68,255,0.3);">VIX: --</div>
+        <div id="vix-zone-badge" class="text-[10px] font-bold mono px-2 py-0.5 rounded" style="background:rgba(136,136,136,0.1);color:#888;border:1px solid rgba(136,136,136,0.2);">--</div>
+      </div>
+      <div class="chart-wrap chart-loading" style="height: 240px;">
+        <canvas id="chart-macro-vix"></canvas>
+      </div>
+      <div class="text-[9px] text-[var(--text2)] mono mt-1">VIX = CBOE Volatility Index (S&P 500 30-day implied vol) • Gold line = left axis • VIX line = right axis</div>
     </div>
 
     <!-- FOMC Countdown -->
@@ -5683,6 +5696,7 @@ function renderMacro() {
     { key: 'fed_funds', label: 'Fed Funds Rate', unit: '%', rangeMin: 0, rangeMax: 6, color: '#ff8800', tip: 'The interest rate the Federal Reserve charges banks overnight. Lower rates reduce the opportunity cost of holding gold (which pays no yield), making gold more attractive.' },
     { key: 'm2', label: 'M2 Growth YoY', unit: '%', rangeMin: -5, rangeMax: 30, color: '#00ff88', tip: 'Annual growth rate of total money in circulation. Rapid M2 expansion (money printing) historically correlates with gold price increases as currency purchasing power dilutes.' },
     { key: 'us_10y', label: 'US 10Y Yield', unit: '%', rangeMin: 0, rangeMax: 5, color: '#ffd700', tip: 'Nominal yield on 10-year US Treasuries. Rising nominal yields can pressure gold prices as bonds become more competitive with yield-free gold.' },
+    { key: 'vix', label: 'VIX Fear Index', unit: '', rangeMin: 10, rangeMax: 80, color: '#cc44ff', tip: 'CBOE Volatility Index — measures expected S&P 500 volatility over the next 30 days. VIX spikes often accompany gold surges as investors seek safe havens. Above 30 = elevated fear, above 40 = extreme panic. Gold historically outperforms in high-VIX regimes.' },
   ];
 
   var container = document.getElementById('macro-cards');
@@ -5758,6 +5772,37 @@ function renderMacro() {
   // Dual-axis: Gold vs DXY (inverted)
   var dxyChart = (d.dxy_chart && d.dxy_chart.length) ? d.dxy_chart : ((DATA.ratios && DATA.ratios.dxy_chart && DATA.ratios.dxy_chart.length) ? DATA.ratios.dxy_chart : []);
   renderDualAxisChart('chart-macro-dxy', 'macro-dxy', goldChart, dxyChart, 'Gold', 'DXY (inv.)', '#ffd700', '#4488ff', false, true);
+
+  // Gold vs VIX chart
+  var vixChart = d.vix_chart || [];
+  if (vixChart.length && goldChart.length) {
+    renderDualAxisChart('chart-macro-vix', 'macro-vix', goldChart, vixChart, 'Gold', 'VIX', '#ffd700', '#cc44ff', false, false);
+    clearChartLoading('chart-macro-vix');
+  }
+
+  // VIX badge update
+  var vixVal = d.vix;
+  var vixBadgeEl = document.getElementById('vix-level-badge');
+  var vixZoneEl = document.getElementById('vix-zone-badge');
+  if (vixBadgeEl && vixVal != null) {
+    vixBadgeEl.textContent = 'VIX: ' + fmt(vixVal, 1);
+    var zoneText, zoneBg, zoneColor, zoneBorder;
+    if (vixVal >= 40) {
+      zoneText = '🔥 EXTREME PANIC'; zoneBg = 'rgba(255,51,51,0.15)'; zoneColor = '#ff3333'; zoneBorder = 'rgba(255,51,51,0.3)';
+    } else if (vixVal >= 30) {
+      zoneText = '⚠ ELEVATED FEAR'; zoneBg = 'rgba(255,136,0,0.15)'; zoneColor = '#ff8800'; zoneBorder = 'rgba(255,136,0,0.3)';
+    } else if (vixVal >= 20) {
+      zoneText = '→ MODERATE'; zoneBg = 'rgba(255,215,0,0.1)'; zoneColor = '#ffd700'; zoneBorder = 'rgba(255,215,0,0.25)';
+    } else {
+      zoneText = '✓ CALM MARKET'; zoneBg = 'rgba(0,255,136,0.1)'; zoneColor = '#00ff88'; zoneBorder = 'rgba(0,255,136,0.2)';
+    }
+    if (vixZoneEl) {
+      vixZoneEl.textContent = zoneText;
+      vixZoneEl.style.background = zoneBg;
+      vixZoneEl.style.color = zoneColor;
+      vixZoneEl.style.border = '1px solid ' + zoneBorder;
+    }
+  }
 
   // FOMC countdown
   var fomcDateEl = document.getElementById('fomc-date');
