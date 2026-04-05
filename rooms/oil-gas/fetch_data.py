@@ -40,6 +40,11 @@ def fetch_stooq_daily_csv(symbol: str) -> list[dict]:
     with urlopen(req, timeout=30) as resp:
         text = resp.read().decode("utf-8", errors="replace")
 
+    # In some environments Stooq returns an empty body (or an error.csv download).
+    # Guard so we don't silently write empty datasets.
+    if not text.strip() or text.lstrip().lower().startswith("error"):
+        return []
+
     lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
     # header: Date,Open,High,Low,Close,Volume
     out = []
@@ -75,9 +80,12 @@ def main() -> None:
         "source": "stooq",
     }
 
+    missing = []
+
     for key, meta in SYMBOLS.items():
         rows = fetch_stooq_daily_csv(meta["stooq"])
         if not rows:
+            missing.append(key)
             continue
         last30 = rows[-30:]
         series[key] = last30
@@ -101,6 +109,12 @@ def main() -> None:
     with open(os.path.join(DATA_DIR, "prices_30d.json"), "w", encoding="utf-8") as f:
         json.dump({"updatedAt": updated_at, "series": series}, f, indent=2, sort_keys=False)
         f.write("\n")
+
+    if missing:
+        raise RuntimeError(
+            "Stooq returned no data for: " + ", ".join(missing) + ". "
+            "(This may be network/region blocking; data files were written but contain empty series.)"
+        )
 
 
 if __name__ == "__main__":
