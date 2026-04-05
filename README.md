@@ -1,14 +1,30 @@
-# 🟡 Gold Situation Room
+# 📡 Signal Rooms
 
-**The most comprehensive free gold market dashboard on the web.**
+**Living, breathing situation rooms for major markets.**
 
-Real-time price, central bank flows, COT positioning, ETF data, macro context, mining stocks, and market intelligence — all in one place, updated hourly.
+This repo is the umbrella “hub” that hosts multiple room dashboards (Gold, GPU/AI compute, Oil & Gas, Mortgage/Housing, etc.) under a single site.
 
-🔗 **[→ Open the Dashboard](https://sham00.github.io/gold-situation-room/)**
+## Preview (local)
+
+```bash
+cd /Users/roberto/.openclaw/workspace/projects/signal-rooms
+python3 -m http.server 8000
+```
+
+Then open:
+- http://localhost:8000/ (hub)
+- http://localhost:8000/rooms/gold/ (gold room)
+
+## Rooms
+
+- **Gold**: `rooms/gold/` (migrated from the original `gold-situation-room`)
+- **GPU / AI Compute**: `rooms/gpu/` (stub)
+- **Oil & Gas**: `rooms/oil-gas/` (stub)
+- **Mortgage & Housing**: `rooms/housing/` (stub)
 
 ---
 
-## What You Get
+## Gold Room — What You Get
 
 | Section | What It Shows |
 |---|---|
@@ -42,7 +58,7 @@ Every data point is labeled with its source, update frequency, and reliability l
 
 **Key sources:** [yfinance](https://github.com/ranaroussi/yfinance) (prices), [CFTC](https://www.cftc.gov) (COT), [World Gold Council](https://www.gold.org) (CB reserves), RSS feeds (news)
 
-Full methodology: [docs/data-methodology.md](docs/data-methodology.md)
+Full methodology: [rooms/gold/docs/data-methodology.md](rooms/gold/docs/data-methodology.md)
 
 ---
 
