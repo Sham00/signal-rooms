@@ -15,13 +15,6 @@
       "sentiment": "positive"
     },
     {
-      "source": "Google News",
-      "title": "Gold Price Forecast: Strong Jobs Data Hides Weak Labour Trends as XAUUSD Tests $4,800 - FXEmpire",
-      "link": "https://news.google.com/rss/articles/CBMi5gFBVV95cUxOMkZ0cGdRdnUtN2wyc0VDTXQ3dUxmdk5GZ25DVGM2b1pyb1ppR2VWalJuRnRXTEk1V0NPVUg4NGVUWVU0ZXlUbDZWaUYwRnhUYzlMLURnbUdocjJVbnBYME5TWDBobUN6T3BncHNnWTBPbzlyVTViYXQwZmw0OXUwcGFKS2NqSGdMMVdtc3VNazBHTWhoQUtiS2wtTVRwX1FGSFVIMW5YbjlYVjNTblJua2tVaDFVcGgtc29WZC10OGo3MW96MXhHNzE5amR6d3g1Mzk1dXNzZG5TX19XLXBfMHNjbzk2UQ?oc=5",
-      "published": "Sun, 05 Apr 2026 13:59:00 GMT",
-      "sentiment": "positive"
-    },
-    {
       "source": "Yahoo Finance Gold",
       "title": "Wesdome Gold Mines\u2019 New Kiena Lenses Reshape Production And Valuation Narrative",
       "link": "https://finance.yahoo.com/markets/commodities/articles/wesdome-gold-mines-kiena-lenses-100546242.html?.tsrc=rss",
@@ -54,6 +47,13 @@
       "title": "Assessing IAMGOLD (TSX:IMG) Valuation After Strong 1 Year Return And Ongoing C\u00f4t\u00e9 Gold Ramp-Up",
       "link": "https://finance.yahoo.com/markets/stocks/articles/assessing-iamgold-tsx-img-valuation-001922699.html?.tsrc=rss",
       "published": "Sun, 05 Apr 2026 00:19:22 +0000",
+      "sentiment": "positive"
+    },
+    {
+      "source": "Mining.com",
+      "title": "Top 50 mining companies power through Iran war \u2013 up $250 billion in 2026",
+      "link": "https://www.mining.com/top-50-mining-companies-power-through-iran-war-up-250-billion-in-2026/",
+      "published": "Sat, 04 Apr 2026 23:57:39 +0000",
       "sentiment": "positive"
     },
     {
@@ -94,7 +94,7 @@
     {
       "source": "Google News Gold Investment",
       "title": "Some central banks have been selling their gold. That doesn\u2019t mean you should too. - MarketWatch",
-      "link": "https://news.google.com/rss/articles/CBMixANBVV95cUxOanZ4Ukx3NFFab215WnBiUk83eDFwOTgzQS0tVnBrUFk1cDh0LWp3d3l3aHN1OS12bHdyenIwWHdJQnNDNmVCR0lyeTRMZWxyalkwekVfdWc3b1V6VFBYNTdnYmhHNVVTbExFV3NlQ2Vmd0lkd1FBSHdfbU5BQlVVanJtYUJxS1VQLXJrY1lmZzFrZE1OV2tjR3VWZDBNTlFQekEzTWh0aWZNYlRLT0x5UlFkNUVvNWpGVWVMdzdDdkQxdi1BUVZFQTY2X0VlZU5uRGFtdTBIUktDdk5tQkNfbWlKN0V5TUpwWl9FYk92bm5oQktDdU5kZHV5TTNpSW1vNERGTFA3YThHR2xKNURudlNNVXV5VjRkSE9lZnpQanhsTzc5SkZMY0l0a1o5cE1aa3ljM05nM0VkREhmM1VNaGdEWTd4SUxpYTUtS0tQWnJWZHgtbVNKc0ZjaEJpcjVYdEUtRXpJLXUyWEJpTjdqWllDSHJHVUpZSE5lV3dLLXlld1RRRmNkOTBMdXYzZ1RNcjlXaGY3d1luYlo0Z0lXZGxxeHptbjB0ck16NWRreE9meWlnTlRiaHJWeXBsQ1htZU9HMw?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMixANBVV95cUxPMGJ3ZEtiMVM1bElESW00aHVGM2s0Wjg3b25ta290VTRqRjBLa0w3SEFLQnQwTlV0U1NRTVRfQnFoQkx0MlItX3IzX0tjN3BacG5YaVRxN0RWdW11ZU9rckotSmM4bjhScjZnNUxhV1BuSnBYWGFSU2NJMEJTWXd6aW9qeFpYSFJXZ1ppNkhicGFiZHRDZEJXR1hwaC1vc2JYLTRuWUhCV3AtbGsybzdLdXZwamZnenNnTFk0azk2cUc0OGJtc1ZrdE9TRU9CWmdxS2E3VUpIMEtNdTBHZEVGU2l4dkRqcVA0TVlkRnVBeEhDbkdsTHJCSXhFeTNtRk45RnFWWXhPMjhmWHA0Q1dzZ1FRQVZEWVowdzFnWEdnYzAxRHVqZXFyLWJHTkE2a0NpeXF5dHJxaVIzUU9kVEFTMDNpdzF6ajZianZZamhaZFZib0F1X0xrWjlKSGtGTUNFOW5QOGlNSUNtMzhHNVZCSGNjUVBNaGFoVGxjYWowNzQtRDFVT2dwenJsZDc1MTI4bFo2cHZ1Q2ZsNFN0TkVJaEdBaUpWcTVaX0QzazQ1R19wZjJzNUh2YndLRGpaSEIxOExaOA?oc=5",
       "published": "Sat, 04 Apr 2026 13:00:00 GMT",
       "sentiment": "negative"
     },
@@ -142,7 +142,7 @@
     },
     {
       "source": "Google News Gold Investment",
-      "title": "Singapore Is Pushing to Become a Major Gold-Trading Hub - Bloomberg.com",
+      "title": "Singapore Is Pushing to Become a Major Gold-Trading Hub - bloomberg.com",
       "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQZk5ldFVZQmFqT3g5NDl5V2ZCWllCdUlSanVmaXpsZzVfWFNQbmN4WG1kQ2pjME1ZQW1fNFpRbC12dF84RVd4cnFJLURnLVVwdWtUbE45LTFhWVJrYi1vYjBmY01tdG9GUVhRRmQxOGpIczZOa1hJNUQyTmZLU2JUNi04VE9OeHFwWlcxZXVXdS1SWF96cmJGTXJtb0hTT3hSVzNaOF9vMWhlMHNVQl9vOXo0SEdHLUNfTzBkX19FclNCNno5?oc=5",
       "published": "Sat, 04 Apr 2026 01:00:00 GMT",
       "sentiment": "neutral"
@@ -170,22 +170,22 @@
     },
     {
       "source": "Google News",
-      "title": "Gold Gives Back Late Gains After War Rhetoric Shift and Strong Jobs Data - goldprice.org",
+      "title": "Gold Gives Back Late Gains After War Rhetoric Shift and Strong Jobs Data - Gold Price",
       "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxOVWJKZUpiSHdWY0JlYjFaLXlGUjFvR09IeXFSV2hiUFFKRk1hSFF5d3NYbWtNTjJ4YVY5dVZ0V3BiaGVnbW1tZ2FGMVpJUjlCZFozblJVRGEtMkk3eHlCS0ptc21LNVozMGg5WHNFQngzdHV2WTdlbXBLc3FRT0g0REE0eHBtMkJvenZSd0U0N0Z3cVdjaXBiUU9xdFhYaThB?oc=5",
       "published": "Fri, 03 Apr 2026 18:53:57 GMT",
       "sentiment": "positive"
     }
   ],
-  "sentiment_score": 38.3,
-  "bull_count": 45,
-  "bear_count": 14,
-  "neutral_count": 22,
-  "bull_pct": 55.6,
+  "sentiment_score": 42.9,
+  "bull_count": 52,
+  "bear_count": 13,
+  "neutral_count": 26,
+  "bull_pct": 57.1,
   "data_quality": {
     "source": "RSS feeds: Yahoo Finance Gold, Google News, Reuters Gold, FXStreet, Mining.com, Reuters, Investing.com",
     "freshness": "hourly",
     "reliability": "live",
     "notes": "Sentiment scoring is keyword-based heuristic. Not a substitute for full NLP sentiment analysis."
   },
-  "last_updated": "2026-04-05T14:29:49Z"
+  "last_updated": "2026-04-05T15:25:57Z"
 }
