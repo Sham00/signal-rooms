@@ -2,6 +2,111 @@
   "articles": [
     {
       "source": "Yahoo Finance Gold",
+      "title": "Aura Minerals (AUGO) Is Up 25.1% After Updating Multi-Mine Reserves And Resources - Has The Bull Case Changed?",
+      "link": "https://finance.yahoo.com/markets/stocks/articles/aura-minerals-augo-25-1-140622692.html?.tsrc=rss",
+      "published": "Sun, 05 Apr 2026 14:06:22 +0000",
+      "sentiment": "positive"
+    },
+    {
+      "source": "Google News",
+      "title": "Gold Price Forecast: Strong Jobs Data Hides Weak Labour Trends as XAUUSD Tests $4,800 - FXEmpire",
+      "link": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxOc3dabXVmMDNGRWphRE5sZmRhZDg4X1RaRW5GOG92RkF0X2E1bW40aVZsYWZQa3F2T1JCdTBvZFhWX2hYRWZmdF9pZVZvLVp3SVUtY0g5T3NpMnVLLUxkX0hDY1dFSHdXZlRTUkZXbzM3ZUUyODZLcURHT1ZXZWxtMGRvVkFLSzNFWlFIOXhvV0FrUnRnYnJlN3pXUzVPeEsyVm5UeFhhaHJaa3ExLWQzdWJjOWw3cmd5c2I0cTd3SFc3ck5XNTRINTB2MTRkTkJKd2lZd25ZUzc?oc=5",
+      "published": "Sun, 05 Apr 2026 13:59:00 GMT",
+      "sentiment": "positive"
+    },
+    {
+      "source": "Google News",
+      "title": "Gold Price Forecast: Strong Jobs Data Hides Weak Labour Trends as XAUUSD Tests $4,800 - FXEmpire",
+      "link": "https://news.google.com/rss/articles/CBMi5gFBVV95cUxOMkZ0cGdRdnUtN2wyc0VDTXQ3dUxmdk5GZ25DVGM2b1pyb1ppR2VWalJuRnRXTEk1V0NPVUg4NGVUWVU0ZXlUbDZWaUYwRnhUYzlMLURnbUdocjJVbnBYME5TWDBobUN6T3BncHNnWTBPbzlyVTViYXQwZmw0OXUwcGFKS2NqSGdMMVdtc3VNazBHTWhoQUtiS2wtTVRwX1FGSFVIMW5YbjlYVjNTblJua2tVaDFVcGgtc29WZC10OGo3MW96MXhHNzE5amR6d3g1Mzk1dXNzZG5TX19XLXBfMHNjbzk2UQ?oc=5",
+      "published": "Sun, 05 Apr 2026 13:59:00 GMT",
+      "sentiment": "positive"
+    },
+    {
+      "source": "Yahoo Finance Gold",
+      "title": "Wesdome Gold Mines\u2019 New Kiena Lenses Reshape Production And Valuation Narrative",
+      "link": "https://finance.yahoo.com/markets/commodities/articles/wesdome-gold-mines-kiena-lenses-100546242.html?.tsrc=rss",
+      "published": "Sun, 05 Apr 2026 10:05:46 +0000",
+      "sentiment": "neutral"
+    },
+    {
+      "source": "Yahoo Finance Gold",
+      "title": "Assessing SSR Mining (TSX:SSRM) Valuation After A Powerful Multi\u2011Period Share Price Rally",
+      "link": "https://finance.yahoo.com/markets/stocks/articles/assessing-ssr-mining-tsx-ssrm-042032115.html?.tsrc=rss",
+      "published": "Sun, 05 Apr 2026 04:20:32 +0000",
+      "sentiment": "positive"
+    },
+    {
+      "source": "Google News",
+      "title": "Antam Gold Prices Surge: What's the Impact? - Gotrade",
+      "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE9HTDhCVzZGWk92UC10OGFoWkRRMDRfNklFdUF5amJyekFOMlVzSENoeVdPXzYyanlfN0p6NW9jNmhwV2ZZbHo5cVR4V0F1Qm5zQzRoRkRRakM1cHNJbWx2aHA5OTB0c1VDSF9oVFdaazJaT2d1?oc=5",
+      "published": "Sun, 05 Apr 2026 02:19:29 GMT",
+      "sentiment": "positive"
+    },
+    {
+      "source": "Yahoo Finance Gold",
+      "title": "SSR Mining Refocuses Portfolio With Turkish Exit And 10% Share Buyback",
+      "link": "https://finance.yahoo.com/markets/stocks/articles/ssr-mining-refocuses-portfolio-turkish-021136685.html?.tsrc=rss",
+      "published": "Sun, 05 Apr 2026 02:11:36 +0000",
+      "sentiment": "neutral"
+    },
+    {
+      "source": "Yahoo Finance Gold",
+      "title": "Assessing IAMGOLD (TSX:IMG) Valuation After Strong 1 Year Return And Ongoing C\u00f4t\u00e9 Gold Ramp-Up",
+      "link": "https://finance.yahoo.com/markets/stocks/articles/assessing-iamgold-tsx-img-valuation-001922699.html?.tsrc=rss",
+      "published": "Sun, 05 Apr 2026 00:19:22 +0000",
+      "sentiment": "positive"
+    },
+    {
+      "source": "Yahoo Finance Gold",
+      "title": "Goldman Sachs has blunt message on gold price for rest of 2026",
+      "link": "https://www.thestreet.com/investing/goldman-sachs-has-blunt-message-on-gold-price-for-rest-of-2026?.tsrc=rss",
+      "published": "Sat, 04 Apr 2026 19:12:26 +0000",
+      "sentiment": "neutral"
+    },
+    {
+      "source": "Google News Gold Investment",
+      "title": "Goldman Sachs has blunt message on gold price for rest of 2026 - thestreet.com",
+      "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxPalM0QUZvTTlka215YjRXZDMzT2RKMmhfUEFZNlVZb29KeFQ5V2YtWTdSdFpQTXlfVHdXMkFtMkdCX3kxNG1OSnJqNjRYdWhoalhhNThHYnk4blFlM2djalBmMC1tUW1UeTR5SS1wbW1haTRkY05lMkxLcjY3by1kMWJhU3lTb3NGZXp5NXVMRXpRRXpyWHFQR1Jnd21jNmM?oc=5",
+      "published": "Sat, 04 Apr 2026 16:12:26 GMT",
+      "sentiment": "neutral"
+    },
+    {
+      "source": "Yahoo Finance Gold",
+      "title": "Should You Buy Silver While It's Under $100? The Answer Might Surprise You",
+      "link": "https://www.fool.com/investing/2026/04/04/should-buy-silver-while-under-100-answer-surprise/?.tsrc=rss",
+      "published": "Sat, 04 Apr 2026 16:05:00 +0000",
+      "sentiment": "positive"
+    },
+    {
+      "source": "Google News Gold Investment",
+      "title": "French central bank nets \u20ac13bn by pulling gold out of US reserves - RFI",
+      "link": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxNLU5HZzY4QUFTa3ZKRU0yRm1CV1RqQUNKQTJtb0Y2ZDRsZ2Z0R1RRZHFEV05yYkItejdKTDU3Qi0yb0hWNVJXNi1XVDdmbjVVNjlXUmR1OXdkYWZ6eTZtV0JWWU9uSHhFX1UwUVFMUkNFbEFhcVczdE9jUmppcGNWeUpvdlkxaEg1QTZDLUNHRF9UOU5fejRVVi1PUUJsVnF5WDBFVDh5dllicnNyTVN5ODdCZGozdEk0YzFod2llNUoxSFU?oc=5",
+      "published": "Sat, 04 Apr 2026 14:41:33 GMT",
+      "sentiment": "neutral"
+    },
+    {
+      "source": "Yahoo Finance Gold",
+      "title": "The Gold ETF With $83.8 Billion in Assets and a 0.25% Fee Investors Keep Choosing Over GLD",
+      "link": "https://247wallst.com/investing/2026/04/04/the-gold-etf-with-83-8-billion-in-assets-and-a-0-25-fee-investors-keep-choosing-over-gld/?.tsrc=rss",
+      "published": "Sat, 04 Apr 2026 13:12:21 +0000",
+      "sentiment": "neutral"
+    },
+    {
+      "source": "Google News Gold Investment",
+      "title": "Some central banks have been selling their gold. That doesn\u2019t mean you should too. - MarketWatch",
+      "link": "https://news.google.com/rss/articles/CBMixANBVV95cUxOanZ4Ukx3NFFab215WnBiUk83eDFwOTgzQS0tVnBrUFk1cDh0LWp3d3l3aHN1OS12bHdyenIwWHdJQnNDNmVCR0lyeTRMZWxyalkwekVfdWc3b1V6VFBYNTdnYmhHNVVTbExFV3NlQ2Vmd0lkd1FBSHdfbU5BQlVVanJtYUJxS1VQLXJrY1lmZzFrZE1OV2tjR3VWZDBNTlFQekEzTWh0aWZNYlRLT0x5UlFkNUVvNWpGVWVMdzdDdkQxdi1BUVZFQTY2X0VlZU5uRGFtdTBIUktDdk5tQkNfbWlKN0V5TUpwWl9FYk92bm5oQktDdU5kZHV5TTNpSW1vNERGTFA3YThHR2xKNURudlNNVXV5VjRkSE9lZnpQanhsTzc5SkZMY0l0a1o5cE1aa3ljM05nM0VkREhmM1VNaGdEWTd4SUxpYTUtS0tQWnJWZHgtbVNKc0ZjaEJpcjVYdEUtRXpJLXUyWEJpTjdqWllDSHJHVUpZSE5lV3dLLXlld1RRRmNkOTBMdXYzZ1RNcjlXaGY3d1luYlo0Z0lXZGxxeHptbjB0ck16NWRreE9meWlnTlRiaHJWeXBsQ1htZU9HMw?oc=5",
+      "published": "Sat, 04 Apr 2026 13:00:00 GMT",
+      "sentiment": "negative"
+    },
+    {
+      "source": "Google News",
+      "title": "Gold price prediction: What will be gold rates next week as U.S.-Iran war continues to intensify? - The Economic Times",
+      "link": "https://news.google.com/rss/articles/CBMi_wFBVV95cUxNYS1hcllsZVdGU2JKMlpmQ014M3RKTWhYeEx1QjZFRVVfOUFEd2FmSWxzdkkxS255eFp1SkJ3T1ZMU1ZIYTN0ZnlGcTV6Q1plQ184S3ZhajdqUWhKY3ZJa0tTQVJGTVM1Q3BOemVGWjFUNjFBREdyVFF3MjI5T01ObTZyN2tqWUVwOFB2WmJWNEF0QUhSckc2WFhZZFlQcHJCNUZFZFlaM3BNZFpwYVMxVndsc1h1aUk5NGZJMHZoLWQzN0Y1aG1JalhocjFwemR5amVYem5TOGIxbl9yN1lTZnM0Z0xqSGt6NWMxOVlSM2NnMWcyZDRBeVJlbWlIZ0HSAYQCQVVfeXFMTkd4WWpuc1g2VlJNV1Z0SXFLSzFacFo4TEJSUGJjLVR1QkxjOXJTaG5WVjdXSUN3eno1Tlg0cTVpSmVheTlaRlc3UlhvTmdVRGtJZkJnSFlMRnZ5NGNXTExuQjhFQzJhWlRiNjRna3lVOHU3QVIwaWN6U1pFZWRVMXN3YVVkRTNpczd3S2pCVXp2RXhhNkpOVXdFZFlmeFhoYkF5SWpNQV9qaHVoTTJ0T1NtR1hFajMwWER1a19hd29mVnhlbEtndkYzNXhJYU1fQWEyN2ljblFlT0dzbElCQ3JhNEdKY2hVb0h6dFdTQnZqS29QdmUtZlBKRXRxTGxpdDlfLXQ?oc=5",
+      "published": "Sat, 04 Apr 2026 10:45:54 GMT",
+      "sentiment": "positive"
+    },
+    {
+      "source": "Yahoo Finance Gold",
       "title": "Assessing Barrick Mining (NYSE:B) Valuation After Strong Long Term Shareholder Returns",
       "link": "https://finance.yahoo.com/markets/stocks/articles/assessing-barrick-mining-nyse-b-100853119.html?.tsrc=rss",
       "published": "Sat, 04 Apr 2026 10:08:53 +0000",
@@ -22,13 +127,6 @@
       "sentiment": "negative"
     },
     {
-      "source": "Google News",
-      "title": "Gold (XAU/USD) Price Forecast for Today, Tomorrow, Next Week, and the Next 30 Days - LiteFinance",
-      "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxOZ1BXeVdPR08tTmQ4MHdZMkloUzlsNjRjSE5VVmxyeVRrdDZqbDI3Tm5VVUdfYTdZM0dOYjkzVFBuMGhJUzZEM3E0RDBkc0RTUXd2VFdMdm5uenpPXzJobUNvRklvRkt0S0pfYkZ0UWRXaWRDc09MR1pBUkVDRXN2Y2FINkVmUDBlRkZHNGhzZkNyNk5LUzZrM2VUV1pVOV9N?oc=5",
-      "published": "Sat, 04 Apr 2026 08:40:42 GMT",
-      "sentiment": "positive"
-    },
-    {
       "source": "Yahoo Finance Gold",
       "title": "NovaGold Advances Donlin Gold Study And Funding Options For Investors",
       "link": "https://finance.yahoo.com/markets/stocks/articles/novagold-advances-donlin-gold-study-070907056.html?.tsrc=rss",
@@ -44,7 +142,7 @@
     },
     {
       "source": "Google News Gold Investment",
-      "title": "Singapore Is Pushing to Become a Major Gold-Trading Hub - bloomberg.com",
+      "title": "Singapore Is Pushing to Become a Major Gold-Trading Hub - Bloomberg.com",
       "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQZk5ldFVZQmFqT3g5NDl5V2ZCWllCdUlSanVmaXpsZzVfWFNQbmN4WG1kQ2pjME1ZQW1fNFpRbC12dF84RVd4cnFJLURnLVVwdWtUbE45LTFhWVJrYi1vYjBmY01tdG9GUVhRRmQxOGpIczZOa1hJNUQyTmZLU2JUNi04VE9OeHFwWlcxZXVXdS1SWF96cmJGTXJtb0hTT3hSVzNaOF9vMWhlMHNVQl9vOXo0SEdHLUNfTzBkX19FclNCNno5?oc=5",
       "published": "Sat, 04 Apr 2026 01:00:00 GMT",
       "sentiment": "neutral"
@@ -55,27 +153,6 @@
       "link": "https://finance.yahoo.com/markets/commodities/articles/man-predicted-gold-reach-10-230400320.html?.tsrc=rss",
       "published": "Fri, 03 Apr 2026 23:04:00 +0000",
       "sentiment": "positive"
-    },
-    {
-      "source": "Google News Gold Investment",
-      "title": "Gold vs. Stocks in 2026: What Q1 Returns Show - GoldSilver",
-      "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxOWlVVaTE0V0VQOFVjY09rNGFJbVpVdmFOaWE2UGFnbmRmaWtTS2ZDeVJ0c0ZQQ05sdThxUy1wX1hMaEI5WjBfZXczVFNsRTN3VHBlcDAxcGI2WWppQ2FxMmRGeW1fZ0Z5dGkwX1YzT29yZThHTS0xSXc4RUtkSGdDNURVMk5RRHFJeElKeHEtUlU1eE0?oc=5",
-      "published": "Fri, 03 Apr 2026 20:03:28 GMT",
-      "sentiment": "neutral"
-    },
-    {
-      "source": "Google News",
-      "title": "Gold Price Forecast 2026: JP Morgan, ANZ, HSBC & Heraeus Analysis - News and Statistics - indexbox.io",
-      "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxPaEhLcEE5TEpJMHRkSGFkY1Exd0M1QUlwNWRldlU4NDU4MXJ5dDhwbkI2NV9aTUotWllaazJDZUtEck5UTEsxV2Z0aDhMM2pmWVZGS2hrNW45TGNxdFhfY25SNlJ5SjgwVk1pNjNDSWRfQmtvMFVtQjI3UzNtZVJ0MV9DeUNkZ1cxRy0wYlRyNzR4QnlPNmR3R1FVX3RObnVJeGs5NXFYZGRIdw?oc=5",
-      "published": "Fri, 03 Apr 2026 19:50:00 GMT",
-      "sentiment": "positive"
-    },
-    {
-      "source": "Google News Gold Investment",
-      "title": "Turkey\u2019s gold reserves plunge by 118 tons in 2 weeks amid market pressure: report - Turkish Minute",
-      "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTFBkWWIyeDgxQk5mbjNRN3ZjVnRENHd0Y25vZEN3MjNRSXY0VzBianR1ZThiU1Y2eTR4VUhfSnVST2F1ZXRwN2pxSThoUGpic1V20gHDAUFVX3lxTE5QaGtwY2ZMLXZDTjIyUnA2TC1vSjlValY1SFhIY3BuV1lsdHhHdVJ4bnZWV0pULU5SZ3lFb0FDZm13RF9LZlpueHF2LVgyZUZmN3dMcDdRcVlfaTFWcXRXU3ZyOEdNemVuMUk4NnpuR09CYWJoME52ZzRBcndIU0NhdzYxSEhZU0dBemdXVTBib2cxbWNhSzd1RXNDRjJKRERvRFFIV25RSzNIRDMySHJkV0tMR3B0NGlGX0lDb0JFdGNzZw?oc=5",
-      "published": "Fri, 03 Apr 2026 19:12:02 GMT",
-      "sentiment": "negative"
     },
     {
       "source": "Yahoo Finance Gold",
@@ -93,99 +170,22 @@
     },
     {
       "source": "Google News",
-      "title": "Gold Gives Back Late Gains After War Rhetoric Shift and Strong Jobs Data - Gold Price",
+      "title": "Gold Gives Back Late Gains After War Rhetoric Shift and Strong Jobs Data - goldprice.org",
       "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxOVWJKZUpiSHdWY0JlYjFaLXlGUjFvR09IeXFSV2hiUFFKRk1hSFF5d3NYbWtNTjJ4YVY5dVZ0V3BiaGVnbW1tZ2FGMVpJUjlCZFozblJVRGEtMkk3eHlCS0ptc21LNVozMGg5WHNFQngzdHV2WTdlbXBLc3FRT0g0REE0eHBtMkJvenZSd0U0N0Z3cVdjaXBiUU9xdFhYaThB?oc=5",
       "published": "Fri, 03 Apr 2026 18:53:57 GMT",
       "sentiment": "positive"
-    },
-    {
-      "source": "Yahoo Finance Gold",
-      "title": "Persian Gulf crisis claims a corporate victim as gold stock resets plans",
-      "link": "https://www.thestreet.com/investing/stocks/persian-gulf-crisis-claims-a-corporate-victim-as-gold-stock-resets-plans?.tsrc=rss",
-      "published": "Fri, 03 Apr 2026 17:07:00 +0000",
-      "sentiment": "positive"
-    },
-    {
-      "source": "Yahoo Finance Gold",
-      "title": "Gold Drops As Oil Spike Shifts Rate Outlook",
-      "link": "https://finance.yahoo.com/markets/commodities/articles/gold-drops-oil-spike-shifts-165629680.html?.tsrc=rss",
-      "published": "Fri, 03 Apr 2026 16:56:29 +0000",
-      "sentiment": "negative"
-    },
-    {
-      "source": "Yahoo Finance Gold",
-      "title": "Boliden Expands DUKE Copper Gold Venture While Shares Trade Below Targets",
-      "link": "https://finance.yahoo.com/markets/stocks/articles/boliden-expands-duke-copper-gold-161715271.html?.tsrc=rss",
-      "published": "Fri, 03 Apr 2026 16:17:15 +0000",
-      "sentiment": "neutral"
-    },
-    {
-      "source": "Google News",
-      "title": "Is the gold rally over? 3 things to consider now - CBS News",
-      "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTE5YRXVidmNrSzZRQkZhZmFQQjVUM2lNMUJRLVphVTJaR3ZyTHVKTEdya2tNZUFtN1ItaFcwSFVUVHNHa19PUGdnN3RUMnBKTE5VTGhRZF9ULWozNGNPSDRBQlZvVGstb2phUjVF?oc=5",
-      "published": "Fri, 03 Apr 2026 16:13:44 GMT",
-      "sentiment": "positive"
-    },
-    {
-      "source": "Google News Gold Investment",
-      "title": "Is the gold rally over? 3 things to consider now - CBS News",
-      "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTE5YRXVidmNrSzZRQkZhZmFQQjVUM2lNMUJRLVphVTJaR3ZyTHVKTEdya2tNZUFtN1ItaFcwSFVUVHNHa19PUGdnN3RUMnBKTE5VTGhRZF9ULWozNGNPSDRBQlZvVGstb2phUjVF?oc=5",
-      "published": "Fri, 03 Apr 2026 16:13:44 GMT",
-      "sentiment": "positive"
-    },
-    {
-      "source": "Yahoo Finance Gold",
-      "title": "GDX vs. SLVP: Gold or Silver -- Which Mining ETF Is the Better Buy for Investors?",
-      "link": "https://www.fool.com/coverage/etfs/2026/04/03/gdx-vs-slvp-gold-or-silver-which-mining-etf-is-the-better-buy-for-investors/?.tsrc=rss",
-      "published": "Fri, 03 Apr 2026 15:51:30 +0000",
-      "sentiment": "neutral"
-    },
-    {
-      "source": "Google News",
-      "title": "Gold Price Analysis \u2013 Gold Continues to See Headline Risks - FXEmpire",
-      "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxNVlFfS1E4eVBka2QyNTBXWDd0THhxQjNabGlPMDhsOEVnRU5jN0lkTWcxaVFfY0xNc3N6ZWdYUkEtTU9JeHZYVE53WWphVjJBRmJRYTAxMkNpWWxjTnB0SkFFeEFyeEFoMjNUd01BeGtJcVZ0elV1cVNaM3VGemU4ZG5ydHM1dFpKU3RxSWhkb3RRSFVqVHJ0X19iaHRjVUtIMXVGQmpFYW9JUlU?oc=5",
-      "published": "Fri, 03 Apr 2026 14:37:00 GMT",
-      "sentiment": "positive"
-    },
-    {
-      "source": "Yahoo Finance Gold",
-      "title": "Metals ETF Investing: GLD Offers Stability While SIL Brings Higher Risk and Reward",
-      "link": "https://www.fool.com/coverage/etfs/2026/04/03/metals-etf-investing-gld-offers-stability-while-sil-brings-higher-risk-and-reward/?.tsrc=rss",
-      "published": "Fri, 03 Apr 2026 13:47:58 +0000",
-      "sentiment": "positive"
-    },
-    {
-      "source": "Yahoo Finance Gold",
-      "title": "How Physical Gold ETF SGOL Fits Into a Portfolio Built to Survive Inflation",
-      "link": "https://247wallst.com/investing/2026/04/03/how-physical-gold-etf-sgol-fits-into-a-portfolio-built-to-survive-inflation/?.tsrc=rss",
-      "published": "Fri, 03 Apr 2026 13:33:01 +0000",
-      "sentiment": "neutral"
-    },
-    {
-      "source": "Yahoo Finance Gold",
-      "title": "GLD Offers Safer Gold Exposure Than SGDM, but SGDM Has Outperformed Recently",
-      "link": "https://www.fool.com/coverage/etfs/2026/04/03/gld-offers-safer-gold-exposure-than-sgdm/?.tsrc=rss",
-      "published": "Fri, 03 Apr 2026 13:10:15 +0000",
-      "sentiment": "neutral"
-    },
-    {
-      "source": "Google News",
-      "title": "Current price of gold as of April 3, 2026 - Fortune",
-      "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTFAzOVJXYnZfY3B4bjBBUkdvU08xaEdST0VaakhWUmhqNVlVTjdqbmJfVjhSUjRQV0tHVk1VbzdBZnByWS0xSVBjYlc3aDVTVnJ2SjR6Z2czeXFFVlZadElCczBqaWY5eUJqU1VsRlBR?oc=5",
-      "published": "Fri, 03 Apr 2026 12:53:00 GMT",
-      "sentiment": "neutral"
     }
   ],
-  "sentiment_score": 42.7,
-  "bull_count": 49,
-  "bear_count": 11,
-  "neutral_count": 29,
-  "bull_pct": 55.1,
+  "sentiment_score": 38.3,
+  "bull_count": 45,
+  "bear_count": 14,
+  "neutral_count": 22,
+  "bull_pct": 55.6,
   "data_quality": {
     "source": "RSS feeds: Yahoo Finance Gold, Google News, Reuters Gold, FXStreet, Mining.com, Reuters, Investing.com",
     "freshness": "hourly",
     "reliability": "live",
     "notes": "Sentiment scoring is keyword-based heuristic. Not a substitute for full NLP sentiment analysis."
   },
-  "last_updated": "2026-04-04T11:36:48Z"
+  "last_updated": "2026-04-05T14:29:49Z"
 }
