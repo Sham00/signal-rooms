@@ -39,6 +39,12 @@ All rooms are served from the repo root. Vendor JS (Chart.js, date adapter) live
 
 All pages include an `<!-- ANALYTICS_PLACEHOLDER -->` comment where you insert tracking code.
 
+Optional: you can also wire a small helper so you only set analytics once:
+- `shared/analytics.js` reads `window.SR_ANALYTICS` and injects the chosen provider snippet.
+- Pages include `<script src=".../shared/analytics.js"></script>` and keep the placeholder as a reminder.
+
+(No keys are committed — you set them via `window.SR_ANALYTICS` or paste the vendor snippet directly.)
+
 ### Option A — Google Analytics 4
 
 Replace `<!-- ANALYTICS_PLACEHOLDER -->` in each `index.html` with:

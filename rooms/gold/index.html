@@ -23,6 +23,7 @@
 <!-- Analytics: replace the comment below with your GA4 snippet or Plausible script tag.
      See README § Analytics for instructions. -->
 <!-- ANALYTICS_PLACEHOLDER -->
+<script src="../../shared/analytics.js"></script>
 <script src="../../shared/vendor/tailwindcss.js"></script>
 <script src="../../shared/vendor/chart.umd.min.js"></script>
 <script src="../../shared/vendor/chartjs-adapter-date-fns.bundle.min.js"></script>
@@ -2940,22 +2941,25 @@ function makeEmptyState(icon, message, showRetry) {
 }
 
 function loadAllData() {
+  // IMPORTANT: this page is served under /rooms/gold/.
+  // Room data is stored at the repo root under /data/gold/.
+  // Therefore we must fetch via ../../data/gold/.
   var endpoints = [
-    { key: 'price', url: 'data/price.json' },
-    { key: 'ratios', url: 'data/ratios.json' },
-    { key: 'centralBanks', url: 'data/central_banks.json' },
-    { key: 'etfs', url: 'data/etfs.json' },
-    { key: 'analystTargets', url: 'data/analyst_targets.json' },
-    { key: 'cot', url: 'data/cot.json' },
-    { key: 'news', url: 'data/news.json' },
-    { key: 'macro', url: 'data/macro.json' },
-    { key: 'miners', url: 'data/miners.json' },
-    { key: 'historical', url: 'data/historical.json' },
-    { key: 'crisisAssets', url: 'data/crisis_assets.json' },
-    { key: 'marketIntel', url: 'data/market_intel.json' },
-    { key: 'bankTargets', url: 'data/bank_targets.json' },
-    { key: 'tariffs', url: 'data/tariffs.json' },
-    { key: 'comex', url: 'data/comex.json' },
+    { key: 'price', url: '../../data/gold/price.json' },
+    { key: 'ratios', url: '../../data/gold/ratios.json' },
+    { key: 'centralBanks', url: '../../data/gold/central_banks.json' },
+    { key: 'etfs', url: '../../data/gold/etfs.json' },
+    { key: 'analystTargets', url: '../../data/gold/analyst_targets.json' },
+    { key: 'cot', url: '../../data/gold/cot.json' },
+    { key: 'news', url: '../../data/gold/news.json' },
+    { key: 'macro', url: '../../data/gold/macro.json' },
+    { key: 'miners', url: '../../data/gold/miners.json' },
+    { key: 'historical', url: '../../data/gold/historical.json' },
+    { key: 'crisisAssets', url: '../../data/gold/crisis_assets.json' },
+    { key: 'marketIntel', url: '../../data/gold/market_intel.json' },
+    { key: 'bankTargets', url: '../../data/gold/bank_targets.json' },
+    { key: 'tariffs', url: '../../data/gold/tariffs.json' },
+    { key: 'comex', url: '../../data/gold/comex.json' },
   ];
 
   // Show loading states immediately
