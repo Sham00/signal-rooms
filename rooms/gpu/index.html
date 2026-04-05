@@ -489,6 +489,72 @@
 (function () {
   'use strict';
 
+  // ── Resilient fetch: cache last-good payload in localStorage ─────────────
+  // Goal: reduce blank states on transient GitHub Pages / network hiccups.
+  // Strategy:
+  // - Cache successful JSON payloads under versioned keys.
+  // - On fetch failure, fall back to cached payloads (if present).
+  // - If cached payload is "stale" (> TTL), still render but show a badge.
+  var CACHE = {
+    v: 'v1',
+    ttlMs: 3 * 60 * 60 * 1000, // 3 hours
+    keys: {
+      prices: 'sr:gpu:prices:',
+      history: 'sr:gpu:history:'
+    }
+  };
+
+  function cacheKey(kind) {
+    var base = kind === 'prices' ? CACHE.keys.prices : CACHE.keys.history;
+    return base + CACHE.v;
+  }
+
+  function cacheWrite(kind, obj) {
+    try {
+      localStorage.setItem(cacheKey(kind), JSON.stringify({ t: Date.now(), v: CACHE.v, data: obj }));
+    } catch (_) {}
+  }
+
+  function cacheRead(kind) {
+    try {
+      var raw = localStorage.getItem(cacheKey(kind));
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      if (!parsed || !parsed.data) return null;
+      return parsed;
+    } catch (_) { return null; }
+  }
+
+  function isStale(ts) {
+    return !ts ? true : (Date.now() - ts) > CACHE.ttlMs;
+  }
+
+  function showStaleBadge(ageMs) {
+    // Keep it minimal and unobtrusive: a small chip at top of the room.
+    var main = document.querySelector('main');
+    if (!main) return;
+    if (document.getElementById('sr-stale-badge')) return;
+
+    var mins = Math.max(1, Math.round(ageMs / 60000));
+    var chip = document.createElement('div');
+    chip.id = 'sr-stale-badge';
+    chip.className = 'mono';
+    chip.style.cssText = [
+      'display:inline-flex',
+      'align-items:center',
+      'gap:8px',
+      'padding:6px 12px',
+      'border-radius:999px',
+      'border:1px solid rgba(249,115,22,0.25)',
+      'background:rgba(249,115,22,0.10)',
+      'color:#f97316',
+      'font-size:11px',
+      'margin:0 0 18px 0'
+    ].join(';');
+    chip.innerHTML = '<span style="font-size:8px;">&#9679;</span> Showing cached data (' + mins + 'm old)';
+    main.insertBefore(chip, main.firstChild);
+  }
+
   // ── Formatters ───────────────────────────────────────────────────────────
   function fmtPrice(n) {
     return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -519,26 +585,56 @@
   }
 
   // ── Boot ──────────────────────────────────────────────────────────────────
-  Promise.all([
-    fetch('../../data/gpu/prices.json').then(function (r) {
-      if (!r.ok) throw new Error('prices.json HTTP ' + r.status);
-      return r.json();
-    }),
-    fetch('../../data/gpu/history.json').then(function (r) {
-      if (!r.ok) throw new Error('history.json HTTP ' + r.status);
-      return r.json();
+  fetchWithCache('../../data/gpu/prices.json', 'prices')
+    .then(function (pricesRes) {
+      return fetchWithCache('../../data/gpu/history.json', 'history')
+        .then(function (historyRes) {
+          return { pricesRes: pricesRes, historyRes: historyRes };
+        });
     })
-  ])
-  .then(function (res) {
-    renderNav(res[0].last_updated || res[1].last_updated);
-    renderHero(res[0]);
-    renderChart(res[1]);
-    renderTables(res[0]);
-  })
-  .catch(function (err) {
-    console.error('[GPU Room]', err);
-    showError();
-  });
+    .then(function (res) {
+      var prices = res.pricesRes.data;
+      var history = res.historyRes.data;
+
+      // If cached payload is stale, show a badge.
+      var agePrices = res.pricesRes.cachedAt ? (Date.now() - res.pricesRes.cachedAt) : 0;
+      var ageHist   = res.historyRes.cachedAt ? (Date.now() - res.historyRes.cachedAt) : 0;
+      var maxAge = Math.max(agePrices, ageHist);
+      if ((res.pricesRes.fromCache && isStale(res.pricesRes.cachedAt)) || (res.historyRes.fromCache && isStale(res.historyRes.cachedAt))) {
+        showStaleBadge(maxAge);
+      }
+
+      renderNav(prices.last_updated || history.last_updated);
+      renderHero(prices);
+      renderChart(history);
+      renderTables(prices);
+    })
+    .catch(function (err) {
+      console.error('[GPU Room]', err);
+      showError();
+    });
+
+  function fetchJson(url) {
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error(url + ' HTTP ' + r.status);
+      return r.json();
+    });
+  }
+
+  function fetchWithCache(url, kind) {
+    return fetchJson(url)
+      .then(function (obj) {
+        cacheWrite(kind, obj);
+        return { data: obj, fromCache: false, cachedAt: null };
+      })
+      .catch(function (err) {
+        var cached = cacheRead(kind);
+        if (cached && cached.data) {
+          return { data: cached.data, fromCache: true, cachedAt: cached.t };
+        }
+        throw err;
+      });
+  }
 
   // ── Nav timestamp ─────────────────────────────────────────────────────────
   function renderNav(ts) {
