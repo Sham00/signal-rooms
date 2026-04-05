@@ -14,9 +14,9 @@ Each room is a self-contained static page, data-fetched by GitHub Actions and co
 | Room | Path | Status | Update Frequency |
 |---|---|---|---|
 | **🟡 Gold** | `rooms/gold/` | Live | Hourly |
-| **🧠 GPU / AI Compute** | `rooms/gpu/` | Live | Daily |
-| **🛢️ Oil & Gas** | `rooms/oil-gas/` | Stub | — |
-| **🏠 Mortgage & Housing** | `rooms/housing/` | Stub | — |
+| **🧠 GPU / AI Compute** | `rooms/gpu/` | Live | Hourly |
+| **🛢️ Oil & Gas** | `rooms/oil-gas/` | Live | Hourly |
+| **🏠 Mortgage & Housing** | `rooms/housing/` | Live | Hourly |
 
 ---
 
@@ -81,40 +81,48 @@ Open:
 
 ## Data & Fetch Scripts
 
-### Gold Room
+All fetch scripts live in `scripts/`. Each writes JSON to the corresponding `rooms/<room>/data/` directory.
 
-| File | What it fetches | Schedule |
-|---|---|---|
-| `rooms/gold/fetch_data.py` | COMEX price, ETFs, COT, macro, CB reserves, news | Hourly |
-| `rooms/gold/data/*.json` | 17 JSON files committed to repo | — |
+### Fetch everything (one command)
 
-**Manual run:**
 ```bash
-cd rooms/gold && pip install -r requirements.txt && python fetch_data.py
+pip install -r scripts/requirements.txt
+bash scripts/fetch_all.sh
 ```
 
-**Key sources:** yfinance (prices), CFTC (COT), World Gold Council (CB reserves), RSS feeds (news)
+### Per-room scripts
 
-Full methodology: [rooms/gold/docs/data-methodology.md](rooms/gold/docs/data-methodology.md)
-
-### GPU Room
-
-| File | What it fetches | Schedule |
+| Script | Room | What it fetches |
 |---|---|---|
-| `rooms/gpu/fetch_data.py` | Lambda Labs via public API; manual data for others | Daily |
-| `rooms/gpu/data/providers.json` | Provider × GPU pricing | — |
-| `rooms/gpu/data/trends.json` | H100 price history (manual dataset) | — |
-| `rooms/gpu/data/availability.json` | Availability by GPU model | — |
+| `scripts/fetch_gold.py` | Gold | COMEX price, ETFs, COT, macro, CB reserves, news (via `rooms/gold/fetch_data.py`) |
+| `scripts/fetch_gpu.py` | GPU / AI Compute | NVDA, AMD, SMCI, AMAT, ASML, TSM + SOXX, SMH via yfinance |
+| `scripts/fetch_oil_gas.py` | Oil & Gas | WTI/Brent/NatGas futures + XOM, CVX, COP, SLB + XLE, OIH via yfinance |
+| `scripts/fetch_housing.py` | Mortgage & Housing | LEN, DHI, TOL, PHM + ITB, XHB, VNQ via yfinance; mortgage rates via FRED (optional) |
 
-**Manual run:**
+### Cron (local machine)
+
+To update all rooms every hour on your local machine:
+
 ```bash
-cd rooms/gpu && pip install -r requirements.txt && python fetch_data.py
+# Run: crontab -e  and add this line:
+0 * * * * cd /path/to/signal-rooms && bash scripts/fetch_all.sh >> /tmp/signal-rooms-fetch.log 2>&1
 ```
 
-**Update cycle:**
-- Lambda Labs prices refresh from their public API on every run.
-- CoreWeave, RunPod, Vast.ai, AWS, GCP, Azure prices are manually maintained in `fetch_data.py` — update the `MANUAL_PROVIDERS` dict when provider pages change.
-- `availability.json` is edited manually when availability status changes.
+### FRED API key (optional — mortgage rates)
+
+Set `FRED_API_KEY` to get live 30yr/15yr fixed mortgage rates in the Housing room.
+Free key: https://fred.stlouisfed.org/docs/api/api_key.html
+
+```bash
+export FRED_API_KEY=your_key_here
+bash scripts/fetch_all.sh
+```
+
+In GitHub Actions, add `FRED_API_KEY` as a repository secret (Settings → Secrets).
+
+**Key sources:** yfinance (all price data), CFTC (COT via Gold script), World Gold Council (CB reserves), RSS feeds (news), FRED (mortgage rates)
+
+Full Gold methodology: [rooms/gold/docs/data-methodology.md](rooms/gold/docs/data-methodology.md)
 
 ---
 
