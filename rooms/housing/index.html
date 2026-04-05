@@ -450,6 +450,17 @@
     } catch { return iso; }
   }
 
+  function ageDaysFrom(isoDateOrTs) {
+    if (!isoDateOrTs) return null;
+    try {
+      const d = new Date(isoDateOrTs);
+      if (Number.isNaN(d.getTime())) return null;
+      return Math.floor((Date.now() - d.getTime()) / 86400000);
+    } catch {
+      return null;
+    }
+  }
+
   /* ── fetch JSON ── */
   async function loadJson(path) {
     const r = await fetch(path + '?t=' + Date.now());
@@ -727,8 +738,13 @@
 
       const updated = rates.last_updated ?? history.last_updated;
       const updatedStr = fmtUpdated(updated);
-      document.getElementById('last-updated').textContent = 'Updated ' + updatedStr;
-      document.getElementById('footer-updated').textContent = 'Last fetch: ' + updatedStr;
+      const updatedAgeDays = ageDaysFrom(updated);
+      const stale = updatedAgeDays != null && updatedAgeDays >= 2; // housing is weekly-ish; 48h+ = worth flagging
+      document.getElementById('last-updated').textContent = (stale ? 'Stale • ' : 'Updated ') + updatedStr;
+      document.getElementById('footer-updated').textContent = (stale ? 'Last fetch (stale): ' : 'Last fetch: ') + updatedStr;
+      if (stale) {
+        showError(`Data may be stale (${updatedAgeDays} days since last fetch).`);
+      }
 
       buildCommandCenter(rates);
       buildMortgageChart(history);
