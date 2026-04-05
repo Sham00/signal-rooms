@@ -1,0 +1,253 @@
+{
+  "last_updated": "2026-04-05T13:25:13Z",
+  "note": "On-demand spot prices in USD per GPU per hour. Lambda prices via public API; others are manually maintained from provider websites.",
+  "providers": [
+    {
+      "id": "lambda",
+      "name": "Lambda Labs",
+      "tier": "specialist",
+      "url": "https://lambdalabs.com/service/gpu-cloud",
+      "gpus": [
+        {
+          "model": "H100 SXM5",
+          "vram_gb": 80,
+          "price_hr": 2.49,
+          "available": true,
+          "spot": false
+        },
+        {
+          "model": "A100 SXM4",
+          "vram_gb": 40,
+          "price_hr": 1.29,
+          "available": true,
+          "spot": false
+        },
+        {
+          "model": "A10",
+          "vram_gb": 24,
+          "price_hr": 0.6,
+          "available": true,
+          "spot": false
+        },
+        {
+          "model": "RTX 6000 Ada",
+          "vram_gb": 48,
+          "price_hr": 0.8,
+          "available": true,
+          "spot": false
+        }
+      ]
+    },
+    {
+      "id": "coreweave",
+      "name": "CoreWeave",
+      "tier": "specialist",
+      "url": "https://www.coreweave.com/gpu-cloud-computing",
+      "gpus": [
+        {
+          "model": "H100 SXM5",
+          "vram_gb": 80,
+          "price_hr": 2.89,
+          "available": true,
+          "spot": false
+        },
+        {
+          "model": "A100 SXM4",
+          "vram_gb": 80,
+          "price_hr": 2.21,
+          "available": true,
+          "spot": false
+        },
+        {
+          "model": "L40S",
+          "vram_gb": 48,
+          "price_hr": 1.33,
+          "available": true,
+          "spot": false
+        },
+        {
+          "model": "RTX A6000",
+          "vram_gb": 48,
+          "price_hr": 0.89,
+          "available": true,
+          "spot": false
+        }
+      ]
+    },
+    {
+      "id": "runpod",
+      "name": "RunPod",
+      "tier": "specialist",
+      "url": "https://www.runpod.io/gpu-instance/pricing",
+      "gpus": [
+        {
+          "model": "H100 PCIe",
+          "vram_gb": 80,
+          "price_hr": 2.89,
+          "available": true,
+          "spot": false
+        },
+        {
+          "model": "A100 SXM4",
+          "vram_gb": 80,
+          "price_hr": 1.89,
+          "available": true,
+          "spot": false
+        },
+        {
+          "model": "L40S",
+          "vram_gb": 48,
+          "price_hr": 0.72,
+          "available": true,
+          "spot": false
+        },
+        {
+          "model": "RTX 4090",
+          "vram_gb": 24,
+          "price_hr": 0.74,
+          "available": true,
+          "spot": false
+        }
+      ]
+    },
+    {
+      "id": "vastai",
+      "name": "Vast.ai",
+      "tier": "marketplace",
+      "url": "https://vast.ai",
+      "note": "Peer-to-peer marketplace. Prices are median spot rates and vary by supply/demand.",
+      "gpus": [
+        {
+          "model": "H100 SXM5",
+          "vram_gb": 80,
+          "price_hr": 2.15,
+          "available": true,
+          "spot": true
+        },
+        {
+          "model": "A100 SXM4",
+          "vram_gb": 80,
+          "price_hr": 1.25,
+          "available": true,
+          "spot": true
+        },
+        {
+          "model": "L40S",
+          "vram_gb": 48,
+          "price_hr": 0.65,
+          "available": true,
+          "spot": true
+        },
+        {
+          "model": "RTX 4090",
+          "vram_gb": 24,
+          "price_hr": 0.48,
+          "available": true,
+          "spot": true
+        }
+      ]
+    },
+    {
+      "id": "aws",
+      "name": "AWS",
+      "tier": "hyperscaler",
+      "url": "https://aws.amazon.com/ec2/instance-types/p5/",
+      "note": "On-demand pricing. Multi-GPU instance cost divided by GPU count.",
+      "gpus": [
+        {
+          "model": "H100 SXM (p5.48xl \u00f7 8)",
+          "vram_gb": 80,
+          "price_hr": 4.17,
+          "available": true,
+          "spot": false
+        },
+        {
+          "model": "A100 40GB (p4d.24xl \u00f7 8)",
+          "vram_gb": 40,
+          "price_hr": 4.1,
+          "available": true,
+          "spot": false
+        },
+        {
+          "model": "V100 (p3.2xlarge)",
+          "vram_gb": 16,
+          "price_hr": 3.06,
+          "available": true,
+          "spot": false
+        },
+        {
+          "model": "T4 (g4dn.xlarge)",
+          "vram_gb": 16,
+          "price_hr": 0.53,
+          "available": true,
+          "spot": false
+        }
+      ]
+    },
+    {
+      "id": "gcp",
+      "name": "Google Cloud",
+      "tier": "hyperscaler",
+      "url": "https://cloud.google.com/compute/gpus-pricing",
+      "gpus": [
+        {
+          "model": "H100 SXM (A3 High \u00f7 8)",
+          "vram_gb": 80,
+          "price_hr": 3.1,
+          "available": true,
+          "spot": false
+        },
+        {
+          "model": "A100 80GB (A2 Ultra)",
+          "vram_gb": 80,
+          "price_hr": 3.67,
+          "available": true,
+          "spot": false
+        },
+        {
+          "model": "L4",
+          "vram_gb": 24,
+          "price_hr": 0.7,
+          "available": true,
+          "spot": false
+        },
+        {
+          "model": "T4",
+          "vram_gb": 16,
+          "price_hr": 0.35,
+          "available": true,
+          "spot": false
+        }
+      ]
+    },
+    {
+      "id": "azure",
+      "name": "Azure",
+      "tier": "hyperscaler",
+      "url": "https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/",
+      "gpus": [
+        {
+          "model": "H100 NVL (ND H100 v5 \u00f7 8)",
+          "vram_gb": 94,
+          "price_hr": 3.6,
+          "available": true,
+          "spot": false
+        },
+        {
+          "model": "A100 80GB (NC A100 v4)",
+          "vram_gb": 80,
+          "price_hr": 3.67,
+          "available": true,
+          "spot": false
+        },
+        {
+          "model": "V100 (NC6s v3)",
+          "vram_gb": 16,
+          "price_hr": 0.9,
+          "available": true,
+          "spot": false
+        }
+      ]
+    }
+  ]
+}

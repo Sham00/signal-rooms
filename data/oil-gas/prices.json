@@ -1,0 +1,78 @@
+{
+  "last_updated": "2026-04-05T14:30:23Z",
+  "commodities": {
+    "WTI": {
+      "name": "WTI Crude",
+      "ticker": "CL=F",
+      "unit": "$/bbl",
+      "price": 112.06,
+      "prev_close": 100.12,
+      "change_pct": 11.93,
+      "ytd_pct": 95.5
+    },
+    "Brent": {
+      "name": "Brent Crude",
+      "ticker": "BZ=F",
+      "unit": "$/bbl",
+      "price": 109.05,
+      "prev_close": 101.16,
+      "change_pct": 7.8,
+      "ytd_pct": 79.51
+    },
+    "NatGas": {
+      "name": "Natural Gas",
+      "ticker": "NG=F",
+      "unit": "$/MMBtu",
+      "price": 2.81,
+      "prev_close": 2.82,
+      "change_pct": -0.43,
+      "ytd_pct": -22.42
+    }
+  },
+  "stocks": {
+    "XOM": {
+      "name": "ExxonMobil",
+      "price": 160.69,
+      "prev_close": 160.78,
+      "change_pct": -0.06,
+      "ytd_pct": 31.89
+    },
+    "CVX": {
+      "name": "Chevron",
+      "price": 198.97,
+      "prev_close": 197.41,
+      "change_pct": 0.79,
+      "ytd_pct": 28.88
+    },
+    "COP": {
+      "name": "ConocoPhillips",
+      "price": 130.52,
+      "prev_close": 128.38,
+      "change_pct": 1.67,
+      "ytd_pct": 36.02
+    },
+    "SLB": {
+      "name": "Schlumberger",
+      "price": 49.44,
+      "prev_close": 50.03,
+      "change_pct": -1.18,
+      "ytd_pct": 23.71
+    }
+  },
+  "etfs": {
+    "XLE": {
+      "name": "Energy Select Sector SPDR",
+      "price": 59.25,
+      "prev_close": 58.97,
+      "change_pct": 0.47,
+      "ytd_pct": 30.64
+    },
+    "OIH": {
+      "name": "VanEck Oil Services ETF",
+      "price": 399.05,
+      "prev_close": 396.16,
+      "change_pct": 0.73,
+      "ytd_pct": 34.82
+    }
+  }
+}

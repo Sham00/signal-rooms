@@ -286,7 +286,9 @@
 </style>
 </head>
 <body>
-  <script src="../../shared/nav.js"></script>
+
+<!-- Shared Signal Rooms shell (header/nav/footer) -->
+<script src="../../shared/nav.js"></script>
 
 <!-- ====================================================== HEADER -->
 <header class="header">
@@ -622,8 +624,8 @@
 
   try {
     var results = await Promise.all([
-      fetch('data/summary.json'),
-      fetch('data/prices_30d.json')
+      fetch('../../data/oil-gas/summary.json'),
+      fetch('../../data/oil-gas/prices_30d.json')
     ]);
     var r1 = results[0], r2 = results[1];
     if (!r1.ok) throw new Error('prices.json HTTP ' + r1.status);

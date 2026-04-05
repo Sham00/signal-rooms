@@ -1,0 +1,90 @@
+{
+  "last_updated": "2026-04-05T13:25:13Z",
+  "supply_signal": {
+    "score": 42,
+    "label": "Moderate Tightness",
+    "color": "amber",
+    "summary": "H100/A100 broadly available at specialist clouds. H200 spot-available. B200/GB200 remain backordered 6-24 months at hyperscalers. Vast.ai marketplace H100 supply healthy.",
+    "key_driver": "Blackwell (B200/GB200) demand is absorbing all new TSMC CoWoS capacity; Hopper (H100/H200) supply is normalizing."
+  },
+  "gpu_availability": [
+    {
+      "model": "H100 SXM",
+      "specialist_cloud": "available",
+      "hyperscaler": "available",
+      "marketplace": "available",
+      "waitlist_weeks": 0,
+      "notes": "Broadly available. Lambda, CoreWeave, RunPod all have stock."
+    },
+    {
+      "model": "H200 SXM",
+      "specialist_cloud": "limited",
+      "hyperscaler": "waitlist",
+      "marketplace": "limited",
+      "waitlist_weeks": 4,
+      "notes": "Lambda + CoreWeave have limited H200 stock. AWS/GCP waitlist 4-8 weeks."
+    },
+    {
+      "model": "B200",
+      "specialist_cloud": "waitlist",
+      "hyperscaler": "waitlist",
+      "marketplace": "unavailable",
+      "waitlist_weeks": 20,
+      "notes": "CoreWeave has enterprise contracts. No consumer/spot availability."
+    },
+    {
+      "model": "GB200 NVL72",
+      "specialist_cloud": "waitlist",
+      "hyperscaler": "waitlist",
+      "marketplace": "unavailable",
+      "waitlist_weeks": 36,
+      "notes": "Enterprise-only. CoWoS-L packaging bottleneck limits ramp."
+    },
+    {
+      "model": "A100 SXM",
+      "specialist_cloud": "available",
+      "hyperscaler": "available",
+      "marketplace": "available",
+      "waitlist_weeks": 0,
+      "notes": "Fully commoditized. Best $/TFLOP for mid-size training runs."
+    },
+    {
+      "model": "L40S",
+      "specialist_cloud": "available",
+      "hyperscaler": "available",
+      "marketplace": "available",
+      "waitlist_weeks": 0,
+      "notes": "Good inference GPU. Popular for latency-sensitive API serving."
+    },
+    {
+      "model": "RTX 4090",
+      "specialist_cloud": "available",
+      "hyperscaler": "n/a",
+      "marketplace": "available",
+      "waitlist_weeks": 0,
+      "notes": "Cheapest per TFLOP for FP16/BF16 inference. 24GB VRAM limits large models."
+    }
+  ],
+  "availability_labels": {
+    "available": {
+      "label": "Available",
+      "color": "green"
+    },
+    "limited": {
+      "label": "Limited",
+      "color": "amber"
+    },
+    "waitlist": {
+      "label": "Waitlist",
+      "color": "red"
+    },
+    "unavailable": {
+      "label": "Unavailable",
+      "color": "gray"
+    },
+    "n/a": {
+      "label": "N/A",
+      "color": "gray"
+    }
+  }
+}

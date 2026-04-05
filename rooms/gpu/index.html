@@ -306,28 +306,8 @@
 </head>
 <body>
 
-<!-- NAVIGATION -->
-<header class="header">
-  <div style="max-width:1280px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
-
-    <a href="../../" class="back-link">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Signal Rooms
-    </a>
-
-    <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:center;">
-      <span style="font-size:17px;line-height:1;">🧠</span>
-      <span style="font-size:15px;font-weight:700;color:#fff;letter-spacing:0.2px;white-space:nowrap;">GPU / AI Compute</span>
-    </div>
-
-    <div id="nav-ts" class="mono" style="font-size:11px;color:#444;white-space:nowrap;visibility:hidden;">
-      Last updated: —
-    </div>
-
-  </div>
-</header>
+<!-- Shared Signal Rooms shell (header/nav/footer) -->
+<script src="../../shared/nav.js"></script>
 
 <!-- MAIN -->
 <main style="max-width:1280px;margin:0 auto;padding:32px 24px;">
@@ -533,11 +513,11 @@
 
   // ── Boot ──────────────────────────────────────────────────────────────────
   Promise.all([
-    fetch('data/prices.json').then(function (r) {
+    fetch('../../data/gpu/prices.json').then(function (r) {
       if (!r.ok) throw new Error('prices.json HTTP ' + r.status);
       return r.json();
     }),
-    fetch('data/history.json').then(function (r) {
+    fetch('../../data/gpu/history.json').then(function (r) {
       if (!r.ok) throw new Error('history.json HTTP ' + r.status);
       return r.json();
     })
@@ -555,6 +535,8 @@
 
   // ── Nav timestamp ─────────────────────────────────────────────────────────
   function renderNav(ts) {
+    // This room now uses the shared shell nav (shared/nav.js).
+    // Keep timestamp logic for future use, but don't assume a room-specific element exists.
     var el = document.getElementById('nav-ts');
     if (!el) return;
     el.textContent = fmtTs(ts);
