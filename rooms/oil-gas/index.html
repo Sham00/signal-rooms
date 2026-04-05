@@ -1,16 +1,817 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Oil & Gas — Signal Rooms</title>
-  <style>body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:#0b0f17;color:#e5e7eb} .wrap{max-width:900px;margin:0 auto;padding:28px 16px} a{color:#fbbf24}</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oil &amp; Gas Room — Signal Rooms</title>
+<meta name="description" content="Real-time Oil &amp; Gas dashboard with WTI, Brent, Natural Gas prices, energy equities, and macro signals.">
+<meta name="theme-color" content="#fb923c">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  :root {
+    --bg:          #0a0a0a;
+    --card-bg:     #111111;
+    --card-border: #1a1a1a;
+    --oil:         #fb923c;
+    --oil-dim:     #c2622a;
+    --amber:       #f59e0b;
+    --green:       #00ff88;
+    --red:         #ff4444;
+    --blue:        #4488ff;
+    --gray:        #555555;
+    --text:        #ffffff;
+    --text2:       #888888;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--oil); }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .card:hover {
+    border-color: #2a2a2a;
+    box-shadow: 0 0 24px rgba(251, 146, 60, 0.04);
+  }
+
+  /* Hero metric tile */
+  .metric-tile {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .metric-tile::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--oil);
+    opacity: 0.6;
+    border-radius: 12px 12px 0 0;
+  }
+  .metric-tile.blue-accent::before { background: var(--blue); }
+  .metric-tile:hover {
+    border-color: #2a2a2a;
+    box-shadow: 0 0 24px rgba(251, 146, 60, 0.07);
+  }
+
+  /* Header */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: linear-gradient(180deg, var(--card-bg) 0%, rgba(17,17,17,0.96) 100%);
+    border-top: 3px solid var(--oil);
+    border-bottom: 1px solid var(--card-border);
+    backdrop-filter: blur(20px);
+  }
+
+  /* Section label */
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--card-border);
+  }
+
+  /* Holdings table */
+  .holdings-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  .holdings-table th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--card-border);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .holdings-table th.right { text-align: right; }
+  .holdings-table td {
+    padding: 10px 14px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .holdings-table td.right { text-align: right; }
+  .holdings-table tr:last-child td { border-bottom: none; }
+  .holdings-table tr:hover td { background: rgba(251, 146, 60, 0.03); }
+
+  /* Change badges */
+  .badge-pos {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(0, 255, 136, 0.1);
+    color: var(--green);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .badge-neg {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(255, 68, 68, 0.1);
+    color: var(--red);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .badge-neu {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(136, 136, 136, 0.1);
+    color: #888;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Checklist */
+  .watch-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .watch-item:last-child { border-bottom: none; }
+  .watch-box {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #333;
+    border-radius: 4px;
+    margin-top: 2px;
+  }
+  .watch-text {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #ccc;
+  }
+  .watch-tag {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .watch-tag-opec   { background: rgba(251,146,60,0.15); color: #fb923c; }
+  .watch-tag-weekly { background: rgba(68,136,255,0.15); color: #4488ff; }
+  .watch-tag-supply { background: rgba(255,68,68,0.15);  color: #ff4444; }
+  .watch-tag-demand { background: rgba(0,255,136,0.15);  color: #00ff88; }
+
+  /* Loading spinner */
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(251,146,60,0.15);
+    border-top-color: var(--oil);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Error state */
+  .error-banner {
+    background: rgba(255,68,68,0.08);
+    border: 1px solid rgba(255,68,68,0.2);
+    border-radius: 8px;
+    padding: 14px 18px;
+    color: var(--red);
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.6;
+  }
+
+  /* Chart wrapper */
+  .chart-wrap {
+    position: relative;
+    height: 320px;
+  }
+
+  /* Section divider */
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--card-border);
+    margin: 20px 0 16px;
+  }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--card-border);
+    color: var(--text2);
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    text-align: center;
+    padding: 20px 24px;
+  }
+
+  /* Ticker cells */
+  .ticker-symbol {
+    font-weight: 700;
+    color: var(--oil);
+    font-size: 13px;
+  }
+  .ticker-name {
+    font-size: 11px;
+    color: var(--text2);
+    margin-top: 1px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .chart-wrap { height: 240px; }
+    .metric-tile { padding: 16px; }
+  }
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>🛢️ Oil & Gas Room</h1>
-    <p><a href="../../">← Back to Signal Rooms</a></p>
-    <p>Stub page. Next build: WTI/Brent, EIA inventory delta, crack spreads, and a "tightness score".</p>
+
+<!-- ====================================================== HEADER -->
+<header class="header">
+  <div style="max-width: 1280px; margin: 0 auto; padding: 0 20px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 16px;">
+
+      <!-- Back link -->
+      <a href="../../"
+         style="text-decoration: none; color: var(--text2); font-size: 13px; font-family: 'JetBrains Mono', monospace; font-weight: 500; white-space: nowrap; transition: color 0.2s;"
+         onmouseover="this.style.color='#fb923c'"
+         onmouseout="this.style.color='var(--text2)'">
+        &#8592; Signal Rooms
+      </a>
+
+      <!-- Title -->
+      <div style="display: flex; align-items: center; gap: 10px; flex: 1; justify-content: center;">
+        <span style="font-size: 20px; line-height: 1;">&#128228;</span>
+        <span style="font-size: 17px; font-weight: 800; letter-spacing: -0.02em; white-space: nowrap;">Oil &amp; Gas</span>
+        <span style="font-size: 11px; padding: 2px 8px; border-radius: 6px; background: rgba(251,146,60,0.12); color: var(--oil); font-family: 'JetBrains Mono', monospace; font-weight: 700; letter-spacing: 0.05em;">LIVE</span>
+      </div>
+
+      <!-- Last updated -->
+      <div id="last-updated-nav" class="mono" style="font-size: 11px; color: var(--text2); text-align: right; white-space: nowrap;">
+        Loading&hellip;
+      </div>
+
+    </div>
   </div>
+</header>
+
+<!-- ====================================================== MAIN -->
+<main style="max-width: 1280px; margin: 0 auto; padding: 28px 20px 48px;">
+
+  <!-- Loading state -->
+  <div id="loading-state" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 80px 0;">
+    <div class="spinner"></div>
+    <p class="mono" style="font-size: 13px; color: var(--text2);">Loading market data&hellip;</p>
+  </div>
+
+  <!-- Error state -->
+  <div id="error-state" style="display: none; padding: 40px 0;">
+    <div class="error-banner" id="error-message">
+      &#9888; Failed to load market data. Check that <code>data/prices.json</code> and <code>data/history.json</code> are present.
+    </div>
+  </div>
+
+  <!-- Dashboard (hidden until data loads) -->
+  <div id="dashboard" style="display: none;">
+
+    <!-- ── HERO METRICS ───────────────────────────────────────── -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 24px;">
+
+      <!-- WTI Crude -->
+      <div class="metric-tile">
+        <div class="mono" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text2); margin-bottom: 10px;">
+          WTI Crude <span style="font-size: 9px; color: #444; margin-left: 4px;">CL=F</span>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+          <div id="wti-price" class="mono" style="font-size: 32px; font-weight: 800; letter-spacing: -0.03em;"></div>
+          <div id="wti-unit" class="mono" style="font-size: 12px; color: var(--text2);"></div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap;">
+          <div id="wti-change" class="mono" style="font-size: 14px; font-weight: 700;"></div>
+          <div style="width: 1px; height: 14px; background: #222;"></div>
+          <div style="font-size: 11px; color: var(--text2);">YTD:&nbsp;<span id="wti-ytd" class="mono" style="font-size: 11px; font-weight: 600;"></span></div>
+        </div>
+      </div>
+
+      <!-- Brent Crude -->
+      <div class="metric-tile">
+        <div class="mono" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text2); margin-bottom: 10px;">
+          Brent Crude <span style="font-size: 9px; color: #444; margin-left: 4px;">BZ=F</span>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+          <div id="brent-price" class="mono" style="font-size: 32px; font-weight: 800; letter-spacing: -0.03em;"></div>
+          <div id="brent-unit" class="mono" style="font-size: 12px; color: var(--text2);"></div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap;">
+          <div id="brent-change" class="mono" style="font-size: 14px; font-weight: 700;"></div>
+          <div style="width: 1px; height: 14px; background: #222;"></div>
+          <div style="font-size: 11px; color: var(--text2);">YTD:&nbsp;<span id="brent-ytd" class="mono" style="font-size: 11px; font-weight: 600;"></span></div>
+        </div>
+      </div>
+
+      <!-- Natural Gas -->
+      <div class="metric-tile blue-accent">
+        <div class="mono" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text2); margin-bottom: 10px;">
+          Natural Gas <span style="font-size: 9px; color: #444; margin-left: 4px;">NG=F</span>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+          <div id="natgas-price" class="mono" style="font-size: 32px; font-weight: 800; letter-spacing: -0.03em;"></div>
+          <div id="natgas-unit" class="mono" style="font-size: 12px; color: var(--text2);"></div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap;">
+          <div id="natgas-change" class="mono" style="font-size: 14px; font-weight: 700;"></div>
+          <div style="width: 1px; height: 14px; background: #222;"></div>
+          <div style="font-size: 11px; color: var(--text2);">YTD:&nbsp;<span id="natgas-ytd" class="mono" style="font-size: 11px; font-weight: 600;"></span></div>
+        </div>
+      </div>
+
+      <!-- WTI/Brent Spread -->
+      <div class="metric-tile">
+        <div class="mono" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text2); margin-bottom: 10px;">
+          Brent Premium <span style="font-size: 9px; color: #444; margin-left: 4px;">Brent &#8722; WTI</span>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 10px;">
+          <div id="spread-value" class="mono" style="font-size: 32px; font-weight: 800; letter-spacing: -0.03em;"></div>
+          <div class="mono" style="font-size: 12px; color: var(--text2);">$/bbl</div>
+        </div>
+        <div style="margin-top: 10px;">
+          <div id="spread-label" class="mono" style="font-size: 11px; font-weight: 600;"></div>
+          <div style="font-size: 11px; color: var(--text2); margin-top: 4px;">Normal range: $2&ndash;$5</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── COMMODITY CHART ────────────────────────────────────── -->
+    <div class="card" style="margin-bottom: 24px;">
+      <div class="section-label">WTI vs Brent Crude &#8212; 1 Year</div>
+      <div class="chart-wrap">
+        <canvas id="crude-chart"></canvas>
+      </div>
+      <!-- Legend -->
+      <div style="display: flex; gap: 20px; margin-top: 14px; padding-left: 4px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <div style="width: 24px; height: 2px; background: #fb923c; border-radius: 1px;"></div>
+          <span class="mono" style="font-size: 11px; color: var(--text2);">WTI (CL=F)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <div style="width: 24px; height: 2px; background: #f59e0b; border-radius: 1px;"></div>
+          <span class="mono" style="font-size: 11px; color: var(--text2);">Brent (BZ=F)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HOLDINGS TABLE ─────────────────────────────────────── -->
+    <div class="card" style="margin-bottom: 24px;">
+
+      <!-- Energy Equities -->
+      <div class="section-label">Energy Equities</div>
+      <div style="overflow-x: auto;">
+        <table class="holdings-table">
+          <thead>
+            <tr>
+              <th>Ticker</th>
+              <th class="right">Price</th>
+              <th class="right">Daily %</th>
+              <th class="right">YTD %</th>
+            </tr>
+          </thead>
+          <tbody id="stocks-body"></tbody>
+        </table>
+      </div>
+
+      <hr class="section-divider">
+
+      <!-- Energy ETFs -->
+      <div class="section-label">Energy ETFs</div>
+      <div style="overflow-x: auto;">
+        <table class="holdings-table">
+          <thead>
+            <tr>
+              <th>Ticker</th>
+              <th class="right">Price</th>
+              <th class="right">Daily %</th>
+              <th class="right">YTD %</th>
+            </tr>
+          </thead>
+          <tbody id="etfs-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── WHAT TO WATCH ──────────────────────────────────────── -->
+    <div class="card" style="margin-bottom: 24px;">
+      <div class="section-label">What to Watch</div>
+
+      <div class="watch-item">
+        <div class="watch-box"></div>
+        <div class="watch-text">
+          OPEC+ production quota decisions
+          <span class="watch-tag watch-tag-opec">OPEC+</span>
+          <br>
+          <span style="font-size: 11px; color: var(--text2); font-family: 'JetBrains Mono', monospace;">
+            Next ministerial meeting &mdash; monitor communiqu&eacute; for output guidance changes
+          </span>
+        </div>
+      </div>
+
+      <div class="watch-item">
+        <div class="watch-box"></div>
+        <div class="watch-text">
+          EIA weekly crude inventory report
+          <span class="watch-tag watch-tag-weekly">Weekly</span>
+          <br>
+          <span style="font-size: 11px; color: var(--text2); font-family: 'JetBrains Mono', monospace;">
+            Wednesdays 10:30 EST &mdash; builds/draws vs. consensus can move WTI &plusmn;1&ndash;2%
+          </span>
+        </div>
+      </div>
+
+      <div class="watch-item">
+        <div class="watch-box"></div>
+        <div class="watch-text">
+          Baker Hughes weekly rig count
+          <span class="watch-tag watch-tag-weekly">Weekly</span>
+          <br>
+          <span style="font-size: 11px; color: var(--text2); font-family: 'JetBrains Mono', monospace;">
+            Fridays &mdash; leading indicator of US production capex; currently ~600 active rigs
+          </span>
+        </div>
+      </div>
+
+      <div class="watch-item">
+        <div class="watch-box"></div>
+        <div class="watch-text">
+          US Strategic Petroleum Reserve (SPR) release announcements
+          <span class="watch-tag watch-tag-supply">Supply</span>
+          <br>
+          <span style="font-size: 11px; color: var(--text2); font-family: 'JetBrains Mono', monospace;">
+            DOE announcements on drawdowns or refill schedule &mdash; direct supply impact
+          </span>
+        </div>
+      </div>
+
+      <div class="watch-item">
+        <div class="watch-box"></div>
+        <div class="watch-text">
+          Iran &amp; Venezuela sanction changes
+          <span class="watch-tag watch-tag-supply">Supply Risk</span>
+          <br>
+          <span style="font-size: 11px; color: var(--text2); font-family: 'JetBrains Mono', monospace;">
+            Combined ~5M bpd potential supply &mdash; waiver or tightening shifts global balance
+          </span>
+        </div>
+      </div>
+
+      <div class="watch-item">
+        <div class="watch-box"></div>
+        <div class="watch-text">
+          US production trend &mdash; currently ~13M bpd
+          <span class="watch-tag watch-tag-supply">Supply</span>
+          <br>
+          <span style="font-size: 11px; color: var(--text2); font-family: 'JetBrains Mono', monospace;">
+            Watch Permian Basin guidance and shale breakeven ($55&ndash;$60/bbl) vs. WTI spot
+          </span>
+        </div>
+      </div>
+
+      <div class="watch-item">
+        <div class="watch-box"></div>
+        <div class="watch-text">
+          Refinery utilization rate &amp; crack spreads
+          <span class="watch-tag watch-tag-demand">Margin</span>
+          <br>
+          <span style="font-size: 11px; color: var(--text2); font-family: 'JetBrains Mono', monospace;">
+            3-2-1 crack spread reflects refiner margin; high utilization tightens gasoline supply
+          </span>
+        </div>
+      </div>
+
+      <div class="watch-item">
+        <div class="watch-box"></div>
+        <div class="watch-text">
+          Demand signals: China PMI &amp; airline capacity utilization
+          <span class="watch-tag watch-tag-demand">Demand</span>
+          <br>
+          <span style="font-size: 11px; color: var(--text2); font-family: 'JetBrains Mono', monospace;">
+            China consumes ~15% of global oil; aviation is ~8% of demand &mdash; both are key leading indicators
+          </span>
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- /#dashboard -->
+</main>
+
+<!-- ====================================================== FOOTER -->
+<footer>
+  Commodity prices via Yahoo Finance. Refreshed hourly. For informational purposes only.
+</footer>
+
+<!-- ====================================================== SCRIPT -->
+<script>
+(async function () {
+  'use strict';
+
+  // ── Helpers ─────────────────────────────────────────────────
+
+  function fmtPct(v) {
+    if (v == null) return '—';
+    const sign = v >= 0 ? '+' : '';
+    return sign + v.toFixed(2) + '%';
+  }
+
+  function fmtPrice(v, decimals) {
+    decimals = decimals != null ? decimals : 2;
+    if (v == null) return '—';
+    return '$' + v.toLocaleString('en-US', {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    });
+  }
+
+  function pctColor(v) {
+    if (v == null) return '#888';
+    if (v > 0) return '#00ff88';
+    if (v < 0) return '#ff4444';
+    return '#888';
+  }
+
+  function pctBadge(v) {
+    if (v == null) return '<span class="badge-neu">\u2014</span>';
+    var cls = v > 0 ? 'badge-pos' : v < 0 ? 'badge-neg' : 'badge-neu';
+    return '<span class="' + cls + '">' + fmtPct(v) + '</span>';
+  }
+
+  function fmtDate(iso) {
+    try {
+      var d = new Date(iso);
+      return d.toLocaleString('en-US', {
+        month: 'short', day: 'numeric', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', timeZoneName: 'short'
+      });
+    } catch (e) { return iso; }
+  }
+
+  // ── Fetch ────────────────────────────────────────────────────
+
+  var prices, history;
+
+  try {
+    var results = await Promise.all([
+      fetch('data/prices.json'),
+      fetch('data/history.json')
+    ]);
+    var r1 = results[0], r2 = results[1];
+    if (!r1.ok) throw new Error('prices.json HTTP ' + r1.status);
+    if (!r2.ok) throw new Error('history.json HTTP ' + r2.status);
+    prices  = await r1.json();
+    history = await r2.json();
+  } catch (err) {
+    console.error('[oil-gas] Data load error:', err);
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('error-state').style.display   = 'block';
+    document.getElementById('error-message').textContent   =
+      '\u26a0 Failed to load market data: ' + err.message;
+    return;
+  }
+
+  // ── Last updated ─────────────────────────────────────────────
+
+  document.getElementById('last-updated-nav').textContent =
+    'Last updated: ' + fmtDate(prices.last_updated);
+
+  // ── Hero metrics ─────────────────────────────────────────────
+
+  var WTI    = prices.commodities.WTI;
+  var Brent  = prices.commodities.Brent;
+  var NatGas = prices.commodities.NatGas;
+
+  // WTI
+  document.getElementById('wti-price').textContent = fmtPrice(WTI.price);
+  document.getElementById('wti-unit').textContent  = WTI.unit;
+  var wtiChg = document.getElementById('wti-change');
+  wtiChg.textContent = fmtPct(WTI.change_pct);
+  wtiChg.style.color = pctColor(WTI.change_pct);
+  var wtiYtd = document.getElementById('wti-ytd');
+  wtiYtd.textContent = fmtPct(WTI.ytd_pct);
+  wtiYtd.style.color = pctColor(WTI.ytd_pct);
+
+  // Brent
+  document.getElementById('brent-price').textContent = fmtPrice(Brent.price);
+  document.getElementById('brent-unit').textContent  = Brent.unit;
+  var brentChg = document.getElementById('brent-change');
+  brentChg.textContent = fmtPct(Brent.change_pct);
+  brentChg.style.color = pctColor(Brent.change_pct);
+  var brentYtd = document.getElementById('brent-ytd');
+  brentYtd.textContent = fmtPct(Brent.ytd_pct);
+  brentYtd.style.color = pctColor(Brent.ytd_pct);
+
+  // Natural Gas
+  document.getElementById('natgas-price').textContent = fmtPrice(NatGas.price, 2);
+  document.getElementById('natgas-unit').textContent  = NatGas.unit;
+  var ngChg = document.getElementById('natgas-change');
+  ngChg.textContent = fmtPct(NatGas.change_pct);
+  ngChg.style.color = pctColor(NatGas.change_pct);
+  var ngYtd = document.getElementById('natgas-ytd');
+  ngYtd.textContent = fmtPct(NatGas.ytd_pct);
+  ngYtd.style.color = pctColor(NatGas.ytd_pct);
+
+  // Brent premium / WTI spread
+  var spread = +(Brent.price - WTI.price).toFixed(2);
+  var spreadEl  = document.getElementById('spread-value');
+  var spreadLbl = document.getElementById('spread-label');
+  spreadEl.textContent = (spread >= 0 ? '+' : '') + spread.toFixed(2);
+  if (spread >= 2 && spread <= 5) {
+    spreadEl.style.color  = '#00ff88';
+    spreadLbl.textContent = 'Normal \u2014 within typical $2\u2013$5 range';
+    spreadLbl.style.color = '#00ff88';
+  } else {
+    spreadEl.style.color  = '#f59e0b';
+    spreadLbl.textContent = spread < 2
+      ? 'Compressed \u2014 below typical floor'
+      : 'Elevated \u2014 above typical ceiling';
+    spreadLbl.style.color = '#f59e0b';
+  }
+
+  // ── Holdings tables ──────────────────────────────────────────
+
+  function buildRows(dataObj, tbodyId) {
+    var tbody = document.getElementById(tbodyId);
+    tbody.innerHTML = '';
+    Object.keys(dataObj).forEach(function (ticker) {
+      var d  = dataObj[ticker];
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' +
+          '<div class="ticker-symbol">' + ticker + '</div>' +
+          '<div class="ticker-name">' + d.name + '</div>' +
+        '</td>' +
+        '<td class="right" style="font-weight:600;color:#eee;">' + fmtPrice(d.price) + '</td>' +
+        '<td class="right">' + pctBadge(d.change_pct) + '</td>' +
+        '<td class="right">' + pctBadge(d.ytd_pct) + '</td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  buildRows(prices.stocks, 'stocks-body');
+  buildRows(prices.etfs,   'etfs-body');
+
+  // ── Commodity chart ──────────────────────────────────────────
+
+  var wtiData   = (history.tickers['CL=F'] || []).map(function (p) { return { x: p.date, y: p.close }; });
+  var brentData = (history.tickers['BZ=F'] || []).map(function (p) { return { x: p.date, y: p.close }; });
+
+  var ctx = document.getElementById('crude-chart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [
+        {
+          label: 'WTI (CL=F)',
+          data: wtiData,
+          borderColor: '#fb923c',
+          backgroundColor: 'rgba(251,146,60,0.06)',
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          pointHoverBackgroundColor: '#fb923c',
+          tension: 0.3,
+          fill: false
+        },
+        {
+          label: 'Brent (BZ=F)',
+          data: brentData,
+          borderColor: '#f59e0b',
+          backgroundColor: 'rgba(245,158,11,0.06)',
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          pointHoverBackgroundColor: '#f59e0b',
+          tension: 0.3,
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1a1a1a',
+          borderColor: '#2a2a2a',
+          borderWidth: 1,
+          titleColor: '#888',
+          bodyColor: '#fff',
+          titleFont: { family: 'JetBrains Mono', size: 11 },
+          bodyFont:  { family: 'JetBrains Mono', size: 13, weight: '600' },
+          padding: 12,
+          callbacks: {
+            title: function (items) {
+              var d = new Date(items[0].parsed.x);
+              return d.toLocaleDateString('en-US', {
+                month: 'short', day: 'numeric', year: 'numeric'
+              });
+            },
+            label: function (item) {
+              return '  ' + item.dataset.label + ': $' + item.parsed.y.toFixed(2) + '/bbl';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'time',
+          time: {
+            unit: 'month',
+            displayFormats: { month: 'MMM yy' }
+          },
+          grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false },
+          ticks: {
+            color: '#555',
+            font: { family: 'JetBrains Mono', size: 10 },
+            maxTicksLimit: 12
+          },
+          border: { display: false }
+        },
+        y: {
+          position: 'right',
+          grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+          ticks: {
+            color: '#555',
+            font: { family: 'JetBrains Mono', size: 10 },
+            callback: function (v) { return '$' + v.toFixed(0); }
+          },
+          border: { display: false }
+        }
+      }
+    }
+  });
+
+  // ── Show dashboard ───────────────────────────────────────────
+  document.getElementById('loading-state').style.display = 'none';
+  document.getElementById('dashboard').style.display     = 'block';
+
+}());
+</script>
 </body>
 </html>
