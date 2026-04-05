@@ -26,6 +26,9 @@ NOW = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 # ── Lambda Labs public API ────────────────────────────────────────────────────
 
+# NOTE: Lambda's public instance-types endpoint has intermittently required auth.
+# We keep this as the primary source, but gracefully fall back to last committed
+# data when it returns 401/403.
 LAMBDA_API = "https://cloud.lambdalabs.com/api/v1/instance-types"
 
 # Map Lambda instance names → display metadata
@@ -51,6 +54,9 @@ def fetch_lambda_prices():
         resp.raise_for_status()
         data = resp.json().get("data", {})
     except Exception as exc:
+        # Common failure modes:
+        # - 401/403: endpoint requires auth (or changes behavior)
+        # - network timeouts
         print(f"  [WARN] Lambda API error: {exc}")
         return []
 
