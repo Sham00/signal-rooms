@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Housing Room — Static Data Fetcher
-Fetches 30Y mortgage rate and 10Y Treasury from FRED CSV (no API key required).
-Writes to data/housing/ at repo root.
+
+Fetches 30Y mortgage rate and 10Y Treasury from FRED's public CSV endpoint
+(no API key required). Writes JSON under data/housing/ for GitHub Pages.
 
 Usage:
     python rooms/housing/fetch_data.py
@@ -18,6 +19,15 @@ ROOT = os.path.join(BASE, '..', '..')
 DATA_DIR = os.path.join(ROOT, 'data', 'housing')
 
 HEADERS = {"User-Agent": "signal-rooms-fetcher/1.0 (public data; github.com/sham00/signal-rooms)"}
+
+
+def _check_runtime():
+    # Don't hard-fail on older interpreters; just warn.
+    if (os.sys.version_info.major, os.sys.version_info.minor) < (3, 9):
+        print(
+            "[warn] Python 3.9+ recommended. If you hit SSL/urllib3 warnings on macOS, "
+            "run with the repo venv: .venv/bin/python rooms/housing/fetch_data.py"
+        )
 
 
 def now_utc():
@@ -70,6 +80,8 @@ def filter_1y(rows):
 
 def main():
     print("=== rooms/housing/fetch_data.py ===")
+
+    _check_runtime()
 
     # ── MORTGAGE30US (weekly) ─────────────────────────────────────────────────
     print("  fetching MORTGAGE30US ...")
