@@ -13,7 +13,7 @@ echo "---"
 
 python "$SCRIPTS/fetch_gold.py"
 python "$SCRIPTS/fetch_gpu.py"
-python "$SCRIPTS/fetch_oil_gas.py"
+python "$ROOT/rooms/oil-gas/fetch_data.py"
 python "$ROOT/rooms/housing/fetch_data.py"
 
 echo "---"

@@ -4,7 +4,7 @@ import json, os, time
 from datetime import datetime, timezone
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE, "..", "rooms", "oil-gas", "data")
+DATA_DIR = os.path.join(BASE, "..", "data", "oil-gas")
 
 COMMODITIES = {
     "WTI":    {"name": "WTI Crude",   "ticker": "CL=F",  "unit": "$/bbl"},

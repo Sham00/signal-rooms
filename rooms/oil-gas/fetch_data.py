@@ -20,7 +20,8 @@ from datetime import datetime, timezone, timedelta
 from urllib.request import urlopen, Request
 
 ROOM_DIR = os.path.dirname(__file__)
-DATA_DIR = os.path.join(ROOM_DIR, "data")
+ROOT_DIR = os.path.join(ROOM_DIR, "..", "..")
+DATA_DIR = os.path.join(ROOT_DIR, "data", "oil-gas")
 
 SYMBOLS = {
     "wti": {"stooq": "cl.f", "name": "WTI Crude", "symbol": "CL=F"},
