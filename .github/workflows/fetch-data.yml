@@ -1,15 +1,17 @@
-name: Fetch Gold Data
+name: Fetch Room Data
 
 on:
   schedule:
-    - cron: '0 * * * *'  # every hour
-  workflow_dispatch:  # allow manual trigger
+    - cron: '0 * * * *'   # hourly — gold runs every hour
+    - cron: '0 6 * * *'   # daily  — gpu runs at 06:00 UTC
+  workflow_dispatch:        # allow manual trigger
 
 permissions:
   contents: write
 
 jobs:
-  fetch:
+  gold:
+    name: Fetch Gold Data
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,16 +20,40 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      - name: Install gold dependencies
+        run: pip install -r rooms/gold/requirements.txt
 
-      - name: Fetch data
-        run: python fetch_data.py
+      - name: Fetch gold data
+        run: python rooms/gold/fetch_data.py
 
-      - name: Commit and push
+      - name: Commit and push gold data
         run: |
           git config user.name "Gold Data Bot"
           git config user.email "noreply@github.com"
-          git add data/
+          git add rooms/gold/data/
           git diff --staged --quiet || git commit -m "Update gold data $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push
+
+  gpu:
+    name: Fetch GPU Data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install gpu dependencies
+        run: pip install -r rooms/gpu/requirements.txt
+
+      - name: Fetch gpu data
+        run: python rooms/gpu/fetch_data.py
+
+      - name: Commit and push gpu data
+        run: |
+          git config user.name "GPU Data Bot"
+          git config user.email "noreply@github.com"
+          git add rooms/gpu/data/
+          git diff --staged --quiet || git commit -m "Update gpu data $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           git push
