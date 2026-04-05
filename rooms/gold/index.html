@@ -26,6 +26,7 @@
 <script src="../../shared/vendor/tailwindcss.js"></script>
 <script src="../../shared/vendor/chart.umd.min.js"></script>
 <script src="../../shared/vendor/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script src="../../shared/improvement-plans.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
@@ -2566,6 +2567,13 @@
   </section>
 
   <!-- ============================================================ -->
+  <!-- SECTION: IMPROVEMENT PLANS -->
+  <!-- ============================================================ -->
+  <section class="full-width fade-in" id="sec-improvement-plans" style="animation-delay:0.77s">
+    <div id="improvement-plans"></div>
+  </section>
+
+  <!-- ============================================================ -->
   <!-- SECTION: PORTFOLIO CALCULATOR -->
   <!-- ============================================================ -->
   <section class="full-width card fade-in" id="sec-calc" style="animation-delay:0.8s">
@@ -2633,6 +2641,65 @@
 // =====================================================================
 // GOLD SITUATION ROOM -- Main Application
 // =====================================================================
+
+// Improvement plans (shared module)
+if (window.SR && window.SR.renderImprovementPlans) {
+  window.SR.renderImprovementPlans('#improvement-plans', {
+    accent: '#ffd700',
+    title: 'Improvement plans',
+    subtitle: 'Specific upgrades to increase signal quality, reduce noise, and tighten decision loops.',
+    plans: [
+      {
+        title: 'Auto “regime summary” (1 screen)',
+        blurb: 'Generate a short daily regime summary: trend, risk, catalysts, and top 3 actions.',
+        tags: ['Signal', 'UX'],
+        horizon: '1–2 weeks',
+        status: 'Planned',
+        metrics: [
+          { label: 'Output', value: 'Daily 5-line summary' },
+          { label: 'Alert', value: 'Regime flip' }
+        ],
+        bullets: [
+          'Use composite score + macro regime + key levels.',
+          'Include “what would change my mind” checklist.'
+        ]
+      },
+      {
+        title: 'Alert engine (local + optional webhooks)',
+        blurb: 'Add a unified alert hub: price thresholds, RSI zones, lease spikes, backwardation, and CB buying.',
+        tags: ['Alerts', 'Reliability'],
+        horizon: '2–3 weeks',
+        status: 'Planned',
+        bullets: [
+          'Consolidate current price alerts + market alerts strip.',
+          'Optional: webhook integration (Slack/Telegram) later.'
+        ]
+      },
+      {
+        title: 'Data quality + caching layer',
+        blurb: 'Cache the last good payload and show stale badges rather than blank sections when endpoints fail.',
+        tags: ['Reliability'],
+        horizon: '1 week',
+        status: 'Planned',
+        bullets: [
+          'LocalStorage cache with TTL per endpoint.',
+          'Stale badge: >3h (hourly), >10d (weekly), etc.'
+        ]
+      },
+      {
+        title: 'Positioning dashboard (options + flows)',
+        blurb: 'Add simple call/put skew proxy + dealer gamma note + ETF flow momentum.',
+        tags: ['Positioning'],
+        horizon: '3–4 weeks',
+        status: 'Planned',
+        bullets: [
+          'Start with proxies and clear methodology notes.',
+          'Highlight “pain trade” levels into key events.'
+        ]
+      }
+    ]
+  });
+}
 
 // Chart.js global defaults
 Chart.defaults.color = '#888888';

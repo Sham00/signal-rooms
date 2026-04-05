@@ -14,6 +14,7 @@
 <script src="../../shared/vendor/tailwindcss.js"></script>
 <script src="../../shared/vendor/chart.umd.min.js"></script>
 <script src="../../shared/vendor/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script src="../../shared/improvement-plans.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
@@ -565,6 +566,9 @@
 
     </div>
 
+    <!-- Improvement plans -->
+    <div id="improvement-plans" class="card" style="margin-bottom: 24px;"></div>
+
   </div><!-- /#dashboard -->
 </main>
 
@@ -804,6 +808,65 @@
 
   // Legacy ETFs table + older Yahoo-finance history wiring removed.
   // This room now reads from data/summary.json + data/prices_30d.json only.
+
+  // Improvement plans (shared module)
+  if (window.SR && window.SR.renderImprovementPlans) {
+    window.SR.renderImprovementPlans('#improvement-plans', {
+      accent: '#fb923c',
+      title: 'Improvement plans',
+      subtitle: 'Upgrade this room into a real-time energy regime dashboard: supply, demand, geopolitics, and positioning.',
+      plans: [
+        {
+          title: 'Energy regime score (risk-on / risk-off)',
+          blurb: 'Combine WTI trend, crack spreads, DXY, and inflation expectations into a single regime label.',
+          tags: ['Signal', 'Macro'],
+          horizon: '2–3 weeks',
+          status: 'Planned',
+          metrics: [
+            { label: 'Output', value: 'Regime label + score' },
+            { label: 'Alert', value: 'Regime flips' }
+          ],
+          bullets: [
+            'Keep logic transparent: show factor contributions.',
+            'Trigger alerts on crossovers or volatility spikes.'
+          ]
+        },
+        {
+          title: 'Inventory + supply constraints',
+          blurb: 'Add EIA crude/product inventory deltas, SPR changes, and OPEC+ quota headlines.',
+          tags: ['Supply', 'Catalysts'],
+          horizon: '1–2 weeks',
+          status: 'Planned',
+          bullets: [
+            'Highlight “surprise draws” vs expectations.',
+            'Add an OPEC decision countdown.'
+          ]
+        },
+        {
+          title: 'Geopolitical risk monitor',
+          blurb: 'Track risk-premium proxies (Brent-WTI, tanker rates, Middle East risk headlines).',
+          tags: ['Risk'],
+          horizon: '2 weeks',
+          status: 'Planned',
+          bullets: [
+            'Badge when spreads widen materially.',
+            'Curate 5 headlines with sentiment.'
+          ]
+        },
+        {
+          title: 'Data resiliency + cache',
+          blurb: 'Cache last good payload and mark stale tiles instead of going blank.',
+          tags: ['Reliability'],
+          horizon: '1 week',
+          status: 'Planned',
+          bullets: [
+            'LocalStorage cache with TTL.',
+            'Visual “stale data” chip if > 3h old.'
+          ]
+        }
+      ]
+    });
+  }
 
 // ── Show dashboard ───────────────────────────────────────────
   document.getElementById('loading-state').style.display = 'none';
