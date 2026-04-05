@@ -16,7 +16,20 @@ from pathlib import Path
 import math
 import feedparser
 import requests
-import yfinance as yf
+"""NOTE: This fetcher intentionally avoids hard deps.
+
+The repo's top-level scripts/requirements.txt intentionally avoids yfinance/pandas
+so the data pipeline can run on minimal Python installs and remain Pages-friendly.
+
+We therefore treat yfinance as *optional*: if it's not installed, we keep the
+existing JSON files in place and exit cleanly so `scripts/fetch_all.sh` can still
+refresh the other rooms.
+"""
+
+try:
+    import yfinance as yf  # optional
+except Exception:  # pragma: no cover
+    yf = None
 
 def import_isnan(v):
     """Safe NaN check for pandas floats."""
@@ -4018,6 +4031,9 @@ def fetch_seasonality():
 
 
 def main():
+    if yf is None:
+        print("[gold] yfinance not installed; skipping gold refresh and keeping existing data files.")
+        return
     print("=" * 60)
     print("Gold Situation Room — Data Fetch")
     print(f"Time: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}")
