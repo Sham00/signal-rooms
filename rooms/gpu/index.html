@@ -1,16 +1,655 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GPU / AI Compute — Signal Rooms</title>
-  <style>body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:#0b0f17;color:#e5e7eb} .wrap{max-width:900px;margin:0 auto;padding:28px 16px} a{color:#fbbf24}</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPU / AI Compute — Signal Rooms</title>
+<meta name="description" content="Real-time GPU and AI compute sector dashboard — NVIDIA, AMD, SMCI, TSMC, ASML, AMAT, SOXX, SMH. Track semiconductor performance, sector signals, and key AI infrastructure catalysts.">
+<meta property="og:title" content="GPU / AI Compute — Signal Rooms">
+<meta property="og:description" content="NVIDIA, AMD, SMCI, TSMC, ASML, AMAT performance dashboard with sector signal and 1-year relative performance chart.">
+<meta property="og:url" content="https://sham00.github.io/signal-rooms/rooms/gpu/">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#22d3ee">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://sham00.github.io/signal-rooms/rooms/gpu/">
+
+<!-- Analytics: replace the comment below with your GA4 snippet or Plausible script tag.
+     See README § Analytics for instructions. -->
+<!-- ANALYTICS_PLACEHOLDER -->
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --bg:         #0b0f17;
+    --card-bg:    #111827;
+    --card-border:#1f2937;
+    --indigo:     #818cf8;
+    --indigo-dim: #4f46e5;
+    --cyan:       #22d3ee;
+    --green:      #10b981;
+    --amber:      #f59e0b;
+    --red:        #ef4444;
+    --text:       #f1f5f9;
+    --text2:      #94a3b8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, sans-serif;
+    min-height: 100vh;
+  }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--indigo); }
+
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 28px 16px 60px; }
+
+  /* Room header */
+  .room-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .room-title { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+  .room-title span { color: var(--indigo); }
+  .room-sub { color: var(--text2); font-size: 13px; margin-top: 4px; }
+  .freshness {
+    font-size: 11px;
+    color: var(--text2);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    white-space: nowrap;
+    align-self: flex-start;
+    margin-top: 4px;
+  }
+  .freshness b { color: var(--green); }
+
+  /* Section titles */
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text2);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--card-border);
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+
+  /* Grid helpers */
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  @media (max-width: 900px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+
+  .grid-providers {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 1100px) { .grid-providers { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 750px)  { .grid-providers { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px)  { .grid-providers { grid-template-columns: 1fr; } }
+
+  /* Best deal cards */
+  .deal-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .deal-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--indigo), var(--cyan));
+  }
+  .deal-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); margin-bottom: 8px; }
+  .deal-gpu { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+  .deal-price { font-size: 30px; font-weight: 800; color: var(--indigo); font-family: 'JetBrains Mono', monospace; }
+  .deal-price sub { font-size: 14px; font-weight: 400; color: var(--text2); }
+  .deal-provider { font-size: 13px; color: var(--text2); margin-top: 6px; }
+  .deal-provider b { color: var(--text); }
+  .deal-vram { font-size: 11px; color: var(--text2); margin-top: 4px; }
+
+  /* Supply signal */
+  .signal-bar-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .signal-score { font-size: 36px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+  .signal-score.green  { color: var(--green); }
+  .signal-score.amber  { color: var(--amber); }
+  .signal-score.red    { color: var(--red); }
+  .signal-desc { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .signal-label { font-size: 13px; font-weight: 700; }
+
+  /* Availability table */
+  .avail-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .avail-table th { padding: 8px 12px; text-align: left; color: var(--text2); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--card-border); }
+  .avail-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+  .avail-table tr:last-child td { border-bottom: none; }
+  .avail-table .gpu-name { font-weight: 600; }
+  .badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge-green  { background: rgba(16,185,129,0.15); color: #34d399; }
+  .badge-amber  { background: rgba(245,158,11,0.15);  color: #fbbf24; }
+  .badge-red    { background: rgba(239,68,68,0.15);   color: #f87171; }
+  .badge-gray   { background: rgba(148,163,184,0.1);  color: #94a3b8; }
+
+  /* Provider cards */
+  .provider-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 18px;
+  }
+  .provider-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .provider-name { font-size: 15px; font-weight: 700; }
+  .tier-badge {
+    font-size: 10px; font-weight: 700;
+    padding: 2px 7px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .tier-specialist { background: rgba(129,140,248,0.15); color: var(--indigo); }
+  .tier-hyperscaler { background: rgba(34,211,238,0.12); color: var(--cyan); }
+  .tier-marketplace { background: rgba(245,158,11,0.15); color: var(--amber); }
+  .gpu-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 12px; }
+  .gpu-row:last-child { border-bottom: none; }
+  .gpu-row-name { color: var(--text2); }
+  .gpu-row-price { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text); }
+  .gpu-row-vram { color: var(--text2); font-size: 11px; }
+  .spot-tag { font-size: 9px; color: var(--amber); border: 1px solid rgba(245,158,11,0.3); border-radius: 3px; padding: 1px 4px; margin-left: 4px; }
+
+  /* Price matrix table */
+  .matrix-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .matrix-table th { padding: 8px 10px; text-align: left; color: var(--text2); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--card-border); white-space: nowrap; }
+  .matrix-table td { padding: 9px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); white-space: nowrap; }
+  .matrix-table tr:last-child td { border-bottom: none; }
+  .matrix-table .price-cell { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+  .price-low  { color: var(--green); }
+  .price-mid  { color: var(--text); }
+  .price-high { color: var(--text2); }
+  .matrix-table .provider-col { font-weight: 600; }
+  .matrix-table .model-col { color: var(--indigo); font-weight: 600; }
+  .matrix-table .spot-note { color: var(--amber); font-size: 10px; }
+
+  /* Chart containers */
+  .chart-wrap { position: relative; }
+  .chart-wrap canvas { max-height: 300px; }
+
+  /* Methodology note */
+  .methodology {
+    margin-top: 40px;
+    padding: 16px 20px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.7;
+  }
+  .methodology h4 { color: var(--text); font-size: 13px; margin-bottom: 8px; font-weight: 600; }
+
+  section { margin-bottom: 36px; }
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>🧠 GPU / AI Compute Room</h1>
-    <p><a href="../../">← Back to Signal Rooms</a></p>
-    <p>Stub page. Next build: pricing + availability panels for major providers, plus a "best deal today" alert.</p>
+<script src="../../shared/nav.js"></script>
+
+<div class="wrap">
+
+  <!-- Room header -->
+  <div class="room-header">
+    <div>
+      <div class="room-title">🧠 GPU / <span>AI Compute</span></div>
+      <div class="room-sub">Spot pricing &amp; availability across Lambda, CoreWeave, RunPod, Vast.ai, AWS, GCP, Azure</div>
+    </div>
+    <div class="freshness" id="freshness-badge">
+      Updated: <b id="last-updated">loading…</b>
+    </div>
   </div>
+
+  <!-- Best Deal Today -->
+  <section>
+    <div class="section-title">Best Deal Today</div>
+    <div class="grid-3" id="best-deal-grid">
+      <!-- filled by JS -->
+    </div>
+  </section>
+
+  <!-- Price Comparison Chart + H100 Trend -->
+  <section>
+    <div class="grid-2">
+      <div class="card">
+        <div class="section-title">Spot Price Comparison</div>
+        <div class="room-sub" style="font-size:11px;margin-bottom:14px;">H100 SXM · A100 SXM · L40S — $/hr by provider</div>
+        <div class="chart-wrap">
+          <canvas id="chart-comparison"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">H100 Price Trend</div>
+        <div class="room-sub" style="font-size:11px;margin-bottom:14px;">Lambda Labs on-demand list price (2023–2026)</div>
+        <div class="chart-wrap">
+          <canvas id="chart-trend"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Supply Signal + Availability Table -->
+  <section>
+    <div class="grid-2">
+      <div class="card" id="supply-signal-card">
+        <!-- filled by JS -->
+      </div>
+      <div class="card" style="overflow-x:auto;">
+        <div class="section-title">Availability by GPU</div>
+        <table class="avail-table" id="avail-table">
+          <!-- filled by JS -->
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Provider Cards -->
+  <section>
+    <div class="section-title">Provider Overview</div>
+    <div class="grid-providers" id="provider-grid">
+      <!-- filled by JS -->
+    </div>
+  </section>
+
+  <!-- Full Price Matrix -->
+  <section>
+    <div class="section-title">Full Price Matrix</div>
+    <div class="card" style="overflow-x:auto;">
+      <table class="matrix-table" id="matrix-table">
+        <!-- filled by JS -->
+      </table>
+    </div>
+  </section>
+
+  <!-- Methodology -->
+  <div class="methodology">
+    <h4>Data Methodology</h4>
+    <p>
+      <strong>Specialist clouds (Lambda, CoreWeave, RunPod):</strong> On-demand list prices from provider websites.
+      Updated by <code>fetch_data.py</code> (Lambda Labs public API + manual cross-check for others) via GitHub Actions daily.
+      <strong>Vast.ai:</strong> Median spot prices from marketplace; actual bids vary ±20%.
+      <strong>Hyperscalers (AWS, GCP, Azure):</strong> On-demand list price per GPU, computed by dividing multi-GPU instance cost by GPU count.
+      Hyperscaler prices rarely change — updated manually.
+      <br /><br />
+      <strong>H100 Trend:</strong> Lambda Labs on-demand list price history compiled from public posts, pricing page snapshots, and community tracking.
+      Not financial advice. Prices change without notice — always verify on provider websites before purchasing.
+    </p>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+'use strict';
+
+const CHART_DEFAULTS = {
+  color: '#94a3b8',
+  font: { family: "'Inter', sans-serif", size: 11 },
+};
+Chart.defaults.color = CHART_DEFAULTS.color;
+Chart.defaults.font  = CHART_DEFAULTS.font;
+
+// ── helpers ─────────────────────────────────────────────────────────────────
+function fmtPrice(p) {
+  return '$' + p.toFixed(2);
+}
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+}
+
+function badgeClass(status) {
+  const map = { available: 'badge-green', limited: 'badge-amber', waitlist: 'badge-red', unavailable: 'badge-gray', 'n/a': 'badge-gray' };
+  return map[status] || 'badge-gray';
+}
+
+function tierClass(tier) {
+  const map = { specialist: 'tier-specialist', hyperscaler: 'tier-hyperscaler', marketplace: 'tier-marketplace' };
+  return map[tier] || 'tier-specialist';
+}
+
+// ── render functions ─────────────────────────────────────────────────────────
+function renderBestDeal(providers) {
+  const targets = [
+    { label: 'Cheapest H100 SXM',  match: m => m.model.includes('H100'),  unit: '80GB VRAM' },
+    { label: 'Cheapest A100 SXM',  match: m => m.model.includes('A100') && m.vram_gb >= 40, unit: '≥40GB VRAM' },
+    { label: 'Cheapest RTX 4090',  match: m => m.model.includes('4090'),  unit: '24GB VRAM' },
+  ];
+
+  const deals = targets.map(t => {
+    let best = null;
+    providers.forEach(p => {
+      p.gpus.forEach(g => {
+        if (t.match(g) && g.available && (!best || g.price_hr < best.price)) {
+          best = { price: g.price_hr, provider: p.name, vram: g.vram_gb, spot: g.spot, model: g.model };
+        }
+      });
+    });
+    return { label: t.label, unit: t.unit, best };
+  });
+
+  const grid = document.getElementById('best-deal-grid');
+  grid.innerHTML = deals.map(d => {
+    if (!d.best) return `<div class="deal-card"><div class="deal-label">${d.label}</div><div class="deal-provider" style="margin-top:8px">No data</div></div>`;
+    return `
+      <div class="deal-card">
+        <div class="deal-label">${d.label}</div>
+        <div class="deal-gpu">${d.best.model}</div>
+        <div class="deal-price">${fmtPrice(d.best.price)}<sub>/hr</sub></div>
+        <div class="deal-provider">at <b>${d.best.provider}</b>${d.best.spot ? ' <span class="spot-tag">SPOT</span>' : ''}</div>
+        <div class="deal-vram">${d.best.vram}GB VRAM · on-demand</div>
+      </div>`;
+  }).join('');
+}
+
+function renderComparison(providers) {
+  const providerOrder = ['lambda','coreweave','runpod','vastai','aws','gcp','azure'];
+  const gpuModels = [
+    { label: 'H100 SXM', match: g => g.model.includes('H100'), color: '#818cf8' },
+    { label: 'A100 SXM', match: g => g.model.includes('A100') && g.vram_gb >= 40, color: '#22d3ee' },
+    { label: 'L40S / equiv', match: g => g.model.includes('L40S') || g.model.includes('L4'), color: '#10b981' },
+  ];
+
+  const sortedProviders = providerOrder
+    .map(id => providers.find(p => p.id === id))
+    .filter(Boolean);
+
+  const labels = sortedProviders.map(p => p.name.replace('Google Cloud','GCP').replace('Microsoft ',''));
+
+  const datasets = gpuModels.map(gm => ({
+    label: gm.label,
+    backgroundColor: gm.color + 'cc',
+    borderColor: gm.color,
+    borderWidth: 1,
+    borderRadius: 4,
+    data: sortedProviders.map(p => {
+      const gpu = p.gpus.find(gm.match);
+      return gpu ? gpu.price_hr : null;
+    }),
+  }));
+
+  new Chart(document.getElementById('chart-comparison'), {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 14 } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': ' + (ctx.parsed.y !== null ? fmtPrice(ctx.parsed.y) + '/hr' : 'N/A'),
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { maxRotation: 30 } },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { callback: v => '$' + v.toFixed(2) },
+          title: { display: true, text: '$/hr', color: '#94a3b8' },
+        }
+      }
+    }
+  });
+}
+
+function renderTrend(trends) {
+  const h100 = trends.h100_sxm_lambda;
+  const a100 = trends.a100_sxm_lambda;
+
+  new Chart(document.getElementById('chart-trend'), {
+    type: 'line',
+    data: {
+      datasets: [
+        {
+          label: 'H100 SXM (Lambda)',
+          data: h100.map(d => ({ x: d.date, y: d.price_hr })),
+          borderColor: '#818cf8',
+          backgroundColor: 'rgba(129,140,248,0.08)',
+          tension: 0.35,
+          fill: true,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#818cf8',
+        },
+        {
+          label: 'A100 SXM (Lambda)',
+          data: a100.map(d => ({ x: d.date, y: d.price_hr })),
+          borderColor: '#22d3ee',
+          backgroundColor: 'rgba(34,211,238,0.06)',
+          tension: 0.35,
+          fill: true,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#22d3ee',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 14 } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': ' + fmtPrice(ctx.parsed.y) + '/hr',
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'time',
+          time: { unit: 'month', displayFormats: { month: 'MMM yy' } },
+          grid: { color: 'rgba(255,255,255,0.04)' },
+        },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { callback: v => '$' + v.toFixed(2) },
+          title: { display: true, text: '$/hr', color: '#94a3b8' },
+        }
+      }
+    }
+  });
+}
+
+function renderSupplySignal(avail) {
+  const s = avail.supply_signal;
+  const scoreClass = s.color === 'green' ? 'green' : s.color === 'red' ? 'red' : 'amber';
+  document.getElementById('supply-signal-card').innerHTML = `
+    <div class="section-title">Supply Tightness Signal</div>
+    <div class="signal-bar-wrap">
+      <div class="signal-score ${scoreClass}">${s.score}</div>
+      <div>
+        <div class="signal-label">${s.label}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:3px;">score 0 (surplus) → 100 (severe shortage)</div>
+      </div>
+    </div>
+    <div class="signal-desc">${s.summary}</div>
+    <div style="font-size:11px;color:var(--text2);margin-top:10px;line-height:1.5;">${s.key_driver}</div>
+  `;
+}
+
+function renderAvailabilityTable(avail) {
+  const rows = avail.gpu_availability;
+  const thead = `
+    <thead>
+      <tr>
+        <th>GPU</th>
+        <th>Specialist</th>
+        <th>Hyperscaler</th>
+        <th>Marketplace</th>
+        <th>Waitlist</th>
+      </tr>
+    </thead>`;
+  const tbody = '<tbody>' + rows.map(r => `
+    <tr>
+      <td class="gpu-name">${r.model}</td>
+      <td><span class="badge ${badgeClass(r.specialist_cloud)}">${avail.availability_labels[r.specialist_cloud]?.label ?? r.specialist_cloud}</span></td>
+      <td><span class="badge ${badgeClass(r.hyperscaler)}">${avail.availability_labels[r.hyperscaler]?.label ?? r.hyperscaler}</span></td>
+      <td><span class="badge ${badgeClass(r.marketplace)}">${avail.availability_labels[r.marketplace]?.label ?? r.marketplace}</span></td>
+      <td style="font-size:11px;color:var(--text2);">${r.waitlist_weeks > 0 ? r.waitlist_weeks + 'w' : '—'}</td>
+    </tr>`).join('') + '</tbody>';
+  document.getElementById('avail-table').innerHTML = thead + tbody;
+}
+
+function renderProviderCards(providers) {
+  const grid = document.getElementById('provider-grid');
+  grid.innerHTML = providers.map(p => {
+    const gpuRows = p.gpus.map(g => `
+      <div class="gpu-row">
+        <div>
+          <span class="gpu-row-name">${g.model}</span>
+          ${g.spot ? '<span class="spot-tag">SPOT</span>' : ''}
+          <div class="gpu-row-vram">${g.vram_gb}GB VRAM</div>
+        </div>
+        <div class="gpu-row-price">${fmtPrice(g.price_hr)}<span style="color:var(--text2);font-size:10px;font-weight:400;">/hr</span></div>
+      </div>`).join('');
+    return `
+      <div class="provider-card">
+        <div class="provider-header">
+          <div class="provider-name">${p.name}</div>
+          <span class="tier-badge ${tierClass(p.tier)}">${p.tier}</span>
+        </div>
+        ${gpuRows}
+        ${p.note ? `<div style="font-size:10px;color:var(--text2);margin-top:10px;line-height:1.4;">${p.note}</div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function renderMatrix(providers) {
+  // Flatten all rows: provider × GPU
+  const rows = [];
+  providers.forEach(p => {
+    p.gpus.forEach(g => {
+      rows.push({ provider: p.name, tier: p.tier, model: g.model, vram: g.vram_gb, price: g.price_hr, spot: g.spot, available: g.available });
+    });
+  });
+
+  // Sort by GPU model then price
+  const modelOrder = ['H100', 'H200', 'B200', 'A100', 'L40S', 'RTX 4090', 'L4', 'A10', 'T4', 'V100'];
+  rows.sort((a, b) => {
+    const ai = modelOrder.findIndex(m => a.model.includes(m));
+    const bi = modelOrder.findIndex(m => b.model.includes(m));
+    if (ai !== bi) return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+    return a.price - b.price;
+  });
+
+  // Color prices: lowest for each model group = green
+  const modelGroups = {};
+  rows.forEach(r => {
+    const key = modelOrder.find(m => r.model.includes(m)) || r.model;
+    if (!modelGroups[key] || r.price < modelGroups[key]) modelGroups[key] = r.price;
+  });
+
+  const thead = `
+    <thead>
+      <tr>
+        <th>GPU Model</th>
+        <th>Provider</th>
+        <th>Tier</th>
+        <th>VRAM</th>
+        <th>$/hr</th>
+        <th>Type</th>
+      </tr>
+    </thead>`;
+
+  const tbody = '<tbody>' + rows.map(r => {
+    const key = modelOrder.find(m => r.model.includes(m)) || r.model;
+    const isCheapest = r.price === modelGroups[key];
+    const priceClass = isCheapest ? 'price-low' : r.price > modelGroups[key] * 1.5 ? 'price-high' : 'price-mid';
+    return `
+      <tr>
+        <td class="model-col">${r.model}</td>
+        <td class="provider-col">${r.provider}</td>
+        <td><span class="badge ${tierClass(r.tier) === 'tier-specialist' ? 'badge-green' : tierClass(r.tier) === 'tier-marketplace' ? 'badge-amber' : 'badge-gray'}" style="font-size:10px;">${r.tier}</span></td>
+        <td style="color:var(--text2);">${r.vram}GB</td>
+        <td class="price-cell ${priceClass}">${fmtPrice(r.price)}${isCheapest ? ' ★' : ''}</td>
+        <td style="color:var(--text2);font-size:11px;">${r.spot ? '<span class="spot-note">spot</span>' : 'on-demand'}</td>
+      </tr>`;
+  }).join('') + '</tbody>';
+
+  document.getElementById('matrix-table').innerHTML = thead + tbody;
+}
+
+// ── data loading ─────────────────────────────────────────────────────────────
+async function loadData() {
+  try {
+    const [provData, trendData, availData] = await Promise.all([
+      fetch('./data/providers.json').then(r => r.json()),
+      fetch('./data/trends.json').then(r => r.json()),
+      fetch('./data/availability.json').then(r => r.json()),
+    ]);
+
+    // Update freshness badge
+    const ts = new Date(provData.last_updated);
+    document.getElementById('last-updated').textContent = fmtDate(provData.last_updated);
+
+    const providers = provData.providers;
+
+    renderBestDeal(providers);
+    renderComparison(providers);
+    renderTrend(trendData);
+    renderSupplySignal(availData);
+    renderAvailabilityTable(availData);
+    renderProviderCards(providers);
+    renderMatrix(providers);
+
+  } catch (err) {
+    console.error('Failed to load GPU data:', err);
+    document.getElementById('freshness-badge').textContent = 'Data load error — check console';
+  }
+}
+
+loadData();
+</script>
 </body>
 </html>

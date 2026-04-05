@@ -1,0 +1,95 @@
+{
+  "last_updated": "2026-04-05T13:25:13Z",
+  "source": "Manual dataset compiled from Lambda Labs public pricing history and community tracking (reddit.com/r/MachineLearning, Tim Dettmers GPU pricing posts)",
+  "note": "Lambda Labs H100 SXM on-demand list price. Reflects specialist cloud segment; marketplace/spot prices are typically 10-30% lower.",
+  "h100_sxm_lambda": [
+    {
+      "date": "2023-08-01",
+      "price_hr": 4.99,
+      "note": "Peak scarcity \u2014 H100 backorders 6-12mo everywhere"
+    },
+    {
+      "date": "2023-10-01",
+      "price_hr": 4.5
+    },
+    {
+      "date": "2024-01-01",
+      "price_hr": 3.79,
+      "note": "First wave of H100 supply from TSMC N4 ramp"
+    },
+    {
+      "date": "2024-03-01",
+      "price_hr": 3.29
+    },
+    {
+      "date": "2024-05-01",
+      "price_hr": 2.99
+    },
+    {
+      "date": "2024-07-01",
+      "price_hr": 2.8
+    },
+    {
+      "date": "2024-09-01",
+      "price_hr": 2.65,
+      "note": "Broad supply normalization; hyperscaler oversupply begins"
+    },
+    {
+      "date": "2024-11-01",
+      "price_hr": 2.59
+    },
+    {
+      "date": "2025-01-01",
+      "price_hr": 2.49,
+      "note": "H200 launches, shifts premium demand; H100 further commoditizes"
+    },
+    {
+      "date": "2025-04-01",
+      "price_hr": 2.49
+    },
+    {
+      "date": "2025-07-01",
+      "price_hr": 2.35,
+      "note": "B200/GB200 ramp absorbs new training demand; H100 inference-only"
+    },
+    {
+      "date": "2025-10-01",
+      "price_hr": 2.45,
+      "note": "LLM inference demand uptick lifts H100 slightly"
+    },
+    {
+      "date": "2026-01-01",
+      "price_hr": 2.49
+    },
+    {
+      "date": "2026-04-01",
+      "price_hr": 2.49
+    }
+  ],
+  "a100_sxm_lambda": [
+    {
+      "date": "2023-08-01",
+      "price_hr": 2.21
+    },
+    {
+      "date": "2024-01-01",
+      "price_hr": 1.99
+    },
+    {
+      "date": "2024-07-01",
+      "price_hr": 1.55
+    },
+    {
+      "date": "2025-01-01",
+      "price_hr": 1.29
+    },
+    {
+      "date": "2026-01-01",
+      "price_hr": 1.29
+    },
+    {
+      "date": "2026-04-01",
+      "price_hr": 1.29
+    }
+  ]
+}
