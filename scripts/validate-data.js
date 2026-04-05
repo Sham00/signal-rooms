@@ -91,7 +91,7 @@ function main() {
   // GPU
   validateRoomHistory(path.join(repoRoot, 'data', 'gpu', 'history.json'), 'gpu');
 
-  // Extend to other rooms later; keep this scoped.
+  // Extend to other rooms later; keep this scoped and dependency-free.
 
   if (process.exitCode === 1) {
     console.error('One or more validations failed.');

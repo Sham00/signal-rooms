@@ -641,10 +641,11 @@
     prices  = await r1.json();
     history = await r2.json();
 
-    // If the new pipeline hasn't produced usable data yet, but the legacy
-    // yfinance files exist, synthesize the expected shapes on the fly.
+    // If the new pipeline produced empty payloads (common when Stooq blocks),
+    // but the legacy yfinance files exist, synthesize the expected shapes.
     var hasNew = prices && prices.latest && Object.keys(prices.latest).length;
     var hasSeries = history && history.series && Object.keys(history.series).length;
+
     if ((!hasNew || !hasSeries) && rLegacyPrices && rLegacyPrices.ok && rLegacyHist && rLegacyHist.ok) {
       try {
         var legacyPrices = await rLegacyPrices.json();
@@ -685,7 +686,17 @@
         adoptSeries('brent', t['BZ=F']);
         adoptSeries('natgas', t['NG=F']);
         adoptSeries('xle', t['XLE']);
+
+        // If we had to fall back, make it explicit in the UI so "empty" isn't silent.
+        prices.fallback = { used: true, source: 'legacy-yfinance' };
       } catch (_) {}
+    }
+
+    // If we're still empty, show a friendly message instead of a blank dashboard.
+    var stillEmpty = !(prices && prices.latest && Object.keys(prices.latest).length) ||
+                     !(history && history.series && Object.keys(history.series).length);
+    if (stillEmpty) {
+      throw new Error('Oil & Gas data is currently empty (source may be blocking automated fetch).');
     }
   } catch (err) {
     console.error('[oil-gas] Data load error:', err);

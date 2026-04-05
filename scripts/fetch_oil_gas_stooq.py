@@ -40,7 +40,8 @@ def now_utc_iso() -> str:
 
 
 def stooq_csv_url(symbol: str) -> str:
-    return f"https://stooq.com/q/d/l/?s={symbol}&i=d"
+    # Add a harmless cache-buster; Stooq sometimes serves empty bodies.
+    return f"https://stooq.com/q/d/l/?s={symbol}&i=d&_={int(datetime.now(timezone.utc).timestamp())}"
 
 
 @dataclass
