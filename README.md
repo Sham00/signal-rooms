@@ -29,6 +29,10 @@ The site deploys automatically via `.github/workflows/pages.yml` on every push t
 2. Under **Build and deployment → Source**, select **GitHub Actions**
 3. The next push to `main` will deploy to `https://sham00.github.io/signal-rooms/`
 
+> **Note:** The workflow includes `enablement: true` in the `configure-pages` step, which will attempt to auto-enable Pages via the API on first run. If it fails, complete the manual step above.
+
+All rooms are served from the repo root. Vendor JS (Chart.js, date adapter) lives in `shared/vendor/` and is committed — no build step needed.
+
 ---
 
 ## Analytics
@@ -55,6 +59,12 @@ Substitute your measurement ID for `G-XXXXXXXXXX`.
 ```html
 <script defer data-domain="sham00.github.io" src="https://plausible.io/js/script.js"></script>
 ```
+
+### Option C — Cloudflare Web Analytics (free, no cookie banner)
+
+1. Enable Web Analytics in your Cloudflare dashboard → **Web Analytics → Add a site**
+2. Copy the JS snippet (looks like `<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token":"YOUR_TOKEN"}'></script>`)
+3. Replace `<!-- ANALYTICS_PLACEHOLDER -->` in each page with that snippet
 
 Pages that need the placeholder replaced:
 - `index.html` (hub)
