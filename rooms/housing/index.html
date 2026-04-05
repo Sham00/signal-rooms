@@ -15,6 +15,7 @@
 
 <script src="../../shared/vendor/chart.umd.min.js"></script>
 <script src="../../shared/vendor/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script src="../../shared/improvement-plans.js"></script>
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
@@ -341,6 +342,9 @@
     </ul>
   </div>
 
+  <!-- Improvement plans -->
+  <div id="improvement-plans" style="margin-top:28px;"></div>
+
   <!-- Footer -->
   <div class="footer">
     <span>Data: FRED / Freddie Mac PMMS · St. Louis Fed (MORTGAGE30US, DGS10, MSPUS)</span>
@@ -348,6 +352,67 @@
   </div>
 
 </main>
+
+<script>
+  // Improvement plans (shared module)
+  if (window.SR && window.SR.renderImprovementPlans) {
+    window.SR.renderImprovementPlans('#improvement-plans', {
+      accent: '#4ade80',
+      title: 'Improvement plans',
+      subtitle: 'Make the housing room a weekly decision engine: rates, affordability, inventory, and regional divergence.',
+      plans: [
+        {
+          title: 'Affordability stress index',
+          blurb: 'Combine mortgage rates + prices + incomes into a single affordability score and trend.',
+          tags: ['Signal', 'Macro'],
+          horizon: '2–3 weeks',
+          status: 'Planned',
+          metrics: [
+            { label: 'Output', value: '0–100 affordability score' },
+            { label: 'Alert', value: 'Stress regime flips' }
+          ],
+          bullets: [
+            'Inputs: 30Y fixed, 10Y, Case-Shiller, wages (FRED).',
+            'Show percentile vs 20-year history.'
+          ]
+        },
+        {
+          title: 'Inventory + time-on-market dashboard',
+          blurb: 'Add active listings, months supply, and median DOM to detect turn points before prices move.',
+          tags: ['Supply', 'Timing'],
+          horizon: '1–2 weeks',
+          status: 'Planned',
+          bullets: [
+            'Track YoY changes; highlight inflection points.',
+            'Add metro heatmap (Austin, Phoenix, Tampa, etc.).'
+          ]
+        },
+        {
+          title: 'Rate-cut sensitivity scenarios',
+          blurb: 'What happens to affordability and payments at 7.0% → 6.0% → 5.0% mortgage rates?',
+          tags: ['Scenarios'],
+          horizon: '1 week',
+          status: 'Planned',
+          bullets: [
+            'Interactive payment calculator + breakeven vs rent.',
+            'Show implied price support from lower rates.'
+          ]
+        },
+        {
+          title: 'Data freshness + source transparency',
+          blurb: 'Make it obvious what is weekly vs monthly and mark stale tiles instead of going blank.',
+          tags: ['Reliability'],
+          horizon: '1 week',
+          status: 'Planned',
+          bullets: [
+            'Add “as of” chips on every module.',
+            'Cache last good payload to avoid blank states.'
+          ]
+        }
+      ]
+    });
+  }
+</script>
 
 <script>
 (function () {

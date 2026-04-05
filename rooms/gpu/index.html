@@ -20,6 +20,7 @@
 <script src="../../shared/vendor/tailwindcss.js"></script>
 <script src="../../shared/vendor/chart.umd.min.js"></script>
 <script src="../../shared/vendor/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script src="../../shared/improvement-plans.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
@@ -467,6 +468,11 @@
     </div>
   </section>
 
+  <!-- Improvement plans -->
+  <section style="margin-bottom:32px;">
+    <div id="improvement-plans"></div>
+  </section>
+
 </main>
 
 <!-- FOOTER -->
@@ -712,6 +718,65 @@
   }
   heroGrid(); holdingsGrid();
   window.addEventListener('resize', function () { heroGrid(); holdingsGrid(); });
+
+  // ── Improvement plans (shared module) ───────────────────────────────────
+  if (window.SR && window.SR.renderImprovementPlans) {
+    window.SR.renderImprovementPlans('#improvement-plans', {
+      accent: '#22d3ee',
+      title: 'Improvement plans',
+      subtitle: 'Make this room faster, more actionable, and more "always-on" for AI infra catalysts.',
+      plans: [
+        {
+          title: 'Supply / demand: "compute tightness" index',
+          blurb: 'Turn lead-times + hyperscaler capex into a simple 0–100 tightness score with trend and alerts.',
+          tags: ['Signal', 'Catalysts'],
+          horizon: '2–3 weeks',
+          status: 'Planned',
+          metrics: [
+            { label: 'Output', value: 'Tightness score + weekly delta' },
+            { label: 'Alert', value: 'Lead-time compression / expansion' }
+          ],
+          bullets: [
+            'Inputs: H100/B200 lead times, HBM pricing prints, hyperscaler capex guidance.',
+            'Alert when score flips regime (bullish → neutral → pressure).'
+          ]
+        },
+        {
+          title: 'Earnings & guidance calendar',
+          blurb: 'Add upcoming earnings dates (NVDA/AMD/TSMC/ASML/AMAT) + a 48h volatility window flag.',
+          tags: ['Checklist', 'Timing'],
+          horizon: '1 week',
+          status: 'Planned',
+          bullets: [
+            'Show next 6 events with local timestamps.',
+            'Auto-highlight events within 7 days.'
+          ]
+        },
+        {
+          title: 'Breadth + risk overlay (SOXX / SPX beta)',
+          blurb: 'Track sector breadth and beta to detect rotation vs. idiosyncratic weakness.',
+          tags: ['Risk', 'Breadth'],
+          horizon: '1–2 weeks',
+          status: 'Planned',
+          bullets: [
+            'Add SOXX/SMH vs SPX relative strength line.',
+            'Flag “risk-off” regimes (beta spike, breadth collapse).'
+          ]
+        },
+        {
+          title: 'Data resiliency + cache',
+          blurb: 'Reduce blank states by caching last good payload and showing "stale" badges when fetch fails.',
+          tags: ['Reliability'],
+          horizon: '1 week',
+          status: 'Planned',
+          bullets: [
+            'LocalStorage cache with TTL.',
+            'Visual “stale data” chip if > 3h old.'
+          ]
+        }
+      ]
+    });
+  }
 
 })();
 </script>
