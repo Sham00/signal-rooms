@@ -35,13 +35,34 @@ def utc_now_iso() -> str:
 
 
 def fetch_stooq_daily_csv(symbol: str) -> list[dict]:
-    url = f"https://stooq.com/q/d/l/?s={symbol}&i=d"
-    req = Request(url, headers={"User-Agent": "signal-rooms/1.0"})
-    with urlopen(req, timeout=30) as resp:
-        text = resp.read().decode("utf-8", errors="replace")
+    # Stooq intermittently blocks automated downloads (often returning an empty body).
+    # We try a couple of variants to reduce false-empties, then fall back to "no data".
+    urls = [
+        f"https://stooq.com/q/d/l/?s={symbol}&i=d",
+        f"https://stooq.pl/q/d/l/?s={symbol}&i=d",
+    ]
+
+    text = ""
+    last_err = None
+    for url in urls:
+        try:
+            req = Request(
+                url,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123 Safari/537.36",
+                    "Accept": "text/csv,text/plain,*/*",
+                    "Accept-Language": "en-US,en;q=0.9",
+                },
+            )
+            with urlopen(req, timeout=30) as resp:
+                text = resp.read().decode("utf-8", errors="replace")
+            if text.strip() and not text.lstrip().lower().startswith("error"):
+                break
+        except Exception as e:
+            last_err = e
+            continue
 
     # In some environments Stooq returns an empty body (or an error.csv download).
-    # Guard so we don't silently write empty datasets.
     if not text.strip() or text.lstrip().lower().startswith("error"):
         return []
 
