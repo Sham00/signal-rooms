@@ -50,6 +50,13 @@ class Point:
 
 
 def fetch_stooq_daily_closes(symbol: str, limit: int = 400) -> List[Point]:
+    """Fetch daily closes from Stooq.
+
+    NOTE: Stooq sometimes returns HTTP 200 with an "error.csv" attachment or
+    other non-CSV bodies when it doesn't like automated traffic. We treat that
+    as a soft failure and return [].
+    """
+
     url = stooq_csv_url(symbol)
     try:
         req = urllib.request.Request(
@@ -61,21 +68,31 @@ def fetch_stooq_daily_closes(symbol: str, limit: int = 400) -> List[Point]:
             },
         )
         with urllib.request.urlopen(req, timeout=30) as resp:
-            text = resp.read().decode("utf-8", errors="replace")
+            body = resp.read().decode("utf-8", errors="replace")
+            cd = (resp.headers.get("Content-Disposition") or "").lower()
+            ct = (resp.headers.get("Content-Type") or "").lower()
     except Exception as e:
         print(f"  ERROR fetching {symbol}: {e}")
         return []
 
-    if not text.strip():
+    text = (body or "").strip()
+    if not text:
         print(f"  WARN {symbol}: empty response")
         return []
 
-    low = text.strip().lower()
-    if low.startswith("error"):
-        print(f"  WARN {symbol}: error response")
+    low = text.lower()
+
+    # Common Stooq anti-bot responses.
+    if "filename=error.csv" in cd or low.startswith("error"):
+        print(f"  WARN {symbol}: stooq returned error.csv")
         return []
     if "write to www@stooq.com" in low:
         print(f"  WARN {symbol}: stooq blocked automated downloads")
+        return []
+
+    # Validate this looks like Stooq OHLC CSV.
+    if "date," not in low.splitlines()[0]:
+        print(f"  WARN {symbol}: unexpected content-type/body (ct={ct})")
         return []
 
     rows = list(csv.DictReader(text.splitlines()))
