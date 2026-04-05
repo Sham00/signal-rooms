@@ -88,3 +88,33 @@
 @media (max-width: 520px) {
   #sr-nav .sr-rooms { display: none; }
 }
+
+/* Footer */
+#sr-footer {
+  border-top: 1px solid var(--sr-line, #1f2937);
+  background: rgba(11, 15, 23, 0.94);
+  color: var(--sr-muted, #9ca3af);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  font-size: 12px;
+}
+
+#sr-footer .sr-footer-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+#sr-footer a {
+  color: var(--sr-text, #e5e7eb);
+  opacity: 0.75;
+  text-decoration: none;
+}
+#sr-footer a:hover { opacity: 1; text-decoration: underline; }
+
+#sr-footer .sr-dot { opacity: 0.5; margin: 0 6px; }
+#sr-footer .sr-muted { opacity: 0.85; }
