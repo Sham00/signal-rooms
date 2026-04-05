@@ -60,8 +60,8 @@ Pages that need the placeholder replaced:
 - `index.html` (hub)
 - `rooms/gold/index.html`
 - `rooms/gpu/index.html`
-- `rooms/oil-gas/index.html` *(when built)*
-- `rooms/housing/index.html` *(when built)*
+- `rooms/oil-gas/index.html`
+- `rooms/housing/index.html`
 
 ---
 

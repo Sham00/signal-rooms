@@ -6,6 +6,11 @@
 <title>Oil &amp; Gas Room — Signal Rooms</title>
 <meta name="description" content="Real-time Oil &amp; Gas dashboard with WTI, Brent, Natural Gas prices, energy equities, and macro signals.">
 <meta name="theme-color" content="#fb923c">
+
+<!-- Analytics: replace the comment below with your GA4 snippet or Plausible script tag.
+     See README § Analytics for instructions. -->
+<!-- ANALYTICS_PLACEHOLDER -->
+
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
@@ -281,6 +286,7 @@
 </style>
 </head>
 <body>
+  <script src="../../shared/nav.js"></script>
 
 <!-- ====================================================== HEADER -->
 <header class="header">
@@ -323,7 +329,7 @@
   <!-- Error state -->
   <div id="error-state" style="display: none; padding: 40px 0;">
     <div class="error-banner" id="error-message">
-      &#9888; Failed to load market data. Check that <code>data/prices.json</code> and <code>data/history.json</code> are present.
+      &#9888; Failed to load market data. Check that <code>data/summary.json</code> and <code>data/prices_30d.json</code> are present.
     </div>
   </div>
 
@@ -616,8 +622,8 @@
 
   try {
     var results = await Promise.all([
-      fetch('data/prices.json'),
-      fetch('data/history.json')
+      fetch('data/summary.json'),
+      fetch('data/prices_30d.json')
     ]);
     var r1 = results[0], r2 = results[1];
     if (!r1.ok) throw new Error('prices.json HTTP ' + r1.status);
@@ -635,179 +641,106 @@
 
   // ── Last updated ─────────────────────────────────────────────
 
+  var updatedIso = prices.updatedAt || prices.updated_at || prices.updatedIso || prices.updatedISO;
   document.getElementById('last-updated-nav').textContent =
-    'Last updated: ' + fmtDate(prices.last_updated);
+    'Last updated: ' + fmtDate(updatedIso);
 
-  // ── Hero metrics ─────────────────────────────────────────────
+  // Also show freshness in the page header if present
+  var hdr = document.getElementById('header-updated');
+  if (hdr) hdr.textContent = 'Updated: ' + fmtDate(updatedIso);
 
-  var WTI    = prices.commodities.WTI;
-  var Brent  = prices.commodities.Brent;
-  var NatGas = prices.commodities.NatGas;
+  // ── Hero metrics (from data/summary.json) ───────────────────
 
-  // WTI
-  document.getElementById('wti-price').textContent = fmtPrice(WTI.price);
-  document.getElementById('wti-unit').textContent  = WTI.unit;
+  var WTI    = prices.wti;
+  var Brent  = prices.brent;
+  var NatGas = prices.natgas;
+
+  document.getElementById('wti-price').textContent = fmtPrice(WTI && WTI.price);
+  document.getElementById('wti-unit').textContent  = 'USD/bbl';
   var wtiChg = document.getElementById('wti-change');
-  wtiChg.textContent = fmtPct(WTI.change_pct);
-  wtiChg.style.color = pctColor(WTI.change_pct);
+  wtiChg.textContent = fmtPct(WTI && WTI.changePct);
+  wtiChg.style.color = pctColor(WTI && WTI.changePct);
   var wtiYtd = document.getElementById('wti-ytd');
-  wtiYtd.textContent = fmtPct(WTI.ytd_pct);
-  wtiYtd.style.color = pctColor(WTI.ytd_pct);
+  if (wtiYtd) { wtiYtd.textContent = '—'; wtiYtd.style.color = '#888'; }
 
-  // Brent
-  document.getElementById('brent-price').textContent = fmtPrice(Brent.price);
-  document.getElementById('brent-unit').textContent  = Brent.unit;
+  document.getElementById('brent-price').textContent = fmtPrice(Brent && Brent.price);
+  document.getElementById('brent-unit').textContent  = 'USD/bbl';
   var brentChg = document.getElementById('brent-change');
-  brentChg.textContent = fmtPct(Brent.change_pct);
-  brentChg.style.color = pctColor(Brent.change_pct);
+  brentChg.textContent = fmtPct(Brent && Brent.changePct);
+  brentChg.style.color = pctColor(Brent && Brent.changePct);
   var brentYtd = document.getElementById('brent-ytd');
-  brentYtd.textContent = fmtPct(Brent.ytd_pct);
-  brentYtd.style.color = pctColor(Brent.ytd_pct);
+  if (brentYtd) { brentYtd.textContent = '—'; brentYtd.style.color = '#888'; }
 
-  // Natural Gas
-  document.getElementById('natgas-price').textContent = fmtPrice(NatGas.price, 2);
-  document.getElementById('natgas-unit').textContent  = NatGas.unit;
+  document.getElementById('natgas-price').textContent = fmtPrice(NatGas && NatGas.price, 2);
+  document.getElementById('natgas-unit').textContent  = 'USD/MMBtu';
   var ngChg = document.getElementById('natgas-change');
-  ngChg.textContent = fmtPct(NatGas.change_pct);
-  ngChg.style.color = pctColor(NatGas.change_pct);
+  ngChg.textContent = fmtPct(NatGas && NatGas.changePct);
+  ngChg.style.color = pctColor(NatGas && NatGas.changePct);
   var ngYtd = document.getElementById('natgas-ytd');
-  ngYtd.textContent = fmtPct(NatGas.ytd_pct);
-  ngYtd.style.color = pctColor(NatGas.ytd_pct);
+  if (ngYtd) { ngYtd.textContent = '—'; ngYtd.style.color = '#888'; }
 
   // Brent premium / WTI spread
-  var spread = +(Brent.price - WTI.price).toFixed(2);
+  var spread = ((Brent && Brent.price) || 0) - ((WTI && WTI.price) || 0);
+  spread = +spread.toFixed(2);
   var spreadEl  = document.getElementById('spread-value');
   var spreadLbl = document.getElementById('spread-label');
-  spreadEl.textContent = (spread >= 0 ? '+' : '') + spread.toFixed(2);
-  if (spread >= 2 && spread <= 5) {
-    spreadEl.style.color  = '#00ff88';
-    spreadLbl.textContent = 'Normal \u2014 within typical $2\u2013$5 range';
-    spreadLbl.style.color = '#00ff88';
-  } else {
-    spreadEl.style.color  = '#f59e0b';
-    spreadLbl.textContent = spread < 2
-      ? 'Compressed \u2014 below typical floor'
-      : 'Elevated \u2014 above typical ceiling';
-    spreadLbl.style.color = '#f59e0b';
+  if (spreadEl) spreadEl.textContent = (spread >= 0 ? '+' : '') + spread.toFixed(2);
+  if (spreadLbl) {
+    if (spread >= 2 && spread <= 5) {
+      spreadEl.style.color  = '#00ff88';
+      spreadLbl.textContent = 'Normal — within typical $2–$5 range';
+      spreadLbl.style.color = '#00ff88';
+    } else {
+      spreadEl.style.color  = '#f59e0b';
+      spreadLbl.textContent = spread < 2
+        ? 'Compressed — below typical floor'
+        : 'Elevated — above typical ceiling';
+      spreadLbl.style.color = '#f59e0b';
+    }
   }
 
-  // ── Holdings tables ──────────────────────────────────────────
+  // ── Holdings tables (this room is minimal; hide if present) ──
+  // (Room intentionally focuses on the 3 key commodities; equities tables optional)
+  // Hide equities block if we ever add it back later.
+  var stocksWrap = document.getElementById('stocks-section');
+  if (stocksWrap) stocksWrap.style.display = 'none';
 
-  function buildRows(dataObj, tbodyId) {
-    var tbody = document.getElementById(tbodyId);
-    tbody.innerHTML = '';
-    Object.keys(dataObj).forEach(function (ticker) {
-      var d  = dataObj[ticker];
-      var tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td>' +
-          '<div class="ticker-symbol">' + ticker + '</div>' +
-          '<div class="ticker-name">' + d.name + '</div>' +
-        '</td>' +
-        '<td class="right" style="font-weight:600;color:#eee;">' + fmtPrice(d.price) + '</td>' +
-        '<td class="right">' + pctBadge(d.change_pct) + '</td>' +
-        '<td class="right">' + pctBadge(d.ytd_pct) + '</td>';
-      tbody.appendChild(tr);
+  // ── History chart (30D) ─────────────────────────────────────
+  var s = (history && history.series) ? history.series : {};
+  function toXY(arr) {
+    return (arr || []).map(function (p) {
+      return { x: p.t, y: p.v };
     });
   }
 
-  buildRows(prices.stocks, 'stocks-body');
-  buildRows(prices.etfs,   'etfs-body');
-
-  // ── Commodity chart ──────────────────────────────────────────
-
-  var wtiData   = (history.tickers['CL=F'] || []).map(function (p) { return { x: p.date, y: p.close }; });
-  var brentData = (history.tickers['BZ=F'] || []).map(function (p) { return { x: p.date, y: p.close }; });
-
-  var ctx = document.getElementById('crude-chart').getContext('2d');
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      datasets: [
-        {
-          label: 'WTI (CL=F)',
-          data: wtiData,
-          borderColor: '#fb923c',
-          backgroundColor: 'rgba(251,146,60,0.06)',
-          borderWidth: 2,
-          pointRadius: 0,
-          pointHoverRadius: 4,
-          pointHoverBackgroundColor: '#fb923c',
-          tension: 0.3,
-          fill: false
-        },
-        {
-          label: 'Brent (BZ=F)',
-          data: brentData,
-          borderColor: '#f59e0b',
-          backgroundColor: 'rgba(245,158,11,0.06)',
-          borderWidth: 2,
-          pointRadius: 0,
-          pointHoverRadius: 4,
-          pointHoverBackgroundColor: '#f59e0b',
-          tension: 0.3,
-          fill: false
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#1a1a1a',
-          borderColor: '#2a2a2a',
-          borderWidth: 1,
-          titleColor: '#888',
-          bodyColor: '#fff',
-          titleFont: { family: 'JetBrains Mono', size: 11 },
-          bodyFont:  { family: 'JetBrains Mono', size: 13, weight: '600' },
-          padding: 12,
-          callbacks: {
-            title: function (items) {
-              var d = new Date(items[0].parsed.x);
-              return d.toLocaleDateString('en-US', {
-                month: 'short', day: 'numeric', year: 'numeric'
-              });
-            },
-            label: function (item) {
-              return '  ' + item.dataset.label + ': $' + item.parsed.y.toFixed(2) + '/bbl';
-            }
-          }
-        }
+  var ctx = document.getElementById('crude-chart');
+  if (ctx) {
+    new Chart(ctx.getContext('2d'), {
+      type: 'line',
+      data: {
+        datasets: [
+          { label: 'WTI', data: toXY(s.wti), borderColor: '#fb923c', backgroundColor: 'rgba(251,146,60,0.10)', tension: 0.25, fill: true, pointRadius: 0, borderWidth: 2 },
+          { label: 'Brent', data: toXY(s.brent), borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.06)', tension: 0.25, fill: true, pointRadius: 0, borderWidth: 2 },
+          { label: 'Nat Gas', data: toXY(s.natgas), borderColor: '#22d3ee', backgroundColor: 'rgba(34,211,238,0.06)', tension: 0.25, fill: true, pointRadius: 0, borderWidth: 2, yAxisID: 'y2' }
+        ]
       },
-      scales: {
-        x: {
-          type: 'time',
-          time: {
-            unit: 'month',
-            displayFormats: { month: 'MMM yy' }
-          },
-          grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false },
-          ticks: {
-            color: '#555',
-            font: { family: 'JetBrains Mono', size: 10 },
-            maxTicksLimit: 12
-          },
-          border: { display: false }
-        },
-        y: {
-          position: 'right',
-          grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
-          ticks: {
-            color: '#555',
-            font: { family: 'JetBrains Mono', size: 10 },
-            callback: function (v) { return '$' + v.toFixed(0); }
-          },
-          border: { display: false }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#888', font: { family: 'JetBrains Mono', size: 10 } } } },
+        scales: {
+          x: { type: 'time', grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#555', font: { family: 'JetBrains Mono', size: 10 } } },
+          y: { position: 'right', grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#555', font: { family: 'JetBrains Mono', size: 10 } } },
+          y2: { position: 'left', grid: { display: false }, ticks: { color: '#355', font: { family: 'JetBrains Mono', size: 10 } } }
         }
       }
-    }
-  });
+    });
+  }
 
-  // ── Show dashboard ───────────────────────────────────────────
+  // Legacy ETFs table + older Yahoo-finance history wiring removed.
+  // This room now reads from data/summary.json + data/prices_30d.json only.
+
+// ── Show dashboard ───────────────────────────────────────────
   document.getElementById('loading-state').style.display = 'none';
   document.getElementById('dashboard').style.display     = 'block';
 
