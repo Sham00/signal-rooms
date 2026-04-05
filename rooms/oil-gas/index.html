@@ -625,13 +625,63 @@
   try {
     var results = await Promise.all([
       fetch('../../data/oil-gas/summary.json'),
-      fetch('../../data/oil-gas/prices_30d.json')
+      fetch('../../data/oil-gas/prices_30d.json'),
+      // Fallback: legacy yfinance outputs (if present)
+      fetch('../../data/oil-gas/prices.json').catch(function () { return null; }),
+      fetch('../../data/oil-gas/history.json').catch(function () { return null; })
     ]);
-    var r1 = results[0], r2 = results[1];
-    if (!r1.ok) throw new Error('prices.json HTTP ' + r1.status);
-    if (!r2.ok) throw new Error('history.json HTTP ' + r2.status);
+    var r1 = results[0], r2 = results[1], rLegacyPrices = results[2], rLegacyHist = results[3];
+    if (!r1.ok) throw new Error('summary.json HTTP ' + r1.status);
+    if (!r2.ok) throw new Error('prices_30d.json HTTP ' + r2.status);
     prices  = await r1.json();
     history = await r2.json();
+
+    // If the new pipeline hasn't produced usable data yet, but the legacy
+    // yfinance files exist, synthesize the expected shapes on the fly.
+    var hasNew = prices && prices.latest && Object.keys(prices.latest).length;
+    var hasSeries = history && history.series && Object.keys(history.series).length;
+    if ((!hasNew || !hasSeries) && rLegacyPrices && rLegacyPrices.ok && rLegacyHist && rLegacyHist.ok) {
+      try {
+        var legacyPrices = await rLegacyPrices.json();
+        var legacyHist = await rLegacyHist.json();
+
+        var c = (legacyPrices && legacyPrices.commodities) || {};
+        var etfs = (legacyPrices && legacyPrices.etfs) || {};
+
+        // Match the room's expected summary.json shape:
+        // prices.latest.{wti,brent,natgas,xle} = { close, prevClose, changePct, asOf }
+        if (!prices.latest) prices.latest = {};
+        function adopt(key, label, q, stooq) {
+          if (!q) return;
+          prices.latest[key] = {
+            label: label,
+            stooq: stooq,
+            asOf: null,
+            close: q.price,
+            prevClose: q.prev_close,
+            changePct: q.change_pct
+          };
+        }
+        adopt('wti', 'WTI', c['WTI'], 'CL=F');
+        adopt('brent', 'Brent', c['Brent'], 'BZ=F');
+        adopt('natgas', 'Nat Gas', c['NatGas'], 'NG=F');
+        adopt('xle', 'XLE', etfs['XLE'], 'XLE');
+
+        // Match expected prices_30d.json shape: history.series.{wti,brent,natgas,xle}
+        if (!history.series) history.series = {};
+        var t = (legacyHist && legacyHist.tickers) || {};
+        function adoptSeries(k, arr) {
+          if (!arr || !arr.length) return;
+          history.series[k] = arr.slice(-30).map(function (d) {
+            return { date: d.date, close: d.close };
+          });
+        }
+        adoptSeries('wti', t['CL=F']);
+        adoptSeries('brent', t['BZ=F']);
+        adoptSeries('natgas', t['NG=F']);
+        adoptSeries('xle', t['XLE']);
+      } catch (_) {}
+    }
   } catch (err) {
     console.error('[oil-gas] Data load error:', err);
     document.getElementById('loading-state').style.display = 'none';
@@ -653,36 +703,44 @@
 
   // ── Hero metrics (from data/summary.json) ───────────────────
 
-  var WTI    = prices.wti;
-  var Brent  = prices.brent;
-  var NatGas = prices.natgas;
+  // New pipeline: prices.latest.{wti,brent,natgas}
+  // Legacy fallback: prices.wti/brent/natgas
+  var latest = prices.latest || {};
+  var WTI    = latest.wti    || prices.wti;
+  var Brent  = latest.brent  || prices.brent;
+  var NatGas = latest.natgas || prices.natgas;
 
-  document.getElementById('wti-price').textContent = fmtPrice(WTI && WTI.price);
+  document.getElementById('wti-price').textContent = fmtPrice(WTI && (WTI.price != null ? WTI.price : WTI.close));
   document.getElementById('wti-unit').textContent  = 'USD/bbl';
   var wtiChg = document.getElementById('wti-change');
-  wtiChg.textContent = fmtPct(WTI && WTI.changePct);
-  wtiChg.style.color = pctColor(WTI && WTI.changePct);
+  var wtiChgPct = WTI && (WTI.changePct != null ? WTI.changePct : WTI.change_pct);
+  wtiChg.textContent = fmtPct(wtiChgPct);
+  wtiChg.style.color = pctColor(wtiChgPct);
   var wtiYtd = document.getElementById('wti-ytd');
   if (wtiYtd) { wtiYtd.textContent = '—'; wtiYtd.style.color = '#888'; }
 
-  document.getElementById('brent-price').textContent = fmtPrice(Brent && Brent.price);
+  document.getElementById('brent-price').textContent = fmtPrice(Brent && (Brent.price != null ? Brent.price : Brent.close));
   document.getElementById('brent-unit').textContent  = 'USD/bbl';
   var brentChg = document.getElementById('brent-change');
-  brentChg.textContent = fmtPct(Brent && Brent.changePct);
-  brentChg.style.color = pctColor(Brent && Brent.changePct);
+  var brentChgPct = Brent && (Brent.changePct != null ? Brent.changePct : Brent.change_pct);
+  brentChg.textContent = fmtPct(brentChgPct);
+  brentChg.style.color = pctColor(brentChgPct);
   var brentYtd = document.getElementById('brent-ytd');
   if (brentYtd) { brentYtd.textContent = '—'; brentYtd.style.color = '#888'; }
 
-  document.getElementById('natgas-price').textContent = fmtPrice(NatGas && NatGas.price, 2);
+  document.getElementById('natgas-price').textContent = fmtPrice(NatGas && (NatGas.price != null ? NatGas.price : NatGas.close), 2);
   document.getElementById('natgas-unit').textContent  = 'USD/MMBtu';
   var ngChg = document.getElementById('natgas-change');
-  ngChg.textContent = fmtPct(NatGas && NatGas.changePct);
-  ngChg.style.color = pctColor(NatGas && NatGas.changePct);
+  var ngChgPct = NatGas && (NatGas.changePct != null ? NatGas.changePct : NatGas.change_pct);
+  ngChg.textContent = fmtPct(ngChgPct);
+  ngChg.style.color = pctColor(ngChgPct);
   var ngYtd = document.getElementById('natgas-ytd');
   if (ngYtd) { ngYtd.textContent = '—'; ngYtd.style.color = '#888'; }
 
   // Brent premium / WTI spread
-  var spread = ((Brent && Brent.price) || 0) - ((WTI && WTI.price) || 0);
+  var brentPx = (Brent && (Brent.price != null ? Brent.price : Brent.close)) || 0;
+  var wtiPx   = (WTI   && (WTI.price   != null ? WTI.price   : WTI.close)) || 0;
+  var spread = brentPx - wtiPx;
   spread = +spread.toFixed(2);
   var spreadEl  = document.getElementById('spread-value');
   var spreadLbl = document.getElementById('spread-label');
@@ -711,7 +769,12 @@
   var s = (history && history.series) ? history.series : {};
   function toXY(arr) {
     return (arr || []).map(function (p) {
-      return { x: p.t, y: p.v };
+      // Support both shapes:
+      // - New pipeline: {date:'YYYY-MM-DD', close:Number}
+      // - Legacy minimal shape: {t:ISO/date, v:Number}
+      var x = p.date || p.t;
+      var y = (p.close != null) ? p.close : p.v;
+      return { x: x, y: y };
     });
   }
 
