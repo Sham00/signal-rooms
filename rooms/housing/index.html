@@ -504,11 +504,21 @@
       spreadVsAvg != null ? `<span class="delta ${deltaClass(spreadVsAvg, true)}">vs avg: ${sign(spreadVsAvg)}${spreadVsAvg} bps</span>` : ''
     );
 
+    const affDate = a.mspus_date;
+    const affStale = (function(){
+      if (!affDate || affDate === 'estimated') return false;
+      try {
+        const d = new Date(affDate + 'T00:00:00Z');
+        const ageDays = (Date.now() - d.getTime()) / 86400000;
+        return ageDays > 200; // MSPUS is quarterly; >~2 quarters old = clearly stale
+      } catch { return false; }
+    })();
+
     const aff = tile(
       'Affordability Proxy',
       a.monthly_payment != null ? '$' + Math.round(a.monthly_payment).toLocaleString() : '—', '/mo',
       a.note ?? '',
-      a.mspus_date ? `<span class="delta flat">price data: ${fmtDate(a.mspus_date)}</span>` : ''
+      a.mspus_date ? `<span class="delta ${affStale ? 'up' : 'flat'}">price data: ${fmtDate(a.mspus_date)}${affStale ? ' (stale)' : ''}</span>` : ''
     );
 
     document.getElementById('command-grid').innerHTML = m30 + t10 + spr + aff;
