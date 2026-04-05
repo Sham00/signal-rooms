@@ -525,11 +525,23 @@
       } catch { return false; }
     })();
 
+    const affSub = a.note ?? '';
+    const affDeltas = [];
+    if (a.mspus_date) {
+      affDeltas.push(`<span class="delta ${affStale ? 'up' : 'flat'}">price data: ${fmtDate(a.mspus_date)}${affStale ? ' (stale)' : ''}</span>`);
+    }
+    if (a.assumptions && a.assumptions.down_payment_pct != null) {
+      affDeltas.push(`<span class="delta flat">dp: ${Math.round(a.assumptions.down_payment_pct * 100)}%</span>`);
+    }
+    if (a.assumptions && a.assumptions.loan_term_years != null) {
+      affDeltas.push(`<span class="delta flat">term: ${a.assumptions.loan_term_years}y</span>`);
+    }
+
     const aff = tile(
       'Affordability Proxy',
       a.monthly_payment != null ? '$' + Math.round(a.monthly_payment).toLocaleString() : '—', '/mo',
-      a.note ?? '',
-      a.mspus_date ? `<span class="delta ${affStale ? 'up' : 'flat'}">price data: ${fmtDate(a.mspus_date)}${affStale ? ' (stale)' : ''}</span>` : ''
+      affSub,
+      affDeltas.join('')
     );
 
     document.getElementById('command-grid').innerHTML = m30 + t10 + spr + aff;

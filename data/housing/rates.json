@@ -24,6 +24,10 @@
     "monthly_payment": 2040.9,
     "rate_used": 6.46,
     "note": "Est. P&I on $324,240 @ 6.46%",
-    "mspus_date": "2025-10-01"
+    "mspus_date": "2025-10-01",
+    "assumptions": {
+      "down_payment_pct": 0.2,
+      "loan_term_years": 30
+    }
   }
 }
