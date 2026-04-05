@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-05T13:25:13Z",
+  "last_updated": "2026-04-05T21:55:00Z",
   "note": "On-demand spot prices in USD per GPU per hour. Lambda prices via public API; others are manually maintained from provider websites.",
   "providers": [
     {
@@ -83,7 +83,7 @@
         {
           "model": "H100 PCIe",
           "vram_gb": 80,
-          "price_hr": 2.89,
+          "price_hr": 2.69,
           "available": true,
           "spot": false
         },
@@ -104,7 +104,7 @@
         {
           "model": "RTX 4090",
           "vram_gb": 24,
-          "price_hr": 0.74,
+          "price_hr": 0.69,
           "available": true,
           "spot": false
         }
@@ -229,7 +229,7 @@
         {
           "model": "H100 NVL (ND H100 v5 \u00f7 8)",
           "vram_gb": 94,
-          "price_hr": 3.6,
+          "price_hr": 3.49,
           "available": true,
           "spot": false
         },
