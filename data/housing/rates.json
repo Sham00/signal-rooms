@@ -1,0 +1,29 @@
+{
+  "last_updated": "2026-04-05T15:19:57Z",
+  "mortgage_30y": {
+    "rate": 6.46,
+    "date": "2026-04-02",
+    "change_1w": 0.08,
+    "change_4w": 0.46,
+    "change_52w": -0.17
+  },
+  "treasury_10y": {
+    "rate": 4.31,
+    "date": "2026-04-02",
+    "change_1d": -0.02
+  },
+  "spread": {
+    "current": 2.15,
+    "avg_1y": 2.209,
+    "vs_avg": -0.059
+  },
+  "affordability": {
+    "home_price_est": 405300,
+    "down_pct": 20,
+    "loan_amount": 324240,
+    "monthly_payment": 2040.9,
+    "rate_used": 6.46,
+    "note": "Est. P&I on $324,240 @ 6.46%",
+    "mspus_date": "2025-10-01"
+  }
+}

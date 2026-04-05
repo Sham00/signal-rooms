@@ -4,32 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mortgage &amp; Housing Room — Signal Rooms</title>
-<meta name="description" content="Real-time mortgage rates, homebuilder stocks, and housing market indicators dashboard.">
+<meta name="description" content="30-year mortgage rates, 10-year Treasury, rate spread, and affordability proxy — updated weekly from FRED.">
 <meta name="theme-color" content="#4ade80">
+<meta property="og:title" content="Mortgage & Housing Room — Signal Rooms">
+<meta property="og:description" content="30Y mortgage rate, 10Y Treasury spread, and affordability snapshot.">
+<meta property="og:type" content="website">
 
-<!-- Analytics: replace the comment below with your GA4 snippet or Plausible script tag.
-     See README § Analytics for instructions. -->
+<!-- Analytics placeholder -->
 <!-- ANALYTICS_PLACEHOLDER -->
 
-<script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
   :root {
-    --bg: #0a0a0a;
-    --card-bg: #111111;
+    --bg:          #0a0a0a;
+    --card-bg:     #111111;
     --card-border: #1a1a1a;
-    --accent: #4ade80;
-    --accent-dim: #2d8a50;
-    --green: #00ff88;
-    --red: #ff4444;
-    --blue: #4488ff;
-    --amber: #f59e0b;
-    --gray: #555555;
-    --text: #ffffff;
-    --text2: #888888;
+    --accent:      #4ade80;
+    --accent-dim:  #2d8a50;
+    --green:       #4ade80;
+    --red:         #f87171;
+    --blue:        #60a5fa;
+    --amber:       #fbbf24;
+    --gray:        #555555;
+    --text:        #f1f5f9;
+    --text2:       #64748b;
+    --text3:       #94a3b8;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -40,830 +43,632 @@
     font-family: 'Inter', -apple-system, sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
+    padding-top: 44px; /* offset for sticky nav */
   }
 
   .mono { font-family: 'JetBrains Mono', monospace; }
 
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
-  .card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 12px;
-    padding: 20px;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  }
-  .card:hover {
-    border-color: #253025;
-    box-shadow: 0 0 20px rgba(74, 222, 128, 0.04);
-  }
-
-  .header {
+  /* ── Header ── */
+  .room-header {
     position: sticky;
-    top: 0;
-    z-index: 100;
-    background: linear-gradient(180deg, var(--card-bg) 0%, rgba(17,17,17,0.97) 100%);
-    border-top: 3px solid var(--accent);
+    top: 44px; /* below shared nav */
+    z-index: 90;
+    background: rgba(10,10,10,0.96);
     border-bottom: 1px solid var(--card-border);
-    backdrop-filter: blur(20px);
+    border-top: 3px solid var(--accent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 10px 20px;
   }
+  .room-header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .room-title { font-size: 17px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .room-sub   { color: var(--text2); font-size: 12px; margin-top: 2px; }
 
+  /* ── Layout ── */
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 24px 18px 48px; }
+
+  /* ── Section titles ── */
   .section-title {
-    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
     color: var(--accent);
-    margin-bottom: 18px;
+    margin-bottom: 14px;
     display: flex;
     align-items: center;
     gap: 10px;
-    font-family: 'JetBrains Mono', monospace;
   }
   .section-title::after {
     content: '';
     flex: 1;
     height: 1px;
     background: linear-gradient(90deg, var(--accent-dim), transparent);
-    opacity: 0.35;
+    opacity: 0.4;
   }
 
-  /* Hero tiles */
-  .hero-tile {
+  /* ── Cards ── */
+  .card {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: 12px;
-    padding: 22px 20px;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: #253025; }
+
+  /* ── Command Center tiles ── */
+  .command-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 900px) { .command-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px) { .command-grid { grid-template-columns: 1fr; } }
+
+  .metric-tile {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 18px 16px 16px;
     position: relative;
     overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .hero-tile::before {
+  .metric-tile::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 2px;
     background: var(--accent);
-    opacity: 0.35;
+    opacity: 0.7;
   }
-  .hero-tile:hover {
-    border-color: #253025;
-    box-shadow: 0 0 24px rgba(74, 222, 128, 0.05);
-  }
-  .hero-label {
-    font-size: 11px;
+  .metric-tile:hover { border-color: #253025; box-shadow: 0 0 18px rgba(74,222,128,0.05); }
+
+  .tile-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
     font-weight: 600;
     letter-spacing: 1.5px;
     text-transform: uppercase;
     color: var(--text2);
-    font-family: 'JetBrains Mono', monospace;
     margin-bottom: 10px;
   }
-  .hero-value {
-    font-size: 36px;
-    font-weight: 800;
-    line-height: 1;
+  .tile-value {
     font-family: 'JetBrains Mono', monospace;
-    letter-spacing: -1px;
-  }
-  .hero-sub {
-    font-size: 12px;
-    color: var(--text2);
-    font-family: 'JetBrains Mono', monospace;
-    margin-top: 8px;
-  }
-
-  /* Color helpers */
-  .c-green  { color: var(--green); }
-  .c-red    { color: var(--red); }
-  .c-amber  { color: var(--amber); }
-  .c-accent { color: var(--accent); }
-  .c-gray   { color: var(--text2); }
-  .c-blue   { color: var(--blue); }
-
-  /* Holdings table */
-  .holdings-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-  }
-  .holdings-table th {
-    padding: 9px 14px;
-    text-align: left;
-    font-size: 10px;
+    font-size: 28px;
     font-weight: 700;
-    color: var(--text2);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    border-bottom: 1px solid var(--card-border);
-    font-family: 'JetBrains Mono', monospace;
-    white-space: nowrap;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 8px;
   }
-  .holdings-table th.right { text-align: right; }
-  .holdings-table td {
-    padding: 9px 14px;
-    font-size: 13px;
-    border-bottom: 1px solid rgba(255,255,255,0.03);
+  .tile-value .unit { font-size: 14px; color: var(--text2); margin-left: 2px; }
+  .tile-sub  { font-size: 12px; color: var(--text3); margin-bottom: 4px; }
+  .tile-deltas { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+  .delta {
     font-family: 'JetBrains Mono', monospace;
-    vertical-align: middle;
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-weight: 600;
   }
-  .holdings-table td.right { text-align: right; }
-  .holdings-table tr:last-child td { border-bottom: none; }
-  .holdings-table tbody tr:hover td { background: rgba(74,222,128,0.025); }
-  .holdings-table .section-row td {
-    padding: 8px 14px 5px;
+  .delta.up   { color: var(--red);   background: rgba(248,113,113,0.1); }
+  .delta.down { color: var(--green); background: rgba(74,222,128,0.1); }
+  .delta.flat { color: var(--text2); background: rgba(100,116,139,0.1); }
+
+  /* ── Charts ── */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 760px) { .charts-grid { grid-template-columns: 1fr; } }
+
+  .chart-card { padding: 18px 18px 14px; }
+  .chart-title {
+    font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: var(--accent);
-    background: rgba(74,222,128,0.035);
-    border-bottom: 1px solid rgba(74,222,128,0.08);
+    color: var(--text2);
+    margin-bottom: 14px;
   }
+  .chart-wrap { position: relative; }
 
-  .ticker-badge {
+  /* ── Watchlist ── */
+  .watchlist { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .watch-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.025);
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+  }
+  .watch-icon { font-size: 18px; flex-shrink: 0; line-height: 1.4; }
+  .watch-body {}
+  .watch-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .watch-desc  { font-size: 12px; color: var(--text3); line-height: 1.5; }
+  .watch-tag {
     display: inline-block;
-    padding: 2px 7px;
-    border-radius: 5px;
-    background: rgba(74,222,128,0.08);
-    color: var(--accent);
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-right: 4px;
     font-family: 'JetBrains Mono', monospace;
     letter-spacing: 0.5px;
-  }
-
-  .change-pos  { color: var(--green); }
-  .change-neg  { color: var(--red); }
-  .change-flat { color: var(--text2); }
-
-  /* What to Watch checklist */
-  .checklist { list-style: none; padding: 0; margin: 0; }
-  .checklist li {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 9px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.03);
-    font-size: 13px;
-    line-height: 1.5;
-    color: #ccc;
-  }
-  .checklist li:last-child { border-bottom: none; }
-  .check-box {
-    width: 16px;
-    height: 16px;
-    min-width: 16px;
-    border: 1px solid #2e2e2e;
-    border-radius: 3px;
-    margin-top: 2px;
-    background: transparent;
-    display: inline-block;
-  }
-  .check-meta {
-    font-size: 10px;
-    color: var(--text2);
-    font-family: 'JetBrains Mono', monospace;
-    margin-top: 2px;
-  }
-
-  /* Rate context */
-  .rate-context-card {
-    background: rgba(74,222,128,0.035);
-    border: 1px solid rgba(74,222,128,0.1);
-    border-radius: 10px;
-    padding: 16px 18px;
-    font-size: 13px;
-    line-height: 1.7;
-    color: #aaa;
-  }
-  .rate-context-card strong { color: var(--accent); }
-
-  .rate-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 2px 9px;
-    border-radius: 10px;
-    font-size: 10px;
-    font-weight: 700;
-    font-family: 'JetBrains Mono', monospace;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
     vertical-align: middle;
   }
-  .rate-badge.high   { background: rgba(255,68,68,0.12);  color: var(--red); }
-  .rate-badge.mid    { background: rgba(245,158,11,0.12); color: var(--amber); }
-  .rate-badge.low    { background: rgba(0,255,136,0.12);  color: var(--green); }
+  .tag-bullish  { background: rgba(74,222,128,0.15); color: var(--green); }
+  .tag-bearish  { background: rgba(248,113,113,0.15); color: var(--red); }
+  .tag-neutral  { background: rgba(100,116,139,0.15); color: var(--text3); }
+  .tag-watch    { background: rgba(251,191,36,0.15);  color: var(--amber); }
 
-  /* Alert banner */
-  .alert-banner {
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 12px;
-    font-family: 'JetBrains Mono', monospace;
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    margin-bottom: 18px;
-    line-height: 1.55;
-  }
-  .alert-banner.hidden { display: none; }
-  .alert-banner.danger  { background: rgba(255,68,68,0.07); border: 1px solid rgba(255,68,68,0.18); color: #ff6666; }
-  .alert-banner.warning { background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.18); color: #f59e0b; }
-  .alert-banner.info    { background: rgba(74,222,128,0.05); border: 1px solid rgba(74,222,128,0.14); color: #4ade80; }
-
-  /* Spinner / skeleton */
-  .spinner {
-    width: 20px; height: 20px;
-    border: 2px solid var(--card-border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    display: inline-block;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Chart */
-  .chart-wrap { position: relative; height: 300px; }
-
-  /* Back link */
-  .back-link {
-    color: var(--text2);
-    text-decoration: none;
-    font-size: 13px;
-    font-family: 'JetBrains Mono', monospace;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: color 0.2s ease;
-    white-space: nowrap;
-  }
-  .back-link:hover { color: var(--accent); }
-
-  /* Legend dot */
-  .legend-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-    flex-shrink: 0;
-  }
-
-  /* Rate regime bars */
-  .regime-bar-track {
-    height: 6px;
-    background: #1e1e1e;
-    border-radius: 3px;
-    overflow: hidden;
-    margin-top: 5px;
-    margin-bottom: 10px;
-  }
-  .regime-bar-fill {
-    height: 100%;
-    border-radius: 3px;
-    transition: width 0.8s ease;
-  }
-
-  /* Footer */
+  /* ── Footer ── */
   .footer {
+    margin-top: 40px;
+    padding-top: 20px;
     border-top: 1px solid var(--card-border);
-    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
     font-size: 11px;
-    color: #444;
+    color: var(--text2);
     font-family: 'JetBrains Mono', monospace;
-    line-height: 1.6;
-    text-align: center;
   }
 
-  @media (max-width: 768px) {
-    .hero-value { font-size: 28px; }
-    .chart-wrap { height: 220px; }
-    .hero-tile { padding: 16px 14px; }
+  /* ── Loading / error states ── */
+  .loading { color: var(--text2); font-size: 13px; padding: 20px 0; }
+  .error-banner {
+    background: rgba(248,113,113,0.08);
+    border: 1px solid rgba(248,113,113,0.2);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--red);
+    margin-bottom: 20px;
+    display: none;
   }
 </style>
 </head>
 <body>
 
-<!-- ============================================================
-     NAV / HEADER
-     ============================================================ -->
-<header class="header">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+<!-- Shared nav -->
+<script src="../../shared/nav.js"></script>
 
-    <a href="../../" class="back-link">
-      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M8.5 1.5L3.5 6.5l5 5"/>
-      </svg>
-      Signal Rooms
-    </a>
-
-    <div style="font-size:15px; font-weight:700; letter-spacing:0.3px; display:flex; align-items:center; gap:7px;">
-      <span>&#127968;</span>
-      <span>Mortgage &amp; Housing</span>
+<!-- Room header -->
+<header class="room-header">
+  <div class="room-header-inner">
+    <div>
+      <div class="room-title">🏠 Mortgage &amp; Housing</div>
+      <div class="room-sub">Rates · Treasury Spread · Affordability</div>
     </div>
-
-    <div id="last-updated-nav" class="mono text-right"
-         style="font-size:11px; color:#444; white-space:nowrap; min-width:100px;">
-      Loading...
-    </div>
-
+    <div id="last-updated" class="mono" style="font-size:11px;color:var(--text2)">Loading…</div>
   </div>
 </header>
 
-<!-- ============================================================
-     MAIN
-     ============================================================ -->
-<main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+<!-- Main -->
+<main class="wrap">
 
-  <!-- Loading -->
-  <div id="loading-state" class="flex items-center justify-center gap-3 py-24">
-    <div class="spinner"></div>
-    <span class="mono text-sm" style="color:#555;">Loading market data...</span>
+  <div id="error-banner" class="error-banner"></div>
+
+  <!-- Command Center -->
+  <div class="section-title">⚡ Command Center</div>
+  <div class="command-grid" id="command-grid">
+    <!-- filled by JS -->
+    <div class="metric-tile loading">Loading rates…</div>
   </div>
 
-  <!-- Error -->
-  <div id="error-state" class="hidden text-center py-24">
-    <div class="mono text-sm" style="color:#ff4444;">
-      Failed to load data. Please check that data/prices.json and data/history.json exist, then refresh.
+  <!-- Charts -->
+  <div class="section-title">📈 Rate History — Last 12 Months</div>
+  <div class="charts-grid">
+    <div class="card chart-card">
+      <div class="chart-title">30-Year Fixed Mortgage Rate (%)</div>
+      <div class="chart-wrap"><canvas id="chartMortgage"></canvas></div>
+    </div>
+    <div class="card chart-card">
+      <div class="chart-title">Mortgage–Treasury Spread (bps over 10Y)</div>
+      <div class="chart-wrap"><canvas id="chartSpread"></canvas></div>
     </div>
   </div>
 
-  <!-- Dashboard (hidden until data ready) -->
-  <div id="dashboard-content" class="hidden">
-
-    <!-- Alert banner -->
-    <div id="rate-alert" class="alert-banner hidden">
-      <span id="rate-alert-icon" style="font-size:14px; flex-shrink:0; margin-top:1px;"></span>
-      <span id="rate-alert-text"></span>
-    </div>
-
-    <!-- ===================================================
-         SECTION 1: HERO METRICS
-         =================================================== -->
-    <section class="mb-8">
-      <div class="section-title">Market Snapshot</div>
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-
-        <div class="hero-tile">
-          <div class="hero-label">30yr Fixed Rate</div>
-          <div class="hero-value" id="tile-30y">—</div>
-          <div class="hero-sub" id="tile-30y-sub">FRED MORTGAGE30US</div>
+  <!-- What to Watch -->
+  <div class="section-title">🎯 What to Watch</div>
+  <div class="card" style="margin-bottom:32px">
+    <ul class="watchlist">
+      <li class="watch-item">
+        <span class="watch-icon">📉</span>
+        <div class="watch-body">
+          <div class="watch-title">Fed Funds Rate trajectory <span class="watch-tag tag-watch">KEY</span></div>
+          <div class="watch-desc">The 30Y mortgage tracks the 10Y Treasury, not the Fed Funds Rate directly — but expectations of cuts (or holds) move the 10Y and therefore mortgage pricing. Watch FOMC dots and CPI surprises.</div>
         </div>
-
-        <div class="hero-tile">
-          <div class="hero-label">15yr Fixed Rate</div>
-          <div class="hero-value" id="tile-15y">—</div>
-          <div class="hero-sub" id="tile-15y-sub">FRED MORTGAGE15US</div>
+      </li>
+      <li class="watch-item">
+        <span class="watch-icon">📊</span>
+        <div class="watch-body">
+          <div class="watch-title">Mortgage–Treasury spread compression <span class="watch-tag tag-bullish">BULLISH for housing</span></div>
+          <div class="watch-desc">The spread has historically compressed after peaks (avg ~170 bps; elevated spreads above 250 bps signal refinance lock-in risk and lender uncertainty). Compression = better affordability without needing rate cuts.</div>
         </div>
-
-        <div class="hero-tile">
-          <div class="hero-label">ITB — Home Construction</div>
-          <div class="hero-value" id="tile-itb">—</div>
-          <div class="hero-sub" id="tile-itb-sub">iShares ETF daily</div>
+      </li>
+      <li class="watch-item">
+        <span class="watch-icon">🏗️</span>
+        <div class="watch-body">
+          <div class="watch-title">Housing starts &amp; permits <span class="watch-tag tag-neutral">SUPPLY SIGNAL</span></div>
+          <div class="watch-desc">New construction (Census Bureau, monthly) is the supply relief valve. Watch for permit declines — they lead starts by ~6 months and signal future inventory tightness.</div>
         </div>
-
-        <div class="hero-tile">
-          <div class="hero-label">Homebuilders Avg YTD</div>
-          <div class="hero-value" id="tile-ytd">—</div>
-          <div class="hero-sub">LEN + DHI + TOL + PHM</div>
+      </li>
+      <li class="watch-item">
+        <span class="watch-icon">🔒</span>
+        <div class="watch-body">
+          <div class="watch-title">Lock-in effect &amp; existing home supply <span class="watch-tag tag-bearish">HEADWIND</span></div>
+          <div class="watch-desc">~70% of outstanding mortgages are below 4%. Sellers with low rates are reluctant to trade into 6-7% financing — suppressing existing-home inventory and keeping prices elevated despite softer demand.</div>
         </div>
-
-      </div>
-    </section>
-
-    <!-- ===================================================
-         SECTION 2: PERFORMANCE CHART
-         =================================================== -->
-    <section class="mb-8">
-      <div class="card">
-        <div class="section-title">Homebuilders &amp; Housing ETFs — 1 Year</div>
-        <div class="flex flex-wrap items-center gap-4 mb-5"
-             style="font-family:'JetBrains Mono',monospace; font-size:12px; color:#888;">
-          <span class="flex items-center gap-2">
-            <span class="legend-dot" style="background:#4ade80;"></span>ITB
-          </span>
-          <span class="flex items-center gap-2">
-            <span class="legend-dot" style="background:#2dd4bf;"></span>XHB
-          </span>
-          <span class="flex items-center gap-2">
-            <span class="legend-dot" style="background:#a3e635;"></span>LEN
-          </span>
-          <span style="margin-left:auto; font-size:10px; color:#444;">Indexed to 100 at first data point</span>
+      </li>
+      <li class="watch-item">
+        <span class="watch-icon">💼</span>
+        <div class="watch-body">
+          <div class="watch-title">Unemployment rate &amp; wage growth <span class="watch-tag tag-watch">DEMAND DRIVER</span></div>
+          <div class="watch-desc">A cooling labor market reduces ability-to-pay; strong wage growth partially offsets affordability headwinds. Watch the ratio of median income to median home price month-to-month.</div>
         </div>
-        <div class="chart-wrap">
-          <canvas id="perf-chart"></canvas>
+      </li>
+      <li class="watch-item">
+        <span class="watch-icon">📅</span>
+        <div class="watch-body">
+          <div class="watch-title">Weekly Freddie Mac survey (every Thursday) <span class="watch-tag tag-neutral">DATA RELEASE</span></div>
+          <div class="watch-desc">MORTGAGE30US is the Freddie Mac Primary Mortgage Market Survey, released each Thursday. This room updates weekly; watch for directional changes in the first print after each FOMC meeting.</div>
         </div>
-      </div>
-    </section>
+      </li>
+    </ul>
+  </div>
 
-    <!-- ===================================================
-         SECTION 3: HOLDINGS TABLE
-         =================================================== -->
-    <section class="mb-8">
-      <div class="card" style="padding:0; overflow:hidden;">
-        <div style="padding:20px 20px 0;">
-          <div class="section-title">Holdings &amp; Prices</div>
-        </div>
-        <div style="overflow-x:auto;">
-          <table class="holdings-table">
-            <thead>
-              <tr>
-                <th>Ticker</th>
-                <th>Name</th>
-                <th class="right">Price</th>
-                <th class="right">Day %</th>
-                <th class="right">YTD %</th>
-              </tr>
-            </thead>
-            <tbody id="holdings-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+  <!-- Footer -->
+  <div class="footer">
+    <span>Data: FRED / Freddie Mac PMMS · St. Louis Fed (MORTGAGE30US, DGS10, MSPUS)</span>
+    <span id="footer-updated">—</span>
+  </div>
 
-    <!-- ===================================================
-         SECTIONS 4 + 5: CHECKLIST + RATE CONTEXT
-         =================================================== -->
-    <section class="mb-8">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-        <!-- What to Watch -->
-        <div class="card">
-          <div class="section-title">What to Watch</div>
-          <ul class="checklist">
-            <li>
-              <span class="check-box"></span>
-              <div>
-                <div>30yr mortgage rate direction</div>
-                <div class="check-meta">FRED MORTGAGE30US — released Thursdays</div>
-              </div>
-            </li>
-            <li>
-              <span class="check-box"></span>
-              <div>
-                <div>Fed rate decisions &amp; dot plot guidance</div>
-                <div class="check-meta">FOMC — 8 meetings per year</div>
-              </div>
-            </li>
-            <li>
-              <span class="check-box"></span>
-              <div>
-                <div>Census Bureau housing starts &amp; building permits</div>
-                <div class="check-meta">Monthly — mid-month release</div>
-              </div>
-            </li>
-            <li>
-              <span class="check-box"></span>
-              <div>
-                <div>Existing home sales</div>
-                <div class="check-meta">NAR — monthly, ~3 weeks after month-end</div>
-              </div>
-            </li>
-            <li>
-              <span class="check-box"></span>
-              <div>
-                <div>MBA weekly mortgage applications index</div>
-                <div class="check-meta">Mortgage Bankers Association — every Wednesday</div>
-              </div>
-            </li>
-            <li>
-              <span class="check-box"></span>
-              <div>
-                <div>Homebuilder sentiment index</div>
-                <div class="check-meta">NAHB — monthly, mid-month</div>
-              </div>
-            </li>
-            <li>
-              <span class="check-box"></span>
-              <div>
-                <div>New home inventory months-of-supply</div>
-                <div class="check-meta">&gt;6 months = buyers market &nbsp;|&nbsp; &lt;4 months = sellers market</div>
-              </div>
-            </li>
-            <li>
-              <span class="check-box"></span>
-              <div>
-                <div>Delinquency rate trends</div>
-                <div class="check-meta">FHA/VA loans as leading indicator — quarterly</div>
-              </div>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Rate context + regime gauge -->
-        <div class="flex flex-col gap-4">
-
-          <!-- Rate context card -->
-          <div class="card">
-            <div class="section-title">Mortgage Rate Context</div>
-            <div class="rate-context-card" id="rate-context-box">
-              Loading...
-            </div>
-          </div>
-
-          <!-- Rate regime gauge -->
-          <div class="card">
-            <div class="section-title">Rate Regime Gauge</div>
-            <div style="font-size:10px; color:#444; font-family:'JetBrains Mono',monospace; letter-spacing:0.5px; margin-bottom:14px;">
-              30-Year Fixed — Historical Context Bands
-            </div>
-            <div id="rate-gauge-rows"></div>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-  </div><!-- /dashboard-content -->
 </main>
 
-<!-- FOOTER -->
-<footer class="footer">
-  Stock/ETF data via Yahoo Finance. Mortgage rates via FRED (MORTGAGE30US / MORTGAGE15US). Refreshed hourly. For informational purposes only.
-</footer>
-
-<!-- ============================================================
-     JAVASCRIPT
-     ============================================================ -->
 <script>
-(async function () {
+(function () {
   'use strict';
 
-  // ---- Helpers --------------------------------------------------
-  const $ = (id) => document.getElementById(id);
+  const BASE = '../../data/housing/';
 
-  const fmtPrice = (n) => (n == null ? 'N/A' : '$' + n.toFixed(2));
-  const fmtRate  = (n) => (n == null ? 'N/A' : n.toFixed(2) + '%');
-  const fmtPct   = (n) => {
-    if (n == null) return 'N/A';
-    return (n >= 0 ? '+' : '') + n.toFixed(2) + '%';
-  };
-
-  const chgClass = (v) => {
-    if (v == null) return 'change-flat';
-    return v > 0 ? 'change-pos' : v < 0 ? 'change-neg' : 'change-flat';
-  };
-
-  const rateColorClass = (r) => {
-    if (r == null) return 'c-gray';
-    if (r >= 7)  return 'c-red';
-    if (r >= 6)  return 'c-amber';
-    return 'c-green';
-  };
-
-  const rateBadge = (r) => {
-    if (r == null) return '';
-    const cls   = r >= 7 ? 'high' : r >= 6 ? 'mid' : 'low';
-    const label = r >= 7 ? 'Restrictive' : r >= 6 ? 'Elevated' : 'Supportive';
-    return `<span class="rate-badge ${cls}">${label}</span>`;
-  };
-
-  const fmtTimestamp = (iso) => {
+  /* ── helpers ── */
+  function fmt(v, dec) {
+    if (v == null) return '—';
+    return Number(v).toFixed(dec ?? 2);
+  }
+  function sign(v) {
+    if (v == null) return '';
+    return v > 0 ? '+' : '';
+  }
+  function deltaClass(v, invertSign) {
+    if (v == null) return 'flat';
+    const up = invertSign ? v < 0 : v > 0;
+    return up ? 'up' : v < 0 ? 'down' : 'flat';
+  }
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    try {
+      const d = new Date(iso + (iso.length === 10 ? 'T12:00:00Z' : ''));
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+    } catch { return iso; }
+  }
+  function fmtUpdated(iso) {
+    if (!iso) return '—';
     try {
       const d = new Date(iso);
-      return 'Last updated: ' +
-        d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' +
-        d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+      return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
     } catch { return iso; }
-  };
-
-  // ---- Fetch ----------------------------------------------------
-  let prices, hist;
-  try {
-    const [r1, r2] = await Promise.all([
-      fetch('data/prices.json'),
-      fetch('data/history.json'),
-    ]);
-    if (!r1.ok || !r2.ok) throw new Error('HTTP error');
-    [prices, hist] = await Promise.all([r1.json(), r2.json()]);
-  } catch (e) {
-    $('loading-state').classList.add('hidden');
-    $('error-state').classList.remove('hidden');
-    console.error('[Housing] data load failed:', e);
-    return;
   }
 
-  $('loading-state').classList.add('hidden');
-  $('dashboard-content').classList.remove('hidden');
+  /* ── fetch JSON ── */
+  async function loadJson(path) {
+    const r = await fetch(path + '?t=' + Date.now());
+    if (!r.ok) throw new Error(`HTTP ${r.status} for ${path}`);
+    return r.json();
+  }
 
-  // ---- Timestamp ------------------------------------------------
-  $('last-updated-nav').textContent = fmtTimestamp(prices.last_updated);
+  /* ── command center ── */
+  function buildCommandCenter(rates) {
+    const m = rates.mortgage_30y  ?? {};
+    const t = rates.treasury_10y  ?? {};
+    const s = rates.spread        ?? {};
+    const a = rates.affordability ?? {};
 
-  // ---- Destructure data -----------------------------------------
-  const r30    = prices.mortgage_rate_30y;
-  const r15    = prices.mortgage_rate_15y;
-  const stocks = prices.stocks;
-  const etfs   = prices.etfs;
-  const itb    = etfs['ITB'];
-
-  // ---- Hero tiles -----------------------------------------------
-  // 30yr
-  $('tile-30y').textContent  = fmtRate(r30);
-  $('tile-30y').className    = 'hero-value ' + rateColorClass(r30);
-  $('tile-30y-sub').innerHTML = r30 != null ? rateBadge(r30) : '<span class="c-gray">Data unavailable</span>';
-
-  // 15yr
-  $('tile-15y').textContent  = fmtRate(r15);
-  $('tile-15y').className    = 'hero-value ' + rateColorClass(r15);
-  $('tile-15y-sub').innerHTML = r15 != null ? rateBadge(r15) : '<span class="c-gray">Data unavailable</span>';
-
-  // ITB
-  $('tile-itb').textContent   = fmtPrice(itb.price);
-  $('tile-itb').className     = 'hero-value c-accent';
-  $('tile-itb-sub').innerHTML =
-    `<span class="${chgClass(itb.change_pct)}">${fmtPct(itb.change_pct)}</span>`
-    + `<span class="c-gray"> today</span>`;
-
-  // Homebuilders avg YTD
-  const ytdNums = ['LEN', 'DHI', 'TOL', 'PHM']
-    .map(t => stocks[t]?.ytd_pct)
-    .filter(v => v != null);
-  const avgYtd = ytdNums.length
-    ? ytdNums.reduce((a, b) => a + b, 0) / ytdNums.length
-    : null;
-  $('tile-ytd').textContent = fmtPct(avgYtd);
-  $('tile-ytd').className   = 'hero-value ' + chgClass(avgYtd);
-
-  // ---- Alert banner ---------------------------------------------
-  const alertEl = $('rate-alert');
-  if (r30 != null) {
-    if (r30 >= 7) {
-      alertEl.className = 'alert-banner danger';
-      $('rate-alert-icon').textContent = '!';
-      $('rate-alert-text').textContent =
-        `30yr rate at ${fmtRate(r30)} — above the 7% threshold historically associated with significant demand compression. Monitor MBA applications and homebuilder cancellation rates closely.`;
-    } else if (r30 >= 6.5) {
-      alertEl.className = 'alert-banner warning';
-      $('rate-alert-icon').textContent = '!';
-      $('rate-alert-text').textContent =
-        `30yr rate at ${fmtRate(r30)} — elevated affordability pressure. Watch MBA applications index for leading demand signals.`;
-    } else {
-      alertEl.className = 'alert-banner info';
-      $('rate-alert-icon').textContent = 'i';
-      $('rate-alert-text').textContent =
-        `30yr rate at ${fmtRate(r30)} — below 6.5%, affordability relatively supportive for housing demand.`;
+    function tile(label, value, unit, sub, deltas) {
+      return `
+        <div class="metric-tile">
+          <div class="tile-label">${label}</div>
+          <div class="tile-value">${value}<span class="unit">${unit}</span></div>
+          <div class="tile-sub">${sub}</div>
+          <div class="tile-deltas">${deltas}</div>
+        </div>`;
     }
+
+    function delt(label, val, dec, invert) {
+      if (val == null) return '';
+      const cls = deltaClass(val, invert);
+      return `<span class="delta ${cls}">${label}: ${sign(val)}${fmt(val, dec)}</span>`;
+    }
+
+    const m30 = tile(
+      '30Y Mortgage Rate',
+      fmt(m.rate, 2), '%',
+      `as of ${fmtDate(m.date)}`,
+      delt('1w', m.change_1w, 2) + delt('4w', m.change_4w, 2) + delt('52w', m.change_52w, 2)
+    );
+
+    const t10 = tile(
+      '10Y Treasury',
+      fmt(t.rate, 2), '%',
+      `as of ${fmtDate(t.date)}`,
+      delt('1d', t.change_1d, 2)
+    );
+
+    const spreadVal = s.current != null ? Math.round(s.current * 100) : null;
+    const spreadAvg = s.avg_1y  != null ? Math.round(s.avg_1y  * 100) : null;
+    const spreadVsAvg = s.vs_avg != null ? Math.round(s.vs_avg * 100) : null;
+    const spr = tile(
+      'Mortgage–Treasury Spread',
+      spreadVal != null ? spreadVal : '—', 'bps',
+      spreadAvg != null ? `1Y avg: ${spreadAvg} bps` : '',
+      spreadVsAvg != null ? `<span class="delta ${deltaClass(spreadVsAvg, true)}">vs avg: ${sign(spreadVsAvg)}${spreadVsAvg} bps</span>` : ''
+    );
+
+    const aff = tile(
+      'Affordability Proxy',
+      a.monthly_payment != null ? '$' + Math.round(a.monthly_payment).toLocaleString() : '—', '/mo',
+      a.note ?? '',
+      a.mspus_date ? `<span class="delta flat">price data: ${fmtDate(a.mspus_date)}</span>` : ''
+    );
+
+    document.getElementById('command-grid').innerHTML = m30 + t10 + spr + aff;
   }
 
-  // ---- Holdings table -------------------------------------------
-  const tbody = $('holdings-tbody');
-
-  const sectionRow = (label) => {
-    const tr = document.createElement('tr');
-    tr.className = 'section-row';
-    tr.innerHTML = `<td colspan="5">${label}</td>`;
-    return tr;
-  };
-
-  const dataRow = (ticker, info) => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><span class="ticker-badge">${ticker}</span></td>
-      <td style="color:#999; font-size:12px;">${info.name}</td>
-      <td class="right">${fmtPrice(info.price)}</td>
-      <td class="right ${chgClass(info.change_pct)}">${fmtPct(info.change_pct)}</td>
-      <td class="right ${chgClass(info.ytd_pct)}">${fmtPct(info.ytd_pct)}</td>
-    `;
-    return tr;
-  };
-
-  tbody.appendChild(sectionRow('Homebuilder Stocks'));
-  ['LEN', 'DHI', 'TOL', 'PHM'].forEach(t => tbody.appendChild(dataRow(t, stocks[t])));
-
-  tbody.appendChild(sectionRow('Real Estate ETFs'));
-  ['ITB', 'XHB', 'VNQ'].forEach(t => tbody.appendChild(dataRow(t, etfs[t])));
-
-  // ---- Performance chart (normalised to 100) --------------------
-  const tickerKeys = ['ITB', 'XHB', 'LEN'];
-  const seriesColors = { ITB: '#4ade80', XHB: '#2dd4bf', LEN: '#a3e635' };
-
-  const normalise = (series) => {
-    if (!series || !series.length) return [];
-    const base = series[0].close;
-    return series.map(pt => ({ x: pt.date, y: (pt.close / base) * 100 }));
-  };
-
-  const datasets = tickerKeys
-    .filter(t => hist.tickers[t]?.length)
-    .map(t => ({
-      label: t,
-      data: normalise(hist.tickers[t]),
-      borderColor: seriesColors[t],
-      backgroundColor: 'transparent',
-      borderWidth: 2,
-      pointRadius: 0,
-      pointHoverRadius: 4,
-      tension: 0.3,
-    }));
-
-  new Chart(document.getElementById('perf-chart').getContext('2d'), {
-    type: 'line',
-    data: { datasets },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#181818',
-          borderColor: '#252525',
-          borderWidth: 1,
-          titleColor: '#666',
-          bodyColor: '#ddd',
-          titleFont: { family: "'JetBrains Mono', monospace", size: 11 },
-          bodyFont:  { family: "'JetBrains Mono', monospace", size: 12 },
-          padding: 10,
-          callbacks: {
-            label: (ctx) => ` ${ctx.dataset.label}  ${ctx.parsed.y.toFixed(1)}`
-          }
-        }
-      },
-      scales: {
-        x: {
-          type: 'time',
-          time: { unit: 'month', displayFormats: { month: 'MMM yy' } },
-          grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false },
-          border: { color: '#1e1e1e' },
-          ticks: {
-            color: '#444',
-            font: { family: "'JetBrains Mono', monospace", size: 10 },
-            maxRotation: 0,
-          },
-        },
-        y: {
-          grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
-          border: { color: '#1e1e1e' },
-          ticks: {
-            color: '#444',
-            font: { family: "'JetBrains Mono', monospace", size: 10 },
-            callback: (v) => v.toFixed(0),
-          },
-        },
+  /* ── charts ── */
+  const CHART_OPTS = {
+    responsive: true,
+    maintainAspectRatio: true,
+    animation: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1a1a1a',
+        borderColor: '#333',
+        borderWidth: 1,
+        titleColor: '#94a3b8',
+        bodyColor: '#f1f5f9',
+        padding: 10,
       },
     },
-  });
+    scales: {
+      x: {
+        type: 'time',
+        time: { unit: 'month', tooltipFormat: 'MMM d, yyyy' },
+        grid: { color: 'rgba(255,255,255,0.04)' },
+        ticks: { color: '#64748b', font: { size: 10 } },
+      },
+      y: {
+        grid: { color: 'rgba(255,255,255,0.04)' },
+        ticks: { color: '#64748b', font: { size: 10 } },
+      },
+    },
+  };
 
-  // ---- Rate context box -----------------------------------------
-  const ctxBox = $('rate-context-box');
-  let dynamicNote = '';
-  if (r30 != null) {
-    if (r30 >= 7) {
-      dynamicNote = `At ${fmtRate(r30)}, rates are in historically restrictive territory. Post-2008 data consistently shows rates above 7% correlate with declining purchase applications and suppressed new home sales. Homebuilder cancellation rates typically rise sharply above this level.`;
-    } else if (r30 >= 6) {
-      dynamicNote = `At ${fmtRate(r30)}, rates remain elevated relative to the 2010–2021 era of sub-4% mortgages. Affordability is strained but not at peak-stress levels. Watch the MBA Purchase Index for demand-side signals.`;
-    } else {
-      dynamicNote = `At ${fmtRate(r30)}, rates are approaching historically supportive levels. Sub-6% rates have historically corresponded to strong purchase application volume and robust homebuilder order intake.`;
-    }
-  } else {
-    dynamicNote = 'Rate data is currently unavailable from FRED. Check MORTGAGE30US on the FRED website for the latest weekly reading (released each Thursday).';
+  function buildMortgageChart(history) {
+    const rows = history.mortgage_30y ?? [];
+    const labels = rows.map(r => r.date);
+    const data   = rows.map(r => r.rate);
+
+    new Chart(document.getElementById('chartMortgage'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          data,
+          borderColor: '#4ade80',
+          backgroundColor: 'rgba(74,222,128,0.07)',
+          fill: true,
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          pointHoverBackgroundColor: '#4ade80',
+          tension: 0.3,
+        }],
+      },
+      options: {
+        ...CHART_OPTS,
+        plugins: {
+          ...CHART_OPTS.plugins,
+          tooltip: {
+            ...CHART_OPTS.plugins.tooltip,
+            callbacks: {
+              label: ctx => `30Y Rate: ${ctx.parsed.y.toFixed(2)}%`,
+            },
+          },
+        },
+        scales: {
+          ...CHART_OPTS.scales,
+          y: {
+            ...CHART_OPTS.scales.y,
+            ticks: {
+              ...CHART_OPTS.scales.y.ticks,
+              callback: v => v.toFixed(1) + '%',
+            },
+          },
+        },
+      },
+    });
   }
 
-  ctxBox.innerHTML = `
-    <p style="margin-bottom:10px;">
-      The 30yr fixed mortgage rate is sourced from <strong>FRED MORTGAGE30US</strong>, updated weekly on Thursdays.
-      Values above <strong>7%</strong> historically correspond to significant housing demand compression.
-    </p>
-    <p style="margin-bottom:10px;">
-      Current rate context: ${r30 != null ? `<strong>${fmtRate(r30)}</strong> ${rateBadge(r30)}` : '<strong>not available</strong>'}
-    </p>
-    <p style="color:#666; font-size:12px; line-height:1.65;">${dynamicNote}</p>
-  `;
+  function buildSpreadChart(history) {
+    const rows = history.spread ?? [];
+    const labels   = rows.map(r => r.date);
+    const spread   = rows.map(r => Math.round(r.spread * 100));  // to bps
+    const mortgage = rows.map(r => r.mortgage);
+    const treasury = rows.map(r => r.treasury);
 
-  // ---- Rate regime gauge ----------------------------------------
-  const regimeBands = [
-    { label: 'Crisis-era low',   range: '< 3%',    color: '#4488ff', fillPct: 10,  active: r30 != null && r30 < 3 },
-    { label: 'Historical low',   range: '3% – 4%', color: '#00ff88', fillPct: 22,  active: r30 != null && r30 >= 3 && r30 < 4 },
-    { label: 'Pre-pandemic',     range: '4% – 5%', color: '#4ade80', fillPct: 38,  active: r30 != null && r30 >= 4 && r30 < 5 },
-    { label: 'Neutral',          range: '5% – 6%', color: '#f59e0b', fillPct: 55,  active: r30 != null && r30 >= 5 && r30 < 6 },
-    { label: 'Elevated',         range: '6% – 7%', color: '#f59e0b', fillPct: 73,  active: r30 != null && r30 >= 6 && r30 < 7 },
-    { label: 'Restrictive',      range: '> 7%',    color: '#ff4444', fillPct: 95,  active: r30 != null && r30 >= 7 },
-  ];
+    new Chart(document.getElementById('chartSpread'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Spread (bps)',
+            data: spread,
+            borderColor: '#fbbf24',
+            backgroundColor: 'rgba(251,191,36,0.08)',
+            fill: true,
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            pointHoverBackgroundColor: '#fbbf24',
+            tension: 0.3,
+            yAxisID: 'yBps',
+          },
+          {
+            label: '30Y Mortgage',
+            data: mortgage,
+            borderColor: '#4ade80',
+            borderWidth: 1.5,
+            borderDash: [4, 3],
+            pointRadius: 0,
+            tension: 0.3,
+            yAxisID: 'yRate',
+          },
+          {
+            label: '10Y Treasury',
+            data: treasury,
+            borderColor: '#60a5fa',
+            borderWidth: 1.5,
+            borderDash: [4, 3],
+            pointRadius: 0,
+            tension: 0.3,
+            yAxisID: 'yRate',
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        animation: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: {
+              color: '#64748b',
+              font: { size: 10 },
+              boxWidth: 12,
+              padding: 12,
+            },
+          },
+          tooltip: {
+            backgroundColor: '#1a1a1a',
+            borderColor: '#333',
+            borderWidth: 1,
+            titleColor: '#94a3b8',
+            bodyColor: '#f1f5f9',
+            padding: 10,
+            callbacks: {
+              label: ctx => {
+                if (ctx.dataset.yAxisID === 'yBps') return `Spread: ${ctx.parsed.y} bps`;
+                return `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}%`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            type: 'time',
+            time: { unit: 'month', tooltipFormat: 'MMM d, yyyy' },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#64748b', font: { size: 10 } },
+          },
+          yBps: {
+            position: 'left',
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: {
+              color: '#64748b',
+              font: { size: 10 },
+              callback: v => v + ' bps',
+            },
+            title: { display: false },
+          },
+          yRate: {
+            position: 'right',
+            grid: { drawOnChartArea: false },
+            ticks: {
+              color: '#64748b',
+              font: { size: 10 },
+              callback: v => v.toFixed(1) + '%',
+            },
+          },
+        },
+      },
+    });
+  }
 
-  const gaugeContainer = $('rate-gauge-rows');
-  regimeBands.forEach(band => {
-    const wrap = document.createElement('div');
-    const barColor = band.active ? band.color : '#252525';
-    const labelColor = band.active ? band.color : '#3a3a3a';
-    const fontW = band.active ? '700' : '400';
-    wrap.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
-        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:${labelColor}; font-weight:${fontW};">
-          ${band.label}${band.active ? ' &nbsp;<span style="color:' + band.color + '; font-size:9px;">&#9664; current</span>' : ''}
-        </span>
-        <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#333;">${band.range}</span>
-      </div>
-      <div class="regime-bar-track">
-        <div class="regime-bar-fill" style="width:${band.fillPct}%; background:${barColor};"></div>
-      </div>
-    `;
-    gaugeContainer.appendChild(wrap);
-  });
+  /* ── error display ── */
+  function showError(msg) {
+    const el = document.getElementById('error-banner');
+    el.textContent = '⚠ ' + msg;
+    el.style.display = 'block';
+  }
 
+  /* ── init ── */
+  async function init() {
+    try {
+      const [rates, history] = await Promise.all([
+        loadJson(BASE + 'rates.json'),
+        loadJson(BASE + 'history.json'),
+      ]);
+
+      const updated = rates.last_updated ?? history.last_updated;
+      const updatedStr = fmtUpdated(updated);
+      document.getElementById('last-updated').textContent = 'Updated ' + updatedStr;
+      document.getElementById('footer-updated').textContent = 'Last fetch: ' + updatedStr;
+
+      buildCommandCenter(rates);
+      buildMortgageChart(history);
+      buildSpreadChart(history);
+
+    } catch (err) {
+      console.error(err);
+      showError('Could not load housing data. Run rooms/housing/fetch_data.py to populate data/housing/. (' + err.message + ')');
+      document.getElementById('command-grid').innerHTML = '';
+      document.getElementById('last-updated').textContent = 'Data unavailable';
+    }
+  }
+
+  init();
 })();
 </script>
+
 </body>
 </html>

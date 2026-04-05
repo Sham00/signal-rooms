@@ -14,7 +14,7 @@ echo "---"
 python "$SCRIPTS/fetch_gold.py"
 python "$SCRIPTS/fetch_gpu.py"
 python "$SCRIPTS/fetch_oil_gas.py"
-python "$SCRIPTS/fetch_housing.py"
+python "$ROOT/rooms/housing/fetch_data.py"
 
 echo "---"
 echo "All rooms updated."

@@ -21,7 +21,7 @@
     { name: '🟡 Gold',    href: base + 'rooms/gold/',     match: '/rooms/gold',    live: true  },
     { name: '🧠 GPU',     href: base + 'rooms/gpu/',      match: '/rooms/gpu',     live: true  },
     { name: '🛢️ Oil',     href: base + 'rooms/oil-gas/',  match: '/rooms/oil-gas', live: true },
-    { name: '🏠 Housing', href: base + 'rooms/housing/',  match: '/rooms/housing', live: false },
+    { name: '🏠 Housing', href: base + 'rooms/housing/',  match: '/rooms/housing', live: true  },
   ];
 
   var roomLinks = rooms.map(function (r) {
