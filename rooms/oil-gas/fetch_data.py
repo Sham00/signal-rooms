@@ -106,7 +106,32 @@ def main() -> None:
     for key, meta in SYMBOLS.items():
         rows = fetch_stooq_daily_csv(meta["stooq"])
         if not rows:
-            missing.append(key)
+            # If Stooq blocks/empties, keep the last committed series so the
+            # dashboard remains useful on GitHub Pages.
+            try:
+                with open(os.path.join(DATA_DIR, "prices_30d.json"), "r", encoding="utf-8") as pf:
+                    prev = json.load(pf)
+
+                prev_series = (prev.get("series") or {}).get(key) or []
+                if prev_series:
+                    series[key] = prev_series
+
+                    price = float(prev_series[-1]["v"])
+                    prev_price = float(prev_series[-2]["v"]) if len(prev_series) >= 2 else price
+                    chg = pct_change(prev_price, price)
+
+                    summary[key] = {
+                        "symbol": meta["symbol"],
+                        "name": meta["name"],
+                        "price": round(price, 2),
+                        "changePct": round(chg, 2),
+                        "note": "stooq unavailable; using last cached data",
+                    }
+                    summary["asOf"] = prev_series[-1]["t"] + "T00:00:00Z"
+                else:
+                    missing.append(key)
+            except Exception:
+                missing.append(key)
             continue
         last30 = rows[-30:]
         series[key] = last30
