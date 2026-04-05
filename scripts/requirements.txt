@@ -1,6 +1,9 @@
 feedparser
 requests
 beautifulsoup4
-# NOTE: we intentionally avoid yfinance/pandas here to keep the local/macOS install
-# lightweight and compatible with older system Pythons.
-# GitHub Actions uses its own environment and can install richer deps if needed.
+# NOTE: we intentionally avoid yfinance/pandas here to keep the data pipeline
+# runnable on the stock macOS /usr/bin/python3 (3.7) that GitHub Actions and
+# some local environments default to.
+#
+# If you want to run yfinance-based fetchers locally, use a modern Python (3.11+)
+# and install yfinance separately.

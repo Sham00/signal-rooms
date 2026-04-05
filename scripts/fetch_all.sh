@@ -12,7 +12,7 @@ echo "Root: $ROOT"
 echo "---"
 
 python3 "$SCRIPTS/fetch_gold.py"
-python3 "$SCRIPTS/fetch_gpu.py"
+python3 "$ROOT/rooms/gpu/fetch_data.py"
 python3 "$ROOT/rooms/oil-gas/fetch_data.py"
 python3 "$ROOT/rooms/housing/fetch_data.py"
 
