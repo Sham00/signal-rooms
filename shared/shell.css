@@ -1,0 +1,90 @@
+/* Signal Rooms — shared shell styles
+   Injected by shared/nav.js into every room and the hub. */
+
+:root {
+  --sr-bg:     #0b0f17;
+  --sr-card:   #111827;
+  --sr-line:   #1f2937;
+  --sr-text:   #e5e7eb;
+  --sr-muted:  #9ca3af;
+  --sr-accent: #fbbf24;
+}
+
+#sr-nav {
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  background: rgba(11, 15, 23, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--sr-line, #1f2937);
+  padding: 9px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+#sr-nav * { box-sizing: border-box; }
+
+#sr-nav .sr-brand {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  color: var(--sr-text, #e5e7eb);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  opacity: 0.9;
+  flex-shrink: 0;
+}
+#sr-nav .sr-brand:hover { opacity: 1; text-decoration: none; }
+
+#sr-nav .sr-logo {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+#sr-nav .sr-rooms {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+#sr-nav .sr-room-link {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--sr-muted, #9ca3af);
+  white-space: nowrap;
+  transition: color 0.12s ease, background 0.12s ease;
+}
+#sr-nav .sr-room-link:hover {
+  color: var(--sr-text, #e5e7eb);
+  background: rgba(255, 255, 255, 0.06);
+  text-decoration: none;
+}
+#sr-nav .sr-room-link.active {
+  color: var(--sr-accent, #fbbf24);
+  background: rgba(251, 191, 36, 0.09);
+}
+#sr-nav .sr-room-link.stub {
+  opacity: 0.45;
+}
+
+@media (max-width: 520px) {
+  #sr-nav .sr-rooms { display: none; }
+}
