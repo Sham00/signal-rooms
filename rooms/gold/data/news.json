@@ -2,6 +2,13 @@
   "articles": [
     {
       "source": "Yahoo Finance Gold",
+      "title": "A Look At Zijin Gold International (SEHK:2259) Valuation After Recent Share Price Pullback",
+      "link": "https://finance.yahoo.com/markets/stocks/articles/look-zijin-gold-international-sehk-160639842.html?.tsrc=rss",
+      "published": "Sun, 05 Apr 2026 16:06:39 +0000",
+      "sentiment": "negative"
+    },
+    {
+      "source": "Yahoo Finance Gold",
       "title": "Aura Minerals (AUGO) Is Up 25.1% After Updating Multi-Mine Reserves And Resources - Has The Bull Case Changed?",
       "link": "https://finance.yahoo.com/markets/stocks/articles/aura-minerals-augo-25-1-140622692.html?.tsrc=rss",
       "published": "Sun, 05 Apr 2026 14:06:22 +0000",
@@ -50,13 +57,6 @@
       "sentiment": "positive"
     },
     {
-      "source": "Mining.com",
-      "title": "Top 50 mining companies power through Iran war \u2013 up $250 billion in 2026",
-      "link": "https://www.mining.com/top-50-mining-companies-power-through-iran-war-up-250-billion-in-2026/",
-      "published": "Sat, 04 Apr 2026 23:57:39 +0000",
-      "sentiment": "positive"
-    },
-    {
       "source": "Yahoo Finance Gold",
       "title": "Goldman Sachs has blunt message on gold price for rest of 2026",
       "link": "https://www.thestreet.com/investing/goldman-sachs-has-blunt-message-on-gold-price-for-rest-of-2026?.tsrc=rss",
@@ -94,7 +94,7 @@
     {
       "source": "Google News Gold Investment",
       "title": "Some central banks have been selling their gold. That doesn\u2019t mean you should too. - MarketWatch",
-      "link": "https://news.google.com/rss/articles/CBMixANBVV95cUxPMGJ3ZEtiMVM1bElESW00aHVGM2s0Wjg3b25ta290VTRqRjBLa0w3SEFLQnQwTlV0U1NRTVRfQnFoQkx0MlItX3IzX0tjN3BacG5YaVRxN0RWdW11ZU9rckotSmM4bjhScjZnNUxhV1BuSnBYWGFSU2NJMEJTWXd6aW9qeFpYSFJXZ1ppNkhicGFiZHRDZEJXR1hwaC1vc2JYLTRuWUhCV3AtbGsybzdLdXZwamZnenNnTFk0azk2cUc0OGJtc1ZrdE9TRU9CWmdxS2E3VUpIMEtNdTBHZEVGU2l4dkRqcVA0TVlkRnVBeEhDbkdsTHJCSXhFeTNtRk45RnFWWXhPMjhmWHA0Q1dzZ1FRQVZEWVowdzFnWEdnYzAxRHVqZXFyLWJHTkE2a0NpeXF5dHJxaVIzUU9kVEFTMDNpdzF6ajZianZZamhaZFZib0F1X0xrWjlKSGtGTUNFOW5QOGlNSUNtMzhHNVZCSGNjUVBNaGFoVGxjYWowNzQtRDFVT2dwenJsZDc1MTI4bFo2cHZ1Q2ZsNFN0TkVJaEdBaUpWcTVaX0QzazQ1R19wZjJzNUh2YndLRGpaSEIxOExaOA?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMixANBVV95cUxNbDZVM09OTzBPTktOVzlBYkhtajVkZXpIUkhyRDRkTVkwbmhOTm9ZOElsNW12SklSTzlHMUdELXNaVVZpc2xsOHM3cV9aMTM0NjVscF9td3B3bG5lbC1wb1NFeWplQmwzMmluXzZJVWt4R0hXS3F6SkpLWDdCNlhnY0ExTngwVEhFdlpIXzFGQl82RWVOY0VDcWd5ZE9nNjViY0JpbXY4VmxNMHVJNkd3SENEakI0d0ZoSHF3NVBvX3Rra2VSbGtuNUt3dnBxbWU2ck5Xa2FPdk9aZGNoRG1LSVFEdGpTb1Zyc1BPc3lTOTNsZWZpZUYyUlUxZFdISGl1TlBGZ2dtNjNHUTZqWGQ3TnFoTjYwajNLUEpFTEFsVWR6OWhaVlNucXcxcEVGQk1MNEtzV09scEhTc1dCbHZOUkNZUXRMSXZ6ZldwcGZacUEzbmpQMTNhcWc2TE5mdnhid2NRNVZjZGQ4aTI5MUhENWNQaDhIVzZXYVBsTTFOZ2hoM3Q1RWZ2MldKZDl0NHlNeHlOQlJBQ1pIQVVIX1F4MUVRSlF0eUFlaGdTRGpBdTJ2aXBMQkI2dFk5bHFORzQ4T0lqbQ?oc=5",
       "published": "Sat, 04 Apr 2026 13:00:00 GMT",
       "sentiment": "negative"
     },
@@ -142,7 +142,7 @@
     },
     {
       "source": "Google News Gold Investment",
-      "title": "Singapore Is Pushing to Become a Major Gold-Trading Hub - bloomberg.com",
+      "title": "Singapore Is Pushing to Become a Major Gold-Trading Hub - Bloomberg.com",
       "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQZk5ldFVZQmFqT3g5NDl5V2ZCWllCdUlSanVmaXpsZzVfWFNQbmN4WG1kQ2pjME1ZQW1fNFpRbC12dF84RVd4cnFJLURnLVVwdWtUbE45LTFhWVJrYi1vYjBmY01tdG9GUVhRRmQxOGpIczZOa1hJNUQyTmZLU2JUNi04VE9OeHFwWlcxZXVXdS1SWF96cmJGTXJtb0hTT3hSVzNaOF9vMWhlMHNVQl9vOXo0SEdHLUNfTzBkX19FclNCNno5?oc=5",
       "published": "Sat, 04 Apr 2026 01:00:00 GMT",
       "sentiment": "neutral"
@@ -176,16 +176,16 @@
       "sentiment": "positive"
     }
   ],
-  "sentiment_score": 42.9,
-  "bull_count": 52,
-  "bear_count": 13,
-  "neutral_count": 26,
-  "bull_pct": 57.1,
+  "sentiment_score": 41.2,
+  "bull_count": 47,
+  "bear_count": 14,
+  "neutral_count": 19,
+  "bull_pct": 58.8,
   "data_quality": {
     "source": "RSS feeds: Yahoo Finance Gold, Google News, Reuters Gold, FXStreet, Mining.com, Reuters, Investing.com",
     "freshness": "hourly",
     "reliability": "live",
     "notes": "Sentiment scoring is keyword-based heuristic. Not a substitute for full NLP sentiment analysis."
   },
-  "last_updated": "2026-04-05T15:25:57Z"
+  "last_updated": "2026-04-05T16:27:50Z"
 }

@@ -1,23 +1,5 @@
 {
-  "asOf": "2026-04-04T00:00:00Z",
-  "updatedAt": "2026-04-05T16:00:00Z",
-  "source": "seed (stooq unavailable)",
-  "wti": {
-    "symbol": "CL=F",
-    "name": "WTI Crude",
-    "price": 63.9,
-    "changePct": -1.11
-  },
-  "brent": {
-    "symbol": "BZ=F",
-    "name": "Brent",
-    "price": 67.19,
-    "changePct": 0.84
-  },
-  "natgas": {
-    "symbol": "NG=F",
-    "name": "Henry Hub Nat Gas",
-    "price": 3.81,
-    "changePct": 0.53
-  }
+  "asOf": null,
+  "updatedAt": "2026-04-05T16:28:17Z",
+  "source": "stooq"
 }
