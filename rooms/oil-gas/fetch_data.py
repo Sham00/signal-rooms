@@ -111,9 +111,13 @@ def main() -> None:
         f.write("\n")
 
     if missing:
-        raise RuntimeError(
-            "Stooq returned no data for: " + ", ".join(missing) + ". "
-            "(This may be network/region blocking; data files were written but contain empty series.)"
+        # In some environments (local machine, certain regions, corporate networks),
+        # Stooq can return empty bodies or blocked responses. We still write files so
+        # the site builds, and we exit cleanly so automated jobs don't fail-loop.
+        print(
+            "WARNING: Stooq returned no data for: "
+            + ", ".join(missing)
+            + ". (Continuing with empty series; files written.)"
         )
 
 

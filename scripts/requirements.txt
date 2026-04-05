@@ -1,5 +1,6 @@
-yfinance
 feedparser
 requests
 beautifulsoup4
-pandas
+# NOTE: we intentionally avoid yfinance/pandas here to keep the local/macOS install
+# lightweight and compatible with older system Pythons.
+# GitHub Actions uses its own environment and can install richer deps if needed.
