@@ -37,9 +37,36 @@ def now_utc():
 def write_json(filename, data):
     os.makedirs(DATA_DIR, exist_ok=True)
     path = os.path.join(DATA_DIR, filename)
-    with open(path, 'w') as f:
+    with open(path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2)
     print(f"  wrote {filename}")
+
+
+def _to_float(v):
+    try:
+        if v is None:
+            return None
+        return float(v)
+    except Exception:
+        return None
+
+
+def _as_pct(v, *, max_reasonable=40.0):
+    """Normalize a numeric to a percent.
+
+    FRED series are typically already in percent (e.g., 4.25), but occasionally
+    data can arrive as a fraction (e.g., 0.0425). This keeps the site resilient
+    against upstream/unit mistakes.
+    """
+    x = _to_float(v)
+    if x is None:
+        return None
+    if 0 < x < 1:
+        x = x * 100.0
+    # guard against absurd values (bad parse / unit error)
+    if abs(x) > max_reasonable:
+        return None
+    return x
 
 
 def fetch_fred_csv(series_id):
@@ -94,6 +121,16 @@ def main():
     m30_4w_ago   = m30_1y[-5]  if len(m30_1y) >= 5    else None
     m30_52w_ago  = m30_1y[0]   if m30_1y              else None
 
+    # normalize to percent defensively
+    if m30_latest:
+        m30_latest['value'] = _as_pct(m30_latest.get('value'), max_reasonable=25.0)
+    if m30_1w_ago:
+        m30_1w_ago['value'] = _as_pct(m30_1w_ago.get('value'), max_reasonable=25.0)
+    if m30_4w_ago:
+        m30_4w_ago['value'] = _as_pct(m30_4w_ago.get('value'), max_reasonable=25.0)
+    if m30_52w_ago:
+        m30_52w_ago['value'] = _as_pct(m30_52w_ago.get('value'), max_reasonable=25.0)
+
     # ── DGS10 (daily) ────────────────────────────────────────────────────────
     print("  fetching DGS10 ...")
     dgs10_all = fetch_fred_csv('DGS10')
@@ -102,6 +139,12 @@ def main():
 
     dgs10_latest = dgs10_1y[-1] if dgs10_1y              else None
     dgs10_1d_ago = dgs10_1y[-2] if len(dgs10_1y) >= 2   else None
+
+    # normalize to percent defensively
+    if dgs10_latest:
+        dgs10_latest['value'] = _as_pct(dgs10_latest.get('value'), max_reasonable=25.0)
+    if dgs10_1d_ago:
+        dgs10_1d_ago['value'] = _as_pct(dgs10_1d_ago.get('value'), max_reasonable=25.0)
 
     # ── MSPUS (quarterly median sale price) ──────────────────────────────────
     print("  fetching MSPUS ...")
@@ -114,10 +157,17 @@ def main():
     time.sleep(0.5)
 
     # ── Spread series: align weekly mortgage to daily treasury ───────────────
-    dgs10_map = {r['date']: r['value'] for r in dgs10_1y}
+    # apply normalization to all treasury rows used in spread alignment
+    for r in dgs10_1y:
+        r['value'] = _as_pct(r.get('value'), max_reasonable=25.0)
+
+    dgs10_map = {r['date']: r['value'] for r in dgs10_1y if r.get('value') is not None}
 
     spread_series = []
     for row in m30_1y:
+        row['value'] = _as_pct(row.get('value'), max_reasonable=25.0)
+        if row.get('value') is None:
+            continue
         t_val = dgs10_map.get(row['date'])
         if t_val is None:
             # look up to ±5 business days around the mortgage date
@@ -144,7 +194,7 @@ def main():
     # ── Affordability proxy ───────────────────────────────────────────────────
     home_price = mspus_latest['value'] if mspus_latest else 416000
     loan       = round(home_price * 0.80)
-    rate_pct   = m30_latest['value'] if m30_latest else 6.5
+    rate_pct   = m30_latest['value'] if (m30_latest and m30_latest.get('value') is not None) else 6.5
     mp         = monthly_payment(loan, rate_pct)
 
     # ── rates.json ────────────────────────────────────────────────────────────
