@@ -251,6 +251,32 @@
     margin-bottom: 20px;
     display: none;
   }
+
+  /* ── Data provenance ── */
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 999px;
+    letter-spacing: 0.6px;
+    margin-right: 8px;
+    border: 1px solid var(--card-border);
+  }
+  .tag.ok  { color: var(--green); border-color: rgba(74,222,128,0.25); background: rgba(74,222,128,0.08); }
+  .tag.bad { color: var(--red);   border-color: rgba(248,113,113,0.25); background: rgba(248,113,113,0.08); }
+  .muted { color: var(--text2); }
+  details.sources { display: inline-block; margin-left: 10px; }
+  details.sources summary { cursor: pointer; color: var(--blue); }
+  details.sources pre {
+    margin-top: 8px;
+    white-space: pre-wrap;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    max-width: 900px;
+  }
 </style>
 </head>
 <body>
@@ -283,6 +309,7 @@
 
   <!-- Charts -->
   <div class="section-title">📈 Rate History — Last 12 Months</div>
+  <div id="data-provenance" class="mono" style="font-size:11px;color:var(--text2);margin:-6px 0 14px"></div>
   <div class="charts-grid">
     <div class="card chart-card">
       <div class="chart-title">30-Year Fixed Mortgage Rate (%)</div>
@@ -421,6 +448,12 @@
 
   const BASE = '../../data/housing/';
 
+  async function loadText(path) {
+    const r = await fetch(path + '?t=' + Date.now());
+    if (!r.ok) throw new Error(`HTTP ${r.status} for ${path}`);
+    return r.text();
+  }
+
   /* ── helpers ── */
   function fmt(v, dec) {
     if (v == null) return '—';
@@ -466,6 +499,21 @@
     const r = await fetch(path + '?t=' + Date.now());
     if (!r.ok) throw new Error(`HTTP ${r.status} for ${path}`);
     return r.json();
+  }
+
+  function setProvenance(rates, sourcesTxt) {
+    const el = document.getElementById('data-provenance');
+    if (!el) return;
+
+    const updated = rates && rates.last_updated ? fmtUpdated(rates.last_updated) : '—';
+    const ageDays = rates && rates.last_updated ? ageDaysFrom(rates.last_updated) : null;
+    const stale = (ageDays != null && ageDays >= 8);
+
+    const badge = `<span class="tag ${stale ? 'bad' : 'ok'}">${stale ? 'STALE' : 'LIVE'}</span>`;
+    const age = ageDays == null ? '' : ` <span class="muted">(${ageDays}d ago)</span>`;
+    const details = sourcesTxt ? `<details class="sources"><summary>Sources</summary><pre>${sourcesTxt.trim()}</pre></details>` : '';
+
+    el.innerHTML = `${badge} <span class="muted">Last updated:</span> <span class="mono">${updated}</span>${age}${details}`;
   }
 
   /* ── command center ── */
@@ -747,6 +795,14 @@
         loadJson(BASE + 'rates.json'),
         loadJson(BASE + 'history.json'),
       ]);
+
+      // Optional provenance panel (won't break if missing)
+      try {
+        const sourcesTxt = await loadText(BASE + 'sources.txt');
+        setProvenance(rates, sourcesTxt);
+      } catch {
+        setProvenance(rates, null);
+      }
 
       const updated = rates.last_updated ?? history.last_updated;
       const updatedStr = fmtUpdated(updated);
