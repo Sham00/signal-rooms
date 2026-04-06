@@ -41,7 +41,8 @@ def now_utc_iso() -> str:
 
 def stooq_csv_url(symbol: str) -> str:
     # Add a harmless cache-buster; Stooq sometimes serves empty bodies.
-    return f"https://stooq.com/q/d/l/?s={symbol}&i=d&_={int(datetime.now(timezone.utc).timestamp())}"
+    # Force CSV (e=csv) and explicit field order to reduce odds of odd responses.
+    return f"https://stooq.com/q/d/l/?s={symbol}&i=d&f=sd2t2ohlcv&h&e=csv&_={int(datetime.now(timezone.utc).timestamp())}"
 
 
 @dataclass
@@ -58,23 +59,37 @@ def fetch_stooq_daily_closes(symbol: str, limit: int = 400) -> List[Point]:
     as a soft failure and return [].
     """
 
-    url = stooq_csv_url(symbol)
-    try:
+    def _attempt(url: str) -> tuple[str, str, str]:
         req = urllib.request.Request(
             url,
             headers={
                 # Stooq may return empty bodies or policy text to default python/curl UAs.
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0 Safari/537.36",
                 "Accept": "text/csv,text/plain,*/*",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Connection": "close",
+                "Cache-Control": "no-cache",
+                "Pragma": "no-cache",
             },
         )
         with urllib.request.urlopen(req, timeout=30) as resp:
             body = resp.read().decode("utf-8", errors="replace")
             cd = (resp.headers.get("Content-Disposition") or "").lower()
             ct = (resp.headers.get("Content-Type") or "").lower()
-    except Exception as e:
-        print(f"  ERROR fetching {symbol}: {e}")
-        return []
+            return body, cd, ct
+
+    # Stooq is flaky with automated fetches; try a few times with fresh cache-busters.
+    body, cd, ct = "", "", ""
+    for i in range(3):
+        url = stooq_csv_url(symbol)
+        try:
+            body, cd, ct = _attempt(url)
+        except Exception as e:
+            if i == 2:
+                print(f"  ERROR fetching {symbol}: {e}")
+                return []
+        if (body or "").strip():
+            break
 
     text = (body or "").strip()
     if not text:
