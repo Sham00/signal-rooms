@@ -523,6 +523,15 @@
     const s = rates.spread        ?? {};
     const a = rates.affordability ?? {};
 
+    // Back-compat: older payloads used down_pct (number, percent) and didn't include assumptions.
+    if (a && a.assumptions == null) {
+      const dp = a.down_payment_pct != null ? a.down_payment_pct : (a.down_pct != null ? (Number(a.down_pct) / 100) : null);
+      a.assumptions = {
+        down_payment_pct: dp,
+        loan_term_years: a.loan_term_years ?? 30,
+      };
+    }
+
     function tile(label, value, unit, sub, deltas) {
       return `
         <div class="metric-tile">
@@ -573,7 +582,7 @@
       } catch { return false; }
     })();
 
-    const affSub = a.note ?? '';
+    const affSub = a.note ?? a.note_est ?? '';
     const affDeltas = [];
     if (a.mspus_date) {
       affDeltas.push(`<span class="delta ${affStale ? 'up' : 'flat'}">price data: ${fmtDate(a.mspus_date)}${affStale ? ' (stale)' : ''}</span>`);
