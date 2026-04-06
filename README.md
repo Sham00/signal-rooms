@@ -97,7 +97,7 @@ Open:
 
 ## Data & Fetch Scripts
 
-All fetch scripts live in `scripts/`. Each writes JSON to the corresponding `rooms/<room>/data/` directory.
+All fetch scripts live in `scripts/`. Each writes JSON to the corresponding `data/<room>/` directory.
 
 ### Fetch everything (one command)
 
