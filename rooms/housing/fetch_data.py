@@ -59,6 +59,24 @@ def _to_float(v):
         return None
 
 
+def _parse_yyyy_mm_dd(date_str):
+    try:
+        return datetime.strptime(date_str, '%Y-%m-%d').replace(tzinfo=timezone.utc)
+    except Exception:
+        return None
+
+
+def _compute_change(latest_row, prior_row):
+    """Compute latest - prior, returning None if inputs missing."""
+    if not latest_row or not prior_row:
+        return None
+    a = latest_row.get('value')
+    b = prior_row.get('value')
+    if a is None or b is None:
+        return None
+    return round(a - b, 3)
+
+
 def _as_pct(v, *, max_reasonable=40.0):
     """Normalize a numeric to a percent.
 
@@ -113,6 +131,35 @@ def filter_1y(rows):
     return filtered if filtered else rows[-80:]
 
 
+def find_prior_row(rows, latest_date_str, days_back):
+    """Find the closest row at or before (latest_date - days_back).
+
+    More robust than fixed index offsets for weekly series.
+    """
+    latest_dt = _parse_yyyy_mm_dd(latest_date_str)
+    if not latest_dt:
+        return None
+    target = latest_dt - timedelta(days=days_back)
+
+    best = None
+    best_dt = None
+    for r in rows:
+        dt = _parse_yyyy_mm_dd(r.get('date'))
+        if not dt or dt > latest_dt:
+            continue
+        if dt <= target and (best_dt is None or dt > best_dt):
+            best = r
+            best_dt = dt
+
+    # If no row is old enough (rare), fall back to the last row before latest.
+    if best is None:
+        for r in reversed(rows):
+            dt = _parse_yyyy_mm_dd(r.get('date'))
+            if dt and dt < latest_dt:
+                return r
+    return best
+
+
 def main():
     print("=== rooms/housing/fetch_data.py ===")
 
@@ -124,10 +171,10 @@ def main():
     m30_1y = filter_1y(m30_all)
     time.sleep(0.5)
 
-    m30_latest   = m30_1y[-1]  if m30_1y              else None
-    m30_1w_ago   = m30_1y[-2]  if len(m30_1y) >= 2    else None
-    m30_4w_ago   = m30_1y[-5]  if len(m30_1y) >= 5    else None
-    m30_52w_ago  = m30_1y[0]   if m30_1y              else None
+    m30_latest   = m30_1y[-1]  if m30_1y else None
+    m30_1w_ago   = find_prior_row(m30_1y, m30_latest['date'], 7)   if m30_latest else None
+    m30_4w_ago   = find_prior_row(m30_1y, m30_latest['date'], 28)  if m30_latest else None
+    m30_52w_ago  = find_prior_row(m30_1y, m30_latest['date'], 364) if m30_latest else None
 
     # normalize to percent defensively
     if m30_latest:
@@ -145,8 +192,8 @@ def main():
     dgs10_1y = filter_1y(dgs10_all)
     time.sleep(0.5)
 
-    dgs10_latest = dgs10_1y[-1] if dgs10_1y              else None
-    dgs10_1d_ago = dgs10_1y[-2] if len(dgs10_1y) >= 2   else None
+    dgs10_latest = dgs10_1y[-1] if dgs10_1y else None
+    dgs10_1d_ago = find_prior_row(dgs10_1y, dgs10_latest['date'], 1) if dgs10_latest else None
 
     # normalize to percent defensively
     if dgs10_latest:
@@ -211,14 +258,14 @@ def main():
         'mortgage_30y': {
             'rate':       m30_latest['value'] if m30_latest else None,
             'date':       m30_latest['date']  if m30_latest else None,
-            'change_1w':  round(m30_latest['value'] - m30_1w_ago['value'],  3) if m30_latest and m30_1w_ago  else None,
-            'change_4w':  round(m30_latest['value'] - m30_4w_ago['value'],  3) if m30_latest and m30_4w_ago  else None,
-            'change_52w': round(m30_latest['value'] - m30_52w_ago['value'], 3) if m30_latest and m30_52w_ago else None,
+            'change_1w':  _compute_change(m30_latest, m30_1w_ago),
+            'change_4w':  _compute_change(m30_latest, m30_4w_ago),
+            'change_52w': _compute_change(m30_latest, m30_52w_ago),
         },
         'treasury_10y': {
             'rate':      dgs10_latest['value'] if dgs10_latest else None,
             'date':      dgs10_latest['date']  if dgs10_latest else None,
-            'change_1d': round(dgs10_latest['value'] - dgs10_1d_ago['value'], 3) if dgs10_latest and dgs10_1d_ago else None,
+            'change_1d': _compute_change(dgs10_latest, dgs10_1d_ago),
         },
         'spread': {
             'current': current_spread,
