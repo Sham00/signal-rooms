@@ -113,7 +113,7 @@ bash scripts/fetch_all.sh
 | `scripts/fetch_gold.py` | Gold | COMEX price, ETFs, COT, macro, CB reserves, news (via `rooms/gold/fetch_data.py`) |
 | `scripts/fetch_gpu.py` | GPU / AI Compute | NVDA, AMD, SMCI, AMAT, ASML, TSM + SOXX, SMH via yfinance |
 | `scripts/fetch_oil_gas.py` | Oil & Gas | WTI/Brent/NatGas futures + XOM, CVX, COP, SLB + XLE, OIH via yfinance |
-| `scripts/fetch_housing.py` | Mortgage & Housing | LEN, DHI, TOL, PHM + ITB, XHB, VNQ via yfinance; mortgage rates via FRED (optional) |
+| `scripts/fetch_all.sh` (housing section) | Mortgage & Housing | Mortgage rates + 10Y treasury + derived spread (committed JSON under `data/housing/`) |
 
 ### Cron (local machine)
 
