@@ -1,70 +1,9 @@
 {
-  "news": [
-    {
-      "source": "Google News",
-      "title": "Gold's safe-haven appeal fades as dollar strengthens - Yeni Safak English",
-      "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxQTUwwTGhRbmNHNm1ZcW1hQ3k0bnFQRnhVRDB1UUlZNlc3LWVWaDc0MXNWSUNhb2RtNUtVZ3dkMzBUNVlqek1HLWd6RGxQa0NnaXctV25aWDVLblFOMTJoTk5TeXY2Y29XeXpRMGhzZS03bjU3RW12dTVUUFpQVlFfX0UycjJxajRxWFhjekpHNnhPQmdYWGRJ?oc=5",
-      "published": "Sun, 05 Apr 2026 11:25:47 GMT"
-    },
-    {
-      "source": "Google News",
-      "title": "The best-performing investments in the year since Liberation Day - Trustnet",
-      "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNSzhTUV9Kc1RheGZzeG1jWTYwYnFoZXRjVlpIUG1wTjk0b0tteC1LdXVxTVlIVzhUeDkzRmJwMWQtUU9hbnhIdEVJUnNVQXJhU2tVZENtOG5fUGZKZWtqVXlUbDY1dXVMM3dXbHI5OWJDX3EwNlB5b0I3UVhfMzZYVmNfSzJWcEJWZUJDUWtYY1gzZDhxd2h3VjREd1RHRHc0TDROMFVR?oc=5",
-      "published": "Thu, 02 Apr 2026 06:02:13 GMT"
-    },
-    {
-      "source": "Google News",
-      "title": "Jharkhand Power Tariff Hike 2026-27: DVC Consumers Face 40% Increase - The Times of India",
-      "link": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxQU1FEUnRTRFAxT2VLSFp1ekxoQUJ0cUdjVmp5VTgtaEJsUnl5eHNuNzJZbEpTWUdrLXcyanFXMFJPZWRCdGdFUlIxZzZLNnJpd1ptTkR1M1pNNjZ1UjNIdmpaWHptQ0RlV0V0eXpmQUd0cmpyREhEUVdiQTBGZGR0OE45OEhlU19XNEMxMHpGamJPVnoyQlktcFYtSXBueVZmM09lVUlkd2hLYWJNYk5ZM29RZlFaMlpXUDRSa2VJUFVfS04tZUpnSU9CMFZ5SUNIbHR2aC1aTdIB3AFBVV95cUxQMThJLTVzY1JNNUVXM2xxNXk5WmkxVzRNNGFiZnU5cnNINUhNYnpGNU1wcTlyTExDQ0owSDJ6Y0k5VVBGN2tHVUQ0SThvN2h1a1ctYm1YSENUSzh5SW1YbmtFbmRCR3cxMU5la2U2TE5FX05CQzJmN2NxY0x0T1k4NllhNzRCOGNHWWpISlBWUmhQUUN1N3N4M1VXXzFUdUpKU1Y2elBTeHlSVVkxa3FCSjRqajRNUGVSZnVjRUdiSlpGcUFXelg4X2ZHckVwUGxPU25oNy1VOE01TGVv?oc=5",
-      "published": "Wed, 01 Apr 2026 12:18:00 GMT"
-    },
-    {
-      "source": "Google News",
-      "title": "Gold: Safe-Haven Trade Weakens as US Dollar and Rates Take Control - Investing.com",
-      "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxOcHV4VUhZY3QwWW5TWGc5eGtqQUZsT0FCYy16dWZsYllMaUpLcmFVMUN4ZUE5dk1FRWE4dThMN3Nsb2ZYNDB3VzkzNXo3emJmYkhmYVFsTnBTZi1vRGhTR2NXR1poMjVtZ2F5UnkteUdZZUJydWdRb0d1VXhpRTFPSzU2bjZfRl9sX1dCS21UVGxpdTdCcndNOGJ4alZHNmVQVllLaHhNbExndw?oc=5",
-      "published": "Mon, 30 Mar 2026 07:00:06 GMT"
-    },
-    {
-      "source": "Google News",
-      "title": "Risk-off trade keeps gold volatile as Iran war spooks investors - Reuters",
-      "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxOdXlhYlIza2pHcFFzSU9GSXNla0JRRzBpN2UwRHplNTNXNnFuWkZkWFBGZjBrMkRjUU0yR194VGRITTM1UnlPWGlvRjg0TDA1MFZCR01YU1RQQlBSZjA0UFlCQ0RNNWxpYlF1UVh5RTdJeVNqS3owZkIzTEx5OUxHaGJWMU9RS2ZwY2RSb1Q0eC1NQmNhTU5lNnA1eElFTmhfZWUzU3FIRXIzWjVr?oc=5",
-      "published": "Mon, 23 Mar 2026 07:00:00 GMT"
-    },
-    {
-      "source": "Google News",
-      "title": "Geopolitics alone isn\u2019t enough to lift gold - ING THINK economic and financial analysis | ING THINK",
-      "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE5nLXloTXlnUUhxWGtDU2NQX0l2V3BIUWFYN2h6UnJVTkZZRER0UFM4cTFfWXdMX1paeW9ZQk1xSE04emVqeUhMeGUwWlZCNDlUNTAxUGRxR2NaVkpueHh1QjVJNTR5b2VCbVItcW1CaTRBSS1nTGVPVS1BNHhjZlU?oc=5",
-      "published": "Fri, 20 Mar 2026 07:00:00 GMT"
-    },
-    {
-      "source": "Google News",
-      "title": "Gold eases as firmer dollar, lingering inflation concerns persist - CNBC",
-      "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxPdnc3c1hpLTd0aTdubEYtUENocmQyRnRZMmxlSVluY18wbFNPMUk3YUpNSlhGVUF0SUhQQTJMOFdBS3EwSmZiOHZJdGZHQkE2U2oyX2ZzUXpISE4xR0ZlUE9hX3JjMmszYUZ3eC1wcXlCMEpRLVhBWVZ4eE52ZlNwZktMU3J2VXo4UlJrOFRDSG12bUhtSUhqaUpwSTYyQnRRMVp6c2ZxdkU4YWNUVmVObGxn0gG3AUFVX3lxTE9MRlFLWHRBRjZoODl5ZjlXWXl0Z3Q1bEZjTDEzaEptZktzTzg1Qi1iTXR0SU1PNGJMd2FxTEFJVTdOVDJPaG5TSFd3ZW9WSFQzdm9SUTgzWGNhckxIZUd5eDJXYnhuSGlBcnlGUzI0LVBfMVQ2MkdZRHFGUWtsQVJPUld0bkcwdlJPNjdISGs4NjNDMktHdGloV1plYlVVaDluRlRkNFBNb0JKODVlX3lmU2phMEFpbw?oc=5",
-      "published": "Wed, 11 Mar 2026 07:00:00 GMT"
-    },
-    {
-      "source": "Google News",
-      "title": "US tariff shifts offer Vietnamese exporters short-term relief but heighten need for preparedness - vietnamnews.vn",
-      "link": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxPS1QwYlRMb09QYjd1bUVkQ1dhcjR0eng0N0R4c2J3Z3NFTUQ4MTltOE9VdS1HaE5ub1ZUelhCYnhCYnMwVkFmbXY3amxKNUh1S2VjajJNd1hXUklFcjRRRlBwMlI3cUQwc3dvUVIyVkgzRmR6N1g0V0x2T09BTDVoMGV4Vloxb2dUZ1djOV9ZOG1iUTMwdTB2aXRNMS1qY0hRMGdLbkZGOG5kNG9kOGsyTEhISUphektOWTlUajlZTGVNTk9JOGpiWTdRamNnMVgzME95RmRzMA?oc=5",
-      "published": "Thu, 26 Feb 2026 08:00:00 GMT"
-    }
-  ],
-  "dxy_signal": "BEARISH",
-  "dxy_30d_change_pct": 2.38,
-  "dxy_now": 100.03,
+  "news": [],
+  "dxy_signal": "NEUTRAL",
+  "dxy_30d_change_pct": 0.58,
+  "dxy_now": 98.95,
   "dxy_1y": [
-    {
-      "t": "2025-04-07",
-      "v": 103.26
-    },
-    {
-      "t": "2025-04-08",
-      "v": 102.96
-    },
-    {
-      "t": "2025-04-09",
-      "v": 102.9
-    },
     {
       "t": "2025-04-10",
       "v": 100.87
@@ -1052,21 +991,29 @@
     {
       "t": "2026-04-02",
       "v": 100.03
+    },
+    {
+      "t": "2026-04-06",
+      "v": 99.98
+    },
+    {
+      "t": "2026-04-07",
+      "v": 99.64
+    },
+    {
+      "t": "2026-04-08",
+      "v": 99.13
+    },
+    {
+      "t": "2026-04-09",
+      "v": 98.82
+    },
+    {
+      "t": "2026-04-10",
+      "v": 98.95
     }
   ],
   "gold_1y": [
-    {
-      "t": "2025-04-07",
-      "v": 2951.3
-    },
-    {
-      "t": "2025-04-08",
-      "v": 2968.4
-    },
-    {
-      "t": "2025-04-09",
-      "v": 3056.5
-    },
     {
       "t": "2025-04-10",
       "v": 3155.2
@@ -2053,7 +2000,27 @@
     },
     {
       "t": "2026-04-02",
-      "v": 4702.7
+      "v": 4651.5
+    },
+    {
+      "t": "2026-04-06",
+      "v": 4656.8
+    },
+    {
+      "t": "2026-04-07",
+      "v": 4657.1
+    },
+    {
+      "t": "2026-04-08",
+      "v": 4749.5
+    },
+    {
+      "t": "2026-04-09",
+      "v": 4792.2
+    },
+    {
+      "t": "2026-04-10",
+      "v": 4773.9
     }
   ],
   "bullion_status": {
@@ -2132,7 +2099,7 @@
       "label": "Liberation Day II",
       "short": "LD-26",
       "detail": "Trump announces sweeping reciprocal tariffs: 10% baseline + country-specific rates. Gold surges on safe-haven demand.",
-      "gold_price": 4702.7
+      "gold_price": 4651.5
     }
   ],
   "current_regime": {
@@ -2141,5 +2108,5 @@
     "status": "ACTIVE",
     "description": "10% baseline tariff on all imports + higher country-specific reciprocal rates announced Apr 2, 2026. Gold surged as flight-to-safety demand spiked and the dollar weakened."
   },
-  "last_updated": "2026-04-05T16:28:09Z"
+  "last_updated": "2026-04-10T08:22:12Z"
 }
