@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-10T08:22:16Z",
+  "last_updated": "2026-04-11T08:20:09Z",
   "source": "Manual dataset compiled from Lambda Labs public pricing history and community tracking (reddit.com/r/MachineLearning, Tim Dettmers GPU pricing posts)",
   "note": "Lambda Labs H100 SXM on-demand list price. Reflects specialist cloud segment; marketplace/spot prices are typically 10-30% lower.",
   "h100_sxm_lambda": [

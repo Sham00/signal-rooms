@@ -32,11 +32,11 @@
   <text x="80" y="175" font-family="Arial" font-size="16" fill="#555" letter-spacing="2">GOLD SPOT PRICE (USD/oz)</text>
 
   <!-- Main price -->
-  <text x="80" y="295" font-family="Arial" font-size="108" font-weight="900" fill="#ffd700">$4,774</text>
+  <text x="80" y="295" font-family="Arial" font-size="108" font-weight="900" fill="#ffd700">$4,762</text>
 
   <!-- Change and YTD on same row -->
-  <text x="84" y="350" font-family="Arial" font-size="40" fill="#ff4444">▼ 0.32%</text>
-  <text x="84" y="410" font-family="Arial" font-size="28" fill="#00ff88">▲ 10.6% YTD</text>
+  <text x="84" y="350" font-family="Arial" font-size="40" fill="#ff4444">▼ 0.57%</text>
+  <text x="84" y="410" font-family="Arial" font-size="28" fill="#00ff88">▲ 10.4% YTD</text>
 
   <!-- Divider before stats -->
   <line x1="80" y1="478" x2="1120" y2="478" stroke="#1a1a1a" stroke-width="1"/>
@@ -45,7 +45,7 @@
   
   <rect x="80" y="500" width="200" height="60" rx="8" fill="rgba(255,255,255,0.05)" stroke="#ffd700" stroke-width="1" stroke-opacity="0.3"/>
   <text x="94" y="520" font-family="Arial" font-size="13" fill="#666">Au/Ag Ratio</text>
-  <text x="94" y="544" font-family="Arial" font-size="18" font-weight="bold" fill="#ffd700">63.2x</text>
+  <text x="94" y="544" font-family="Arial" font-size="18" font-weight="bold" fill="#ffd700">62.4x</text>
   <rect x="300" y="500" width="200" height="60" rx="8" fill="rgba(255,255,255,0.05)" stroke="#888" stroke-width="1" stroke-opacity="0.3"/>
   <text x="314" y="520" font-family="Arial" font-size="13" fill="#666">RSI(14)</text>
   <text x="314" y="544" font-family="Arial" font-size="18" font-weight="bold" fill="#888">58</text>
@@ -54,5 +54,5 @@
   <text x="534" y="544" font-family="Arial" font-size="18" font-weight="bold" fill="#00ff88">$5,400 (+13%)</text>
   <rect x="862" y="500" width="210" height="60" rx="8" fill="rgba(255,255,255,0.05)" stroke="#ff4444" stroke-width="1" stroke-opacity="0.3"/>
   <text x="876" y="520" font-family="Arial" font-size="13" fill="#666">Real Yield 10Y</text>
-  <text x="876" y="544" font-family="Arial" font-size="18" font-weight="bold" fill="#ff4444">1.96%</text>
+  <text x="876" y="544" font-family="Arial" font-size="18" font-weight="bold" fill="#ff4444">1.95%</text>
 </svg>
