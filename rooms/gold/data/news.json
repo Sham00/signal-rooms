@@ -4,7 +4,7 @@
       "source": "System",
       "title": "Gold news feeds temporarily unavailable \u2014 check kitco.com for latest",
       "link": "https://www.kitco.com/news/gold/",
-      "published": "2026-04-11T08:19:47Z",
+      "published": "2026-04-13T08:19:24Z",
       "sentiment": "neutral"
     }
   ],
@@ -19,5 +19,5 @@
     "reliability": "live",
     "notes": "Sentiment scoring is keyword-based heuristic. Not a substitute for full NLP sentiment analysis."
   },
-  "last_updated": "2026-04-11T08:19:47Z"
+  "last_updated": "2026-04-13T08:19:24Z"
 }
