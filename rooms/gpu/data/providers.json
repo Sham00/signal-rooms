@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-16T08:20:41Z",
+  "last_updated": "2026-04-17T08:17:41Z",
   "note": "On-demand spot prices in USD per GPU per hour. Lambda prices via public API; others are manually maintained from provider websites.",
   "providers": [
     {
