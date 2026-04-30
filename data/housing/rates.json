@@ -1,11 +1,11 @@
 {
-  "last_updated": "2026-04-30T15:00:13Z",
+  "last_updated": "2026-04-30T16:23:21Z",
   "mortgage_30y": {
-    "rate": 6.23,
-    "date": "2026-04-23",
-    "change_1w": -0.07,
-    "change_4w": -0.15,
-    "change_52w": -0.58
+    "rate": 6.3,
+    "date": "2026-04-30",
+    "change_1w": 0.07,
+    "change_4w": -0.16,
+    "change_52w": -0.46
   },
   "treasury_10y": {
     "rate": 4.36,
@@ -13,17 +13,17 @@
     "change_1d": 0.01
   },
   "spread": {
-    "current": 1.89,
-    "avg_1y": 2.188,
-    "vs_avg": -0.298
+    "current": 1.95,
+    "avg_1y": 2.183,
+    "vs_avg": -0.233
   },
   "affordability": {
     "home_price_est": 405300,
     "down_pct": 20,
     "loan_amount": 324240,
-    "monthly_payment": 1992.19,
-    "rate_used": 6.23,
-    "note": "Est. P&I on $324,240 @ 6.23%",
+    "monthly_payment": 2006.96,
+    "rate_used": 6.3,
+    "note": "Est. P&I on $324,240 @ 6.3%",
     "mspus_date": "2025-10-01"
   }
 }
