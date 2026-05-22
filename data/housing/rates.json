@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-22T18:28:52Z",
+  "last_updated": "2026-05-22T20:28:00Z",
   "mortgage_30y": {
     "rate": 6.51,
     "date": "2026-05-21",
@@ -9,13 +9,13 @@
   },
   "treasury_10y": {
     "rate": 4.57,
-    "date": "2026-05-20",
-    "change_1d": -0.1
+    "date": "2026-05-21",
+    "change_1d": 0.0
   },
   "spread": {
-    "current": 1.9,
-    "avg_1y": 2.16,
-    "vs_avg": -0.26
+    "current": 1.94,
+    "avg_1y": 2.161,
+    "vs_avg": -0.221
   },
   "affordability": {
     "home_price_est": 403200,
