@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-26T19:56:50Z",
+  "last_updated": "2026-05-26T21:39:15Z",
   "mortgage_30y": {
     "rate": 6.51,
     "date": "2026-05-21",
@@ -8,9 +8,9 @@
     "change_52w": -0.35
   },
   "treasury_10y": {
-    "rate": 4.57,
-    "date": "2026-05-21",
-    "change_1d": 0.0
+    "rate": 4.56,
+    "date": "2026-05-22",
+    "change_1d": -0.01
   },
   "spread": {
     "current": 1.94,
