@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-07-23T23:52:10Z",
+  "last_updated": "2026-07-24T01:48:45Z",
   "mortgage_30y": {
     "rate": 6.58,
     "date": "2026-07-23",
@@ -14,8 +14,8 @@
   },
   "spread": {
     "current": 1.98,
-    "avg_1y": 2.094,
-    "vs_avg": -0.114
+    "avg_1y": 2.088,
+    "vs_avg": -0.108
   },
   "affordability": {
     "home_price_est": 403200,
