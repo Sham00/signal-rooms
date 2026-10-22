@@ -1,29 +1,29 @@
 {
-  "last_updated": "2026-10-22T00:18:52Z",
+  "last_updated": "2026-10-22T05:36:17Z",
   "mortgage_30y": {
-    "rate": null,
-    "date": "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300",
-    "change_1w": null,
-    "change_4w": null,
-    "change_52w": null
+    "rate": 7.4,
+    "date": "2026-10-15",
+    "change_1w": 0.0,
+    "change_4w": 0.45,
+    "change_52w": 1.13
   },
   "treasury_10y": {
-    "rate": null,
-    "date": "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300",
-    "change_1d": null
+    "rate": 5.12,
+    "date": "2026-10-20",
+    "change_1d": -0.03
   },
   "spread": {
-    "current": null,
-    "avg_1y": null,
-    "vs_avg": null
+    "current": 2.3,
+    "avg_1y": 2.016,
+    "vs_avg": 0.284
   },
   "affordability": {
-    "home_price_est": 400,
+    "home_price_est": 410700,
     "down_pct": 20,
-    "loan_amount": 320,
-    "monthly_payment": 2.02,
-    "rate_used": 6.5,
-    "note": "Est. P&I on $320 @ 6.5%",
-    "mspus_date": "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300"
+    "loan_amount": 328560,
+    "monthly_payment": 2274.88,
+    "rate_used": 7.4,
+    "note": "Est. P&I on $328,560 @ 7.4%",
+    "mspus_date": "2026-04-01"
   }
 }
